@@ -1,0 +1,145 @@
+---
+title: "Pacman basic commands"
+description: "Migrated from discovery.endeavouros.com/pacman-basic-commands/"
+---
+
+by Bryanpwo
+
+The Pacman package manager is a powerful tool at the center of the system, that allows you to maintain, expand and update the system.
+
+In this section, I give you the basic commands to keep your system up and running. Keep in mind that these commands only install packages from the Arch repository and **not** packages from the AUR.
+
+[Archlinux pacman manual](https://archlinux.org/pacman/pacman.8.html#_options)
+
+## Updating the system
+
+EndeavourOS is a rolling release distro based on Arch Linux. This means your system always receives the latest packages, so you’re always ensured of an up-to-date system without installing a major release once or twice a year.
+
+To update the system you can use this command
+
+```bash
+sudo pacman -Syu
+```
+
+You will notice that Arch releases updates daily and we strongly recommend doing a full system update instead of a partial one, so install updates at a time in the day you’re able to read and look upon the updates on our forum, so not when you’re thirty minutes from an important presentation.
+
+The community often warns you if an update is broken, so you know it’s better to wait to perform the update, with big issues, Arch usually fixes those within hours. You can also install the updates once a week and keep an eye out on the forum every day to keep yourself informed. Don’t delay installing the updates longer than that, because this can break your system.
+
+## Searching for packages
+
+To search for packages in Pacman you can use the command
+
+```bash
+pacman -Ss package_name
+```
+
+When you’ve found the package you can install it according to the instructions in the paragraph here below.
+
+When you can’t find the desired package, this means it isn’t in the Arch repo, but you’ll find it most likely in the AUR. For searching and installing packages in the AUR we refer to the [yay](https://discovery.endeavouros.com/aur/yay-an-aur-helper-written-in-go/2021/03/) article.
+
+## Installing packages
+
+To install a single package from the Arch repository you can use the following command in the terminal.
+
+```bash
+sudo pacman -S package_name
+```
+
+You can also use this command to install several packages by just hitting the space bar after the first package name and enter the other package name(s).
+
+## Installing package groups.
+
+Suppose, you have read on our forum or on the internet an article or review of a Desktop Environment that has caught your interest. Instead of installing all the separate packages that the DE depends on, you can also install the entire group by the following style of command
+
+```bash
+sudo pacman -S plasma
+```
+
+This installs all the packages that belong to the DE, in this case, I used KDE plasma as an example, just replace plasma with the DE you wish to install. You will notice that Pacman first displays all the packages and asks for your permission to install them. If you want to exclude packages from the DE group you can do so by the following.
+
+```
+Enter a selection (default=all): 1-15 20
+```
+
+In this case it will install packages 1 through 15 and package number 20.
+
+```
+Enter a selection (default=all): ^5-8 ^15
+```
+
+This will install everything that belongs to the DE group, except packages 5 through 8 and package number 15.
+
+## Removing packages
+
+A package is always installed with other packages that it depends on, called dependencies. Quite often those dependencies are already, or partially installed on your system because other packages also depend on it.
+
+To remove a package without the dependencies use the following command.
+
+```bash
+sudo pacman -R package_name
+```
+
+If you rather want to avoid a cluttered system you can remove a package and its dependencies, without removing dependencies that are used by other installed packages, use the following command.
+
+```bash
+sudo pacman -Rs package_name
+```
+
+## Refreshing mirrors
+
+Sometimes it can happen that your system can’t find the updates or packages in the Arch repo, when using -Syu. In that case, it could be that there’s a problem with the mirrors you’re trying to connect to. Only if this happens you can try force refreshing the local package database (Passing two *–refresh* or *-y* flags will force a refresh of all package databases, even if they appear to be up-to-date.) :
+
+```bash
+sudo pacman -Syy
+```
+
+## Skipping package updates
+
+Although we do not recommend partially update your system, sometimes it is needed, because there’s a problem with the updated package upstream and Pacman isn’t able to perform the daily or weekly update, because of this certain package or the specific package causes to break the system. In that case, you can put that package on the Ignore list.
+
+```bash
+sudo nano /etc/pacman.conf
+```
+
+Ad the line IgnorePkg = package_name like this.
+
+```
+# Pacman won't upgrade packages listed in IgnorePkg and members of IgnoreGroup
+ #IgnorePkg =
+ IgnorePkg = package_name
+ #IgnoreGroup =
+```
+
+Save and close the file by hitting ctrl + o and then ctrl+x
+
+In this case, Pacman will always inform you that there’s an update for a certain package on the Ignore list like this.
+
+```
+:: package_name is in IgnorePkg/IgnoreGroup. Install anyway? [Y/n]
+```
+
+You can also put an entire group on the ignore list by adding the line `IgnoreGroup = gnome`
+
+To remove the package or group from the ignore list just open the file as described above and remove the added lines, save and close the file, then type the following command.
+
+```bash
+sudo pacman -S package_name
+```
+
+The above method will permanently stop the specified package from being upgraded until you remove it from the ignore list
+
+To do this temporarily, you can simply run:
+
+```bash
+sudo pacman -Syu --ignore=package_name
+```
+
+This command will skip the package from being updated. Similarly, to skip a package group, just run:
+
+```bash
+sudo pacman -Syu --ignoregroup=gnome
+```
+
+If you’re interested in a more detailed tutorial, you can also read the following article:
+
+[Pacman actions explained](https://discovery.endeavouros.com/articles/pacman-actions-explained/2019/12/)

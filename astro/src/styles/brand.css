@@ -1,0 +1,59 @@
+/*
+ * EndeavourOS palette applied to Starlight's own tokens.
+ *
+ * Starlight ships a full theme; this overrides its accent and grey ramps rather
+ * than restyling components, so upstream changes keep working.
+ *
+ * The accent hue swaps between themes on measured contrast, not taste:
+ * blue-violet #7f3fbf is 3.15:1 on oxford-blue and fails AA as text, while
+ * tropical-indigo #7f7fff is 5.98:1 and passes. On white they swap round.
+ * Source: github.com/endeavouros-team/Branding
+ */
+
+:root {
+  /* dark theme (Starlight's default) */
+  --sl-color-accent-low: #241a4d;
+  --sl-color-accent: #7f3fbf;
+  --sl-color-accent-high: #b9b3ff;
+
+  --sl-color-white: #ffffff;
+  --sl-color-gray-1: #eceaf6;
+  --sl-color-gray-2: #c3bee0;
+  --sl-color-gray-3: #948dbb;
+  --sl-color-gray-4: #4f4880;
+  --sl-color-gray-5: #2a2359;
+  --sl-color-gray-6: #191248;
+  --sl-color-black: #08052b;
+
+  --sl-color-text-accent: #7f7fff;
+  --sl-color-bg-nav: #0b0730;
+  --sl-color-bg-sidebar: #0b0730;
+}
+
+:root[data-theme='light'] {
+  --sl-color-accent-low: #ded5f2;
+  --sl-color-accent: #7f3fbf;
+  --sl-color-accent-high: #3d1c60;
+
+  --sl-color-white: #0d0a26;
+  --sl-color-gray-1: #1a1533;
+  --sl-color-gray-2: #443d6b;
+  --sl-color-gray-3: #6d6694;
+  --sl-color-gray-4: #948dbb;
+  --sl-color-gray-5: #ddd8ee;
+  --sl-color-gray-6: #f2effa;
+  --sl-color-gray-7: #faf9fd;
+  --sl-color-black: #ffffff;
+
+  --sl-color-text-accent: #7f3fbf;
+  --sl-color-bg-nav: #faf9fd;
+  --sl-color-bg-sidebar: #faf9fd;
+}
+
+/* The wordmark path in the lockup is currentColor, so it follows the theme
+   while the tri-colour mark stays fixed. One asset serves both. */
+.site-title svg { height: 1.75rem; width: auto; color: var(--sl-color-white); }
+
+/* 1,708 code blocks across the wiki, so this is the component that matters
+   most. Give it a little more room to breathe than the default. */
+.expressive-code .frame pre { padding-block: 0.9rem; }

@@ -1,0 +1,111 @@
+---
+title: "Adding swap after installation"
+description: "Migrated from discovery.endeavouros.com/adding-swap-after-installation/"
+---
+
+**by Bryanpwo** **edited by joekamprad (12.08.2020) + (24.02.2021)** **+ (28.09.2023) + (09.09.2025)**
+
+To add after installation there are two options:
+
+1. creating a swap partition by shrinking space and adding a partition using Gparted on the Live ISO
+
+2. creating a swap file.
+
+Early **SSD**s had a reputation for failing after fewer writes than HDDs.
+
+This might be why you heard it could be bad to use an SSD for swap.
+
+Modern SSDs don’t have this issue
+
+## Making a swap *partition* with Gparted
+
+Boot your machine with the Live ISO and open Gparted. Select the last partition on your HDD (this can either be the Root partition or the Home partition, depending on how you partitioned your disk) and shrink the partition by leaving a disk space free equal to the size of your RAM or double the size, that’s up to you. Then select the free space and mark it as a swap partition, let Gparted do its work, and boot back into your installed system and swap should be recognized by systemd. To check enter:
+
+```bash
+swapon --show
+```
+
+## Making a swap *file*
+
+The above method is the easiest one, but it can damage the partition that you’ve shrunk. So you can also make a swap file.
+
+Commands like [cp(1)](https://jlk.fjfi.cvut.cz/arch/manpages/man/cp.1.en) or [truncate(1)](https://jlk.fjfi.cvut.cz/arch/manpages/man/truncate.1.en) create files with holes. These files will be rejected by swapon.
+
+Preallocated files created by [fallocate(1)](https://jlk.fjfi.cvut.cz/arch/manpages/man/fallocate.1.en) may be interpreted as files with holes too depending of the filesystem.
+
+As documented here: [swapon.8#Files_with_holes](https://jlk.fjfi.cvut.cz/arch/manpages/man/swapon.8#Files_with_holes)
+
+So as [Archwiki](https://wiki.archlinux.org/index.php/swap#Swap_file_creation) recommends better use dd command with some danger of using a **D**estroyer of** D**isks.
+
+> **!! This following step is only needed if you run on Btrfs filesystem !!**
+
+## Notes if you are using Btrfs
+
+**Note:** Swap files on file systems spanning multiple devices are not supported. See [btrfs(5) § SWAPFILE SUPPORT](https://man.archlinux.org/man/btrfs.5#SWAPFILE_SUPPORT) for all limitations.
+
+To properly initialize a swap file, first create a *non-snapshotted* subvolume to host the file, e.g.
+
+```bash
+sudo btrfs subvolume create /swap
+```
+
+**Tip:** Consider creating the subvolume directly below the top-level subvolume, e.g. `@swap`. Then, make sure the subvolume is [mounted](https://wiki.archlinux.org/title/Btrfs#Mounting_subvolumes) to `/swap` (or any other accessible location).
+
+Create the swap file:
+
+```bash
+sudo btrfs filesystem mkswapfile --size 8g --uuid clear /swap/swapfile
+```
+
+If `--size` is omitted, the default of 2GiB is used.
+
+### **Further for all file systems:**
+
+Use [mkswap](https://man.archlinux.org/man/mkswap.8) to create a swap file the size of your choosing. For example, creating a 8 GiB swap file:
+
+```bash
+sudo mkswap -U clear --size 8G --file /swapfile
+```
+
+To make the file as swap space and finally to enable the file:
+
+```bash
+sudo swapon /swapfile
+```
+
+Edit the fstab configuration to add an entry for the swap file:
+
+`/etc/fstab`
+
+```
+/swapfile none swap defaults 0 0
+```
+
+**Note:** The swap file must be specified by its location on the file system, not by its UUID or LABEL.
+
+to check:
+
+```bash
+swapon --show
+```
+
+#### Remove swap file:
+
+To remove a swap file, it must be turned off first and then can be removed:
+
+```bash
+sudo swapoff /swapfile
+sudo rm -f /swapfile
+```
+
+Finally, remove the relevant entry from `/etc/fstab`.
+
+#### For more details about swap usage in general and options:
+
+[https://wiki.archlinux.org/title/Swap](https://wiki.archlinux.org/title/Swap)
+
+Swappiness: [https://wiki.archlinux.org/title/Swap#Swappiness](https://wiki.archlinux.org/title/Swap#Swappiness)
+
+zswap: [https://wiki.archlinux.org/title/Zswap](https://wiki.archlinux.org/title/Zswap)
+
+zram: [https://wiki.archlinux.org/title/Zram](https://wiki.archlinux.org/title/Zram)

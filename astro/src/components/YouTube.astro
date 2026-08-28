@@ -1,0 +1,24 @@
+---
+// Discovery embeds videos through a WordPress plugin. Migrated articles get a
+// plain lazy iframe instead: no plugin, no tracking script, and it does not
+// load until the reader scrolls to it.
+interface Props { url: string; title?: string }
+const { url, title = 'Video' } = Astro.props;
+const id = url.match(/(?:youtu\.be\/|v=|embed\/)([\w-]{11})/)?.[1];
+---
+{id ? (
+  <iframe
+    class="yt"
+    src={`https://www.youtube-nocookie.com/embed/${id}`}
+    title={title}
+    loading="lazy"
+    referrerpolicy="strict-origin-when-cross-origin"
+    allow="accelerometer; clipboard-write; encrypted-media; picture-in-picture"
+    allowfullscreen
+  />
+) : (
+  <p><a href={url}>{title}</a></p>
+)}
+<style>
+  .yt { width: 100%; aspect-ratio: 16 / 9; border: 0; border-radius: 0.35rem; }
+</style>

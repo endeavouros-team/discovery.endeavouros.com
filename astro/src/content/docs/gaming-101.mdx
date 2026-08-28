@@ -1,0 +1,178 @@
+---
+title: "Gaming #101"
+description: "Migrated from discovery.endeavouros.com/gaming-101/"
+---
+
+The following article will help you take the first steps towards gaming on Arch Linux.
+
+##### **Table of contents:**
+
+1. **[Requirements](#heading--requirements)**
+
+2. **[Additional Software](#heading--additional-software)**
+
+3. **[G-Sync](#heading--g-sync)**
+
+4. **[Glossary](#heading--glossary)**
+
+5. **[Resources](#heading--resources)**
+
+> **Sources:** 
+[**Linux gaming guide**](https://forum.endeavouros.com/t/linux-gaming-guide/7339) by **@[keybreak](https://forum.endeavouros.com/u/keybreak)**
+
+## Requirements
+
+#### 1. Check if your GPU supports Vulkan
+
+Search for your GPU in the **[database](http://vulkan.gpuinfo.org/)**;
+
+If there’s an entry you’re good to go! 
+ Not on the list? That means your GPU is too old to support Vulkan. Without it, **DXVK** won’t work and performance and compatibility will be worse. However you still can game;
+
+- Skip next steps: **3. Install Vulkan** and **4. Install Vulkan driver for your GPU driver**.
+
+- Make sure to disable **DXVK/D3DVK** globally in **[Lutris](https://discovery.endeavouros.com/wp-admin/post.php?post=2812&action=edit#heading--linux-gaming-lutris-config)** and **Steam**.
+
+#### 2. Install **Vulkan**
+
+```
+vulkan-icd-loader
+lib32-vulkan-icd-loader
+```
+
+#### 3. Install GPU specific **Vulkan**
+
+**Nvidia**
+
+```
+nvidia-utils
+lib32-nvidia-utils
+```
+
+**AMD AMDVLK**
+
+```
+amdvlk
+lib32-amdvlk
+```
+
+**AMD RADV**
+
+```
+vulkan-radeon
+lib32-vulkan-radeon
+```
+
+**Intel**
+
+```
+vulkan-intel
+lib32-vulkan-intel
+```
+
+**Hybrid / Optimus GPU**
+
+**[ArchWiki](https://wiki.archlinux.org/index.php/Vulkan#Installation)**
+
+## Additional Software
+
+[**GameMode**](https://github.com/FeralInteractive/gamemode) is a daemon that automatically optimizes your system while playing games.
+
+```bash
+pacman -S gamemode
+```
+
+[**MangoHud**](https://github.com/flightlessmango/MangoHud) is an in-game overlay, it can display useful information and cap FPS.
+
+```bash
+yay -S mangohud
+```
+
+[**ProtonUp-Qt**](https://davidotek.github.io/protonup-qt/) is a GUI tool to manage different versions of GE Proton.
+
+```bash
+yay -S protonup-qt
+```
+
+[**DOSBox**](https://www.dosbox.com/) is an emulator for MS-DOS games.
+
+```bash
+pacman -S dosbox
+```
+
+**[EmulationStation](https://github.com/RetroPie/EmulationStation)** is a front-end for emulating retro games.
+
+```bash
+yay -S emulationstation
+```
+
+## G-Sync
+
+Getting Nvidia G-sync to work properly on Linux may require some additional steps.
+
+The most important consideration is the window manager’s compositor, specifically the ability to re-direct fullscreen windows. Most compositors are capable of doing this, those that cannot will need to be either disabled temporarily or swapped out.
+
+Besides this, usage of a frame limiter is neccassary to ensure all rendered frames stay within the G-Sync range of the monitor, slightly below the maximum refresh rate. For example if your monitor is 144 Hz, cap it at approximately 142 fps. **MangoHud** is the easiest way to accomplish this, execute it as a run command within Lutris or Steam.
+
+How to tell if G-Sync is actually enabled? Open **nvidia-settings**, navigate to “OpenGL settings” then tick the boxes “enable G-sync visual indicator” and “enable graphics API visual indicator”. Now launch a game and check the top left corner overlay, it should say “FLIP” and “G-SYNC” in green letters. In-game V-Sync should also be enabled.
+
+#### Compatible **compositors**:
+
+- Compton / Picom
+
+- Compiz
+
+- KWin
+
+- Mutter
+
+- Muffin
+
+#### **Config files**
+
+Check the following config files and set the values as indicated;
+
+`~/.config/picom.conf`
+
+```
+unredir-if-possible = true;
+vsync = true;
+refresh-rate = 0;
+```
+
+`~/.config/MangoHud/MangoHud.conf`
+
+```
+#change to your desired fps cap
+fps_limit=60
+#to hide the overlay
+no_display
+```
+
+#### **XFCE users**
+
+Make sure that xfwm vblank mode is set to glx, by typing this command in terminal:
+
+```
+xfconf-query -c xfwm4 -p /general/vblank_mode -t string -s "glx" --create
+```
+
+To prevent flickering on the desktop, add a new rule under “application profiles” in **nvidia-settings**:
+
+```
+This feature = process name (procname)
+Matches this string = xfwm4
+Profile name = no_gsync
+Key = GLGSYNCAllowed
+Value = false
+```
+
+## Glossary
+
+#### Platforms
+
+#### Common terms
+
+#### Engines
+
+## Resources

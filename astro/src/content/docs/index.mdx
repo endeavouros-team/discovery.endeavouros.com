@@ -1,0 +1,36 @@
+---
+title: Discovery
+description: The EndeavourOS wiki — installation, hardware, and everything after.
+template: splash
+hero:
+  tagline: Installation, hardware, package management, and everything after your first boot.
+  actions:
+    - text: Pacman basics
+      link: /pacman-basic-commands/
+      icon: right-arrow
+    - text: The main site
+      link: https://eos-astro.sradjoker.cc
+      variant: minimal
+      icon: external
+---
+
+import { Card, CardGrid } from '@astrojs/starlight/components';
+
+<CardGrid>
+  <Card title="This is a demo" icon="information">
+    Three real articles, converted straight from the live wiki, to show what a
+    migration produces. The other 99 are untouched.
+  </Card>
+  <Card title="Why Starlight" icon="rocket">
+    Discovery is **1,708 code blocks** across 102 articles. Syntax highlighting,
+    copy buttons, full-text search and the sidebar all come as standard.
+  </Card>
+  <Card title="What still needs deciding" icon="warning">
+    The 32 flat categories have no hierarchy, so the sidebar has to be authored.
+    That grouping is a call for the team, not the converter.
+  </Card>
+  <Card title="Try the search" icon="magnifier">
+    Press <kbd>/</kbd> and search for `swapfile` or `vulkan`. It is built at
+    compile time and runs entirely in the browser.
+  </Card>
+</CardGrid>
