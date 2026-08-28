@@ -50,9 +50,10 @@
   --sl-color-bg-sidebar: #faf9fd;
 }
 
-/* The wordmark path in the lockup is currentColor, so it follows the theme
-   while the tri-colour mark stays fixed. One asset serves both. */
-.site-title svg { height: 1.75rem; width: auto; color: var(--sl-color-white); }
+/* Starlight renders the logo as <img>, and the cleaned SVG carries no width or
+   height (they are stripped so CSS controls size), so an <img> has no intrinsic
+   dimensions to fall back on and collapses to 0x0 without this. */
+.site-title img { height: 1.75rem; width: auto; }
 
 /* 1,708 code blocks across the wiki, so this is the component that matters
    most. Give it a little more room to breathe than the default. */

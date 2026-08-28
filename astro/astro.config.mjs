@@ -48,27 +48,11 @@ export default defineConfig({
       lastUpdated: false,
     }),
   ],
-  // Starlight emits ~40 inline scripts per build (theme provider, search modal,
-  // sidebar state), which makes a hand-maintained hash allowlist impractical -
-  // the main site's approach does not scale here. Astro generates the hashes
-  // itself and emits a per-page CSP meta tag, so the policy stays strict with
-  // no 'unsafe-inline' and nothing to keep in sync by hand.
-  security: {
-    csp: {
-      algorithm: 'SHA-256',
-      directives: [
-        "default-src 'self'",
-        "img-src 'self' data: https://discovery.endeavouros.com",
-        "font-src 'self'",
-        "frame-src https://www.youtube-nocookie.com",
-        "connect-src 'self'",
-        "form-action 'self'",
-        "frame-ancestors 'none'",
-        "base-uri 'none'",
-        "object-src 'none'",
-      ],
-    },
-  },
+  // Astro's native security.csp is deliberately NOT used here: it only hashes
+  // scripts that pass through its own pipeline, so the six that Starlight writes
+  // directly into the HTML end up blocked by the policy Astro emitted. The CSP is
+  // generated from the built output instead - see scripts/gen-csp.mjs - which
+  // cannot miss anything, and is delivered as a header so frame-ancestors works.
 
   build: { inlineStylesheets: 'never' },
   devToolbar: { enabled: false },

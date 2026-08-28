@@ -190,10 +190,35 @@ def main() -> int:
         )
         needs_youtube = "<YouTube" in body
 
+        # The description is what search engines and link previews show, so it
+        # has to read like the article, not like a note about the migration.
+        # Take the first real sentence of prose and trim it to a sane length.
+        first = ""
+        for line in body.split("\n"):
+            line = line.strip()
+            if not line or line.startswith(("#", "`", "-", ">", "!", "import ", "<", "|")):
+                continue
+            if re.match(r"^\d+[.)]\s", line):        # ordered list item
+                continue
+            cand = re.sub(r"\[([^\]]+)\]\([^)]+\)", r"\1", line)      # unwrap links
+            cand = re.sub(r"[*`_]", "", cand).strip()
+            # Skip bylines and sentence fragments that introduce a list; neither
+            # describes the article to someone reading a search result.
+            if re.match(r"(?i)^(by |edited by|written by)", cand):
+                continue
+            if cand.endswith(":") or len(cand) < 45:
+                continue
+            first = cand
+            break
+        if len(first) > 155:
+            cut = first[:155].rsplit(" ", 1)[0]
+            first = cut.rstrip(",;:") + "..."
+        desc = first.replace('"', "'") or title
+
         fm = [
             "---",
             f'title: "{title}"',
-            f'description: "Migrated from discovery.endeavouros.com/{slug}/"',
+            f'description: "{desc}"',
             "---",
         ]
         if needs_youtube:
