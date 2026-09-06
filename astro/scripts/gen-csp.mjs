@@ -51,7 +51,10 @@ for (const file of walk(dist)) {
 // and script-src stays fully hash-pinned.
 const csp = [
   "default-src 'self'",
-  `script-src 'self' ${[...scripts].sort().join(' ')}`,
+  // 'wasm-unsafe-eval' is what Pagefind's index needs: it runs as WebAssembly,
+  // which CSP refuses to compile under a hash-pinned script-src without this
+  // token. It permits WASM compilation only, not eval() or Function().
+  `script-src 'self' 'wasm-unsafe-eval' ${[...scripts].sort().join(' ')}`,
   "style-src 'self' 'unsafe-inline'",
   "img-src 'self' data:",
   "font-src 'self'",
