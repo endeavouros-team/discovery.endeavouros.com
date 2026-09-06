@@ -19,15 +19,17 @@ written twice:
   3. Nothing carries a language, so code blocks would render unhighlighted.
      Languages are inferred from the first token.
 
-What differs between the two properties is what an embed and an image should
-become -- Starlight wants a <YouTube> component and a hotlinked image, the news
-importer wants downloaded assets -- so those two are callbacks, not policy
-baked in here.
+What differs between the two properties is what an embed, an image and a link
+should become -- Starlight wants a <YouTube> component, assets in the wiki's
+own tree and cross-references rewritten to the new URLs, the news importer
+wants downloaded assets -- so those three are callbacks, not policy baked in
+here.
 """
 
 import html
 import json
 import re
+import textwrap
 import urllib.request
 
 # First token -> language. Anything unmatched stays unlabelled rather than
@@ -40,17 +42,24 @@ SHELL = {
     "lsusb", "reboot", "eos-", "mkinitcpio", "grub-mkconfig", "gpg", "sha512sum",
 }
 
-# Top-level blocks, kept rather than discarded by the split.
+# Top-level blocks, kept rather than discarded by the split. Lists are not in
+# here on purpose: a non-greedy </ul> closes on the first end tag it meets,
+# which inside a nested list is the inner one, so every item after it would
+# fall outside every pattern and be dropped without a trace. Lists are cut out
+# ahead of the split instead, by top_level_lists().
 BLOCKS = re.compile(
     r"(<pre[^>]*>.*?</pre>"
     r"|<figure[^>]*>.*?</figure>"
     r"|<h[1-6][^>]*>.*?</h[1-6]>"
-    r"|<[ou]l[^>]*>.*?</[ou]l>"
     r"|<p[^>]*>.*?</p>"
     r"|<div[^>]*wp-block-embed[^>]*>.*?</div>"
     r"|<blockquote[^>]*>.*?</blockquote>)",
     re.S | re.I,
 )
+
+IMG = re.compile(r"<img\b[^>]*>", re.I)
+LIST_TAG = re.compile(r"</?[ou]l\b[^>]*>", re.I)
+LI_TAG = re.compile(r"</?li\b[^>]*>", re.I)
 
 
 def fetch(api: str, slug: str, fields: str) -> dict:
@@ -92,17 +101,32 @@ def unwrap_pre(block: str) -> str:
     return html.unescape(inner).strip("\n").rstrip()
 
 
-def inline(t: str) -> str:
+def inline(t: str, on_link=None) -> str:
     """Inline HTML -> Markdown. Order matters: code first, so its content is
     not then treated as markup."""
     t = re.sub(r"<code[^>]*>(.*?)</code>", lambda m: "`" + re.sub(r"<[^>]+>", "", m.group(1)) + "`", t, flags=re.S | re.I)
-    t = re.sub(r"<a [^>]*href=\"([^\"]+)\"[^>]*>(.*?)</a>", r"[\2](\1)", t, flags=re.S | re.I)
+    t = re.sub(
+        r"<a [^>]*href=\"([^\"]+)\"[^>]*>(.*?)</a>",
+        lambda m: link(m.group(1), m.group(2), on_link),
+        t, flags=re.S | re.I,
+    )
     t = re.sub(r"<(strong|b)>(.*?)</\1>", r"**\2**", t, flags=re.S | re.I)
     t = re.sub(r"<(em|i)>(.*?)</\1>", r"*\2*", t, flags=re.S | re.I)
     t = re.sub(r"<br\s*/?>", "  \n", t, flags=re.I)
     t = re.sub(r"<[^>]+>", "", t)
     t = html.unescape(t)
     return re.sub(r"[ \t]+", " ", t).strip()
+
+
+def link(href: str, label: str, on_link) -> str:
+    """One <a> as Markdown. on_link may retarget it, or return None to say the
+    destination does not survive the move -- in which case the label stays as
+    text, rather than becoming a link to nowhere."""
+    label = re.sub(r"\s+", " ", label).strip()
+    if on_link is None:
+        return f"[{label}]({href})"
+    target = on_link(html.unescape(href))
+    return f"[{label}]({target})" if target else label
 
 
 def plain_title(post: dict) -> str:
@@ -112,12 +136,20 @@ def plain_title(post: dict) -> str:
 def default_embed(block: str, stats: dict) -> str | None:
     """An embed card is pointless once migrated; a plain link is the honest
     equivalent and survives the move."""
-    link = re.search(r'<a[^>]*href="([^"]+)"[^>]*>(.*?)</a>', block, re.S | re.I)
-    if not link:
-        return None
+    anchor = re.search(r'<a[^>]*href="([^"]+)"[^>]*>(.*?)</a>', block, re.S | re.I)
+    if anchor:
+        href = anchor.group(1)
+        label = re.sub(r"<[^>]+>", "", anchor.group(2)).strip()
+    else:
+        # WordPress resolved an embed to a card at render time, so the export
+        # holds most of them as a bare URL in the wrapper div with no <a> at
+        # all. Reading only for an <a> drops those silently.
+        bare = re.search(r"(https?://[^\s<\"]+)", block)
+        if not bare:
+            return None
+        href = label = html.unescape(bare.group(1))
     stats["xref"] += 1
-    label = re.sub(r"<[^>]+>", "", link.group(2)).strip()
-    return f"[{label or link.group(1)}]({link.group(1)})"
+    return f"[{label or href}]({href})"
 
 
 def default_image(src: str, alt: str, stats: dict) -> str | None:
@@ -125,9 +157,140 @@ def default_image(src: str, alt: str, stats: dict) -> str | None:
     return f"![{alt}]({src})"
 
 
-def convert(content: str, on_embed=default_embed, on_image=default_image) -> tuple[str, dict]:
-    stats = {"code": 0, "lang": 0, "embed": 0, "img": 0, "multiline": 0, "xref": 0}
+def top_level_lists(content: str) -> list[tuple[int, int]]:
+    """The spans of the outermost <ul>/<ol> elements, by counting depth."""
+    spans, depth, start = [], 0, 0
+    for m in LIST_TAG.finditer(content):
+        if m.group(0).startswith("</"):
+            depth -= 1
+            if depth == 0:
+                spans.append((start, m.end()))
+        else:
+            if depth == 0:
+                start = m.start()
+            depth += 1
+    return spans
+
+
+def list_items(block: str) -> list[str]:
+    """The immediate <li> children of a list, nested lists left inside them."""
+    items, depth, start = [], 0, 0
+    for m in LI_TAG.finditer(block):
+        if m.group(0).startswith("</"):
+            depth -= 1
+            if depth == 0:
+                items.append(block[start:m.start()])
+        else:
+            if depth == 0:
+                start = m.end()
+            depth += 1
+    return items
+
+
+def render_list(block: str, on_image, on_link, stats: dict, indent: int = 0) -> list[str]:
+    """A list, its nested lists indented under the item they belong to."""
+    ordered = re.match(r"\s*<ol\b", block, re.I) is not None
+    lines, n = [], 0
+    for item in list_items(block):
+        spans = top_level_lists(item)
+        nested = [item[a:b] for a, b in spans]
+        own = "".join(item[e:s] for (_, e), (s, _) in zip([(0, 0)] + spans, spans + [(len(item), 0)]))
+        text = " ".join(pieces(own, on_image, on_link, stats))
+        if not text and not nested:
+            continue
+        n += 1
+        marker = f"{n}. " if ordered else "- "
+        lines.append(" " * indent + marker + text)
+        for sub in nested:
+            lines.extend(render_list(sub, on_image, on_link, stats, indent + len(marker)))
+    return lines
+
+
+def pieces(fragment: str, on_image, on_link, stats: dict) -> list[str]:
+    """Text and images of one fragment, in source order.
+
+    Images are not only in <figure>. A Markdown block renders them inside a
+    <p>, a slideshow puts them in <li>, and inline() strips every tag it does
+    not recognise, so without this those images vanish without a trace.
+    """
+    found, last = [], 0
+    for m in IMG.finditer(fragment):
+        text = inline(fragment[last:m.start()], on_link)
+        if text:
+            found.append(text)
+        src = re.search(r'\ssrc="([^"]+)"', m.group(0), re.I)
+        alt = re.search(r'\salt="([^"]*)"', m.group(0), re.I)
+        if src:
+            piece = on_image(html.unescape(src.group(1)), html.unescape(alt.group(1)) if alt else "", stats)
+            if piece:
+                found.append(piece)
+        last = m.end()
+    text = inline(fragment[last:], on_link)
+    if text:
+        found.append(text)
+    return found
+
+
+def markdown_table(block: str, on_link) -> str:
+    """<figure class="wp-block-table"> -> a Markdown table.
+
+    Nine articles carry 26 of these and every one was dropped before, because
+    a <figure> was only ever read for its first <img>. Fifteen hold a single
+    cell of man-page output, which is a code block wearing a table's clothes;
+    the rest are real tables, with a header row that WordPress writes as a
+    <thead> in some and as a <tr> of <th> in others -- either way it is the
+    first row, which is the only place Markdown can put it.
+    """
+    rows = []
+    for tr in re.findall(r"<tr[^>]*>(.*?)</tr>", block, re.S | re.I):
+        rows.append([cell(c, on_link) for c in re.findall(r"<t[dh][^>]*>(.*?)</t[dh]>", tr, re.S | re.I)])
+    rows = [r for r in rows if any(c.strip() for c in r)]
+    if not rows:
+        return ""
+
+    if len(rows) == 1 and len(rows[0]) == 1:
+        one = re.search(r"<t[dh][^>]*>(.*?)</t[dh]>", block, re.S | re.I).group(1)
+        one = html.unescape(re.sub(r"<[^>]+>", "", re.sub(r"<br\s*/?>", "\n", one, flags=re.I)))
+        # The editor indented the whole cell; the alignment inside it is the
+        # part that carries meaning, so only the shared indent comes off.
+        one = textwrap.dedent("\n".join(x.rstrip() for x in one.split("\n"))).strip("\n")
+        return f"```\n{one}\n```" if one.strip() else ""
+
+    width = max(len(r) for r in rows)
+    rows = [r + [""] * (width - len(r)) for r in rows]
+    return "\n".join(
+        ["| " + " | ".join(rows[0]) + " |", "|" + "---|" * width]
+        + ["| " + " | ".join(r) + " |" for r in rows[1:]]
+    )
+
+
+def cell(text: str, on_link) -> str:
+    """One table cell. A line break has to stay HTML -- a newline would end the
+    row -- and a pipe has to be escaped or it would start a column."""
+    text = re.sub(r"<br\s*/?>", "\x00", text, flags=re.I)
+    return inline(text, on_link).replace("|", r"\|").replace("\x00", "<br />")
+
+
+def unwrap_html_blocks(content: str) -> str:
+    """<!-- wp:html --> is whatever the author pasted into it, and in both of
+    Discovery's it is a heading followed by loose prose inside a stray <html>
+    element. The split would find the heading and drop the prose, which is
+    most of the block."""
+
+    def rewrite(m: re.Match) -> str:
+        inner = re.sub(r"</?html[^>]*>", "", m.group(1)).strip()
+        heads = re.findall(r"<h[1-6][^>]*>.*?</h[1-6]>", inner, re.S | re.I)
+        rest = re.sub(r"<h[1-6][^>]*>.*?</h[1-6]>", "", inner, flags=re.S | re.I).strip()
+        return "\n".join(heads) + (f"\n<p>{rest}</p>" if rest else "")
+
+    return re.sub(r"<!--\s*wp:html\s*-->(.*?)<!--\s*/wp:html\s*-->", rewrite, content, flags=re.S)
+
+
+def convert(content: str, on_embed=default_embed, on_image=default_image, on_link=None) -> tuple[str, dict]:
+    stats = {"code": 0, "lang": 0, "embed": 0, "img": 0, "multiline": 0, "xref": 0, "table": 0}
     out: list[str] = []
+
+    content = unwrap_html_blocks(content)
 
     # Articles are inconsistent about where they start: some open at h2, some at
     # h4. The page title is rendered from frontmatter and the TOC is built from
@@ -136,53 +299,68 @@ def convert(content: str, on_embed=default_embed, on_image=default_image) -> tup
     levels = [int(m) for m in re.findall(r"<h([1-6])[^>]*>", content, re.I)]
     shift = (min(levels) - 2) if levels else 0
 
-    for block in BLOCKS.findall(content):
-        b = block.strip()
+    def emit(region: str) -> None:
+        for block in BLOCKS.findall(region):
+            b = block.strip()
 
-        if re.match(r"<pre", b, re.I):
-            body = unwrap_pre(b)
-            if not body:
-                continue
-            lang = code_language(body)
-            stats["code"] += 1
-            if lang:
-                stats["lang"] += 1
-            if "\n" in body:
-                stats["multiline"] += 1
-            out.append(f"```{lang}\n{body}\n```")
+            if re.match(r"<pre", b, re.I):
+                body = unwrap_pre(b)
+                if not body:
+                    continue
+                lang = code_language(body)
+                stats["code"] += 1
+                if lang:
+                    stats["lang"] += 1
+                if "\n" in body:
+                    stats["multiline"] += 1
+                out.append(f"```{lang}\n{body}\n```")
 
-        elif re.match(r"<h([1-6])", b, re.I):
-            lvl = int(re.match(r"<h([1-6])", b, re.I).group(1)) - shift
-            lvl = max(2, min(lvl, 5))
-            out.append("#" * lvl + " " + inline(b))
+            elif re.match(r"<h([1-6])", b, re.I):
+                text = inline(b, on_link)
+                if not text:
+                    continue          # an empty heading is a Gutenberg spacer
+                lvl = int(re.match(r"<h([1-6])", b, re.I).group(1)) - shift
+                out.append("#" * max(2, min(lvl, 5)) + " " + text)
 
-        elif "wp-block-embed" in b:
-            piece = on_embed(b, stats)
-            if piece:
-                out.append(piece)
-
-        elif re.match(r"<figure", b, re.I):
-            m = re.search(r'<img[^>]*src="([^"]+)"[^>]*>', b, re.I)
-            if m:
-                alt = re.search(r'alt="([^"]*)"', b, re.I)
-                piece = on_image(m.group(1), alt.group(1) if alt else "", stats)
+            elif "wp-block-embed" in b:
+                piece = on_embed(b, stats)
                 if piece:
                     out.append(piece)
 
-        elif re.match(r"<[ou]l", b, re.I):
-            ordered = b.lower().startswith("<ol")
-            items = re.findall(r"<li[^>]*>(.*?)</li>", b, re.S | re.I)
-            for i, it in enumerate(items, 1):
-                out.append(f"{i}. {inline(it)}" if ordered else f"- {inline(it)}")
-            out.append("")
+            elif re.match(r"<figure", b, re.I):
+                if "wp-block-table" in b:
+                    table = markdown_table(b, on_link)
+                    if table:
+                        stats["table"] += 1
+                        out.append(table)
+                else:
+                    # A gallery is one <figure> holding several <img>; reading
+                    # only the first would drop the rest of the gallery.
+                    out.extend(pieces(b, on_image, on_link, stats))
 
-        elif re.match(r"<blockquote", b, re.I):
-            out.append("> " + inline(b))
+            elif re.match(r"<blockquote", b, re.I):
+                out.append("> " + inline(b, on_link))
 
+            else:
+                # A paragraph opening with a root prompt would be read as a
+                # heading. WordPress rendered it as the prose it is.
+                out.extend(re.sub(r"\A#", r"\\#", x) for x in pieces(b, on_image, on_link, stats))
+
+    last = 0
+    for a, b in top_level_lists(content):
+        emit(content[last:a])
+        region = content[a:b]
+        if "jetpack-slideshow" in region:
+            # A slideshow is a <ul> of slides, each holding an image and
+            # nothing else. There is no carousel on the wiki, so it becomes
+            # what it always was underneath: a run of images.
+            out.extend(pieces(region, on_image, on_link, stats))
         else:
-            t = inline(b)
-            if t:
-                out.append(t)
+            rendered = render_list(region, on_image, on_link, stats)
+            if rendered:
+                out.append("\n".join(rendered))
+        last = b
+    emit(content[last:])
 
     md = "\n\n".join(x for x in out if x is not None)
     md = re.sub(r"\n{3,}", "\n\n", md)

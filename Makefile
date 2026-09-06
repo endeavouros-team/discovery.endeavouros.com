@@ -41,6 +41,13 @@ deploy-preview:
 clean:
 	@rm -rf astro/dist astro/.astro
 
-# Import an article from WordPress:  make convert SLUGS="pacman-basic-commands"
+# Import from the WordPress export: every published article, or only the ones
+# named in SLUGS="gaming-101 i3-wm". The export is a plain directory beside the
+# repositories and never inside one -- it carries drafts, private posts and
+# author email addresses -- so its location is a variable, not a path in git.
+EXPORT ?= $(HOME)/Documents/code/discovery-export
+WXR ?= $(EXPORT)/posts-discovery.WordPress.2026-09-06.xml
+UPLOADS ?= $(EXPORT)/backup_2026-09-06-1841_Discovery_66fa0c6f4f7d-uploads.zip
+
 convert:
-	@python3 scripts/convert-wp.py $(SLUGS)
+	@python3 scripts/convert-wp.py --wxr "$(WXR)" --uploads "$(UPLOADS)" $(SLUGS)

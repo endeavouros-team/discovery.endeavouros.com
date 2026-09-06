@@ -13,9 +13,13 @@ results and link previews show, so it is not decoration. Code fences take a
 language — `bash` and `ini` are what the importer infers — which is what the
 highlighting and the copy button work from.
 
-A new article also needs a sidebar entry in `astro/astro.config.mjs`. Nothing is
-derived from the file tree. `make convert SLUGS="the-slug"` imports one from the
-WordPress install; the README covers what that does and does not rewrite.
+`make convert SLUGS="the-slug"` re-imports one article from the WordPress
+export, `make convert` re-imports all 102, and either rewrites
+`astro/sidebar.json`, which `astro/astro.config.mjs` imports — nothing is derived
+from the file tree. The export lives outside the repository and its location is
+the `EXPORT` variable in the Makefile. A run ends with a list of what it could not
+do, and that list is the part to read; the README covers what it rewrites and what
+it drops.
 
 ## Before you commit
 
