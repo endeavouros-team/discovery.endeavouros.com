@@ -5,6 +5,8 @@ description: "The following article will help you take the first steps towards g
 
 The following article will help you take the first steps towards gaming on Arch Linux.
 
+---
+
 ##### **Table of contents:**
 
 1. **[Requirements](#requirements)**
@@ -23,7 +25,7 @@ The following article will help you take the first steps towards gaming on Arch 
 Search for your GPU in the **[database](http://vulkan.gpuinfo.org/)**;
 
 ✓ If there's an entry you're good to go! 
- Not on the list? That means your GPU is too old to support Vulkan. Without it, **DXVK** won't work and performance and compatibility will be worse. However you still can game;
+× Not on the list? That means your GPU is too old to support Vulkan. Without it, **DXVK** won't work and performance and compatibility will be worse. However you still can game;
 
 - Skip next steps: **3. Install Vulkan** and **4. Install Vulkan driver for your GPU driver**.
 - Make sure to disable **DXVK/D3DVK** globally in **[Lutris](/steam-lutris-wine/#2-configuration)** and **Steam**.
@@ -69,6 +71,8 @@ lib32-vulkan-intel
 
 **[ArchWiki](https://wiki.archlinux.org/index.php/Vulkan#Installation)**
 
+---
+
 ## Additional Software
 
 [**GameMode**](https://github.com/FeralInteractive/gamemode) is a daemon that automatically optimizes your system while playing games.
@@ -100,6 +104,8 @@ pacman -S dosbox
 ```bash
 yay -S emulationstation
 ```
+
+---
 
 ## G-Sync
 
@@ -158,6 +164,8 @@ Key = GLGSYNCAllowed
 Value = false
 ```
 
+---
+
 ## Glossary
 
 #### Platforms
@@ -191,6 +199,8 @@ Value = false
 | Proton | A fork of **Wine** maintained by **Valve / Steam**.<br />And what a great boost it gave for Linux gaming!<br /><br />It is basically a set of patches;<br />• **DXVK** enabled by default<br />• **Esync** ready<br />• **Fsync** ready<br /><br />Made to work with **Steam**, so keep this in mind when hearing term "**Protonified**"! Although it's not officially recommended, you can easily use **Proton** with **Wine** directly. |
 | Wine-TKG <br />Proton-TKG | Custom bleeding edge builds by **Tk-Glitch**, may greatly improve compatibility or performance, especially with new games!<br /><br />• **Esync** ready<br />• **Fsync** ready<br /><br />If you have new game which doesn't work from day 1 - try this, most likely will be the first build to run your game. |
 | Wine-GE<br />Proton-GE | Custom bleeding edge builds by **GloriousEggroll** "the most **[patched](https://github.com/GloriousEggroll/proton-ge-custom#overview)** Wine", may greatly improve compatibility or performance, especially with new games!<br /><br />• **Esync** ready<br />• **Fsync** ready<br />• **vkd3d** ready<br /><br />If you have new game which doesn't work from day 1 - try this, it most likely will be the first build to run your game. |
+
+---
 
 ## Resources
 

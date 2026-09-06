@@ -5,10 +5,14 @@ description: "This article will discuss how default applications are set and way
 
 This article will discuss how default applications are set and ways to change them.
 
+---
+
 #### Table of contents:
 
 1. **[Override default applications](#override-default-applications)**
 2. **[MIME types format](#mime-types-format)**
+
+---
 
 ## Introduction
 
@@ -54,6 +58,8 @@ Recommended applications:
 	firefox.desktop
 ```
 
+---
+
 ## MIME types format
 
 Consider the following example: 
@@ -79,7 +85,7 @@ Each section assigns one or more desktop entries to MIME types;
 - **Default Applications** indicates that the applications should be the default choice for opening that MIME type. For example, JPEG images should be opened with `ristretto.desktop`. This implicitly adds an association between the application and the MIME type. If there are multiple applications, they are tried in order.
 
 ```
- TIP: Although deprecated, several applications still read/write to ~/.local/share/applications/mimeapps.list. To simplify maintenance, simply symlink it to ~/.config/mimeapps.list:
+💡 TIP: Although deprecated, several applications still read/write to ~/.local/share/applications/mimeapps.list. To simplify maintenance, simply symlink it to ~/.config/mimeapps.list:
 
 $ ln -s ~/.config/mimeapps.list ~/.local/share/applications/mimeapps.list
 ```

@@ -18,6 +18,8 @@ Of course, it’s also possible that the package file actually is corrupt. Remov
 
 If no package file is explicitly mentioned then you may have an incomplete download. Run `sudo rm /var/cache/pacman/pkg/*.part` to remove any partial downloads.
 
+---
+
 If you have any other errors, you can clear out the pacman keyring and start fresh:
 
 ```bash
@@ -35,6 +37,8 @@ sudo pacman -U /var/cache/pacman/pkg/{archlinux,endeavouros}-keyring*.pkg.tar.zs
 ```
 
 then try again.
+
+---
 
 If you’re installing an AUR package a PGP key can be used to verify the source files. You will need to import this into your personal keyring before it can be verified. If you don’t you’ll get an error similar to:
 

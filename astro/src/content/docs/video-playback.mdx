@@ -5,12 +5,16 @@ description: "This article provides some background on video playback in Arch Li
 
 This article provides some background on video playback in Arch Linux.
 
+---
+
 #### Table of contents:
 
 1. **[Introduction](#introduction)**
 2. **[Verification](#verification)**
 3. **[Configuring mpv](#configuring-mpv)**
 4. **[Recommended software](#recommended-software)**
+
+---
 
 ## Introduction
 
@@ -22,6 +26,8 @@ There are several ways to achieve this on Linux:
 - [**VDPAU**](https://www.freedesktop.org/wiki/Software/VDPAU/) - is an open source library and API to offload portions of the video decoding process and video post-processing to the GPU video-hardware, developed by NVIDIA.
 - [**NVDECODE/NVENCODE**](https://developer.nvidia.com/nvidia-video-codec-sdk) - NVIDIA's proprietary APIs for hardware video acceleration, used by NVIDIA GPUs from Fermi onwards.
 
+---
+
 ## Verification
 
 Your system may work perfectly out-of-the-box without needing any configuration. Therefore it is a good idea to start with this section to see that it is the case.
@@ -32,7 +38,7 @@ Your system may work perfectly out-of-the-box without needing any configuration.
 - For any GPU, you can compare CPU usage with a tool like [**htop**](https://archlinux.org/packages/?name=htop). Especially for higher resolution videos (4k+), CPU usage when VA-API is enabled and working should be dramatically lower on laptops and other relatively low-power devices.
 
 ```
- TIP: When watching a YouTube video, right-click the video and select "stats for nerds". This pop-up displays useful information like media codecs, dropped frames, etc.
+💡 TIP: When watching a YouTube video, right-click the video and select "stats for nerds". This pop-up displays useful information like media codecs, dropped frames, etc.
 ```
 
 ## VA-API
@@ -66,6 +72,8 @@ Install [**vdpauinfo**](https://archlinux.org/packages/?name=vdpauinfo) to verif
 vdpauinfo
 ```
 
+---
+
 ## Configuring mpv
 
 Example configuration file: 
@@ -81,6 +89,8 @@ term-status-msg="Time: ${time-pos}"
 Hardware accelerated video decoding is available via `hwdec=API` option. For list of all supported APIs and other required options see [relevant manual section](https://mpv.io/manual/stable/#options-hwdec).
 
 For [Wayland](https://wiki.archlinux.org/title/Wayland) use `gpu-context=wayland` option. For list of other available GPU APIs see [manual](https://mpv.io/manual/stable/#options-gpu-context).
+
+---
 
 ## Recommended software
 

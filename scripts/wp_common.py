@@ -53,7 +53,8 @@ BLOCKS = re.compile(
     r"|<h[1-6][^>]*>.*?</h[1-6]>"
     r"|<p[^>]*>.*?</p>"
     r"|<div[^>]*wp-block-embed[^>]*>.*?</div>"
-    r"|<blockquote[^>]*>.*?</blockquote>)",
+    r"|<blockquote[^>]*>.*?</blockquote>"
+    r"|<hr[^>]*>)",
     re.S | re.I,
 )
 
@@ -340,6 +341,11 @@ def convert(content: str, on_embed=default_embed, on_image=default_image, on_lin
 
             elif re.match(r"<blockquote", b, re.I):
                 out.append("> " + inline(b, on_link))
+
+            elif re.match(r"<hr", b, re.I):
+                # Authors used the separator block to divide sections that
+                # have no heading of their own. Dropping it runs them together.
+                out.append("---")
 
             else:
                 # A paragraph opening with a root prompt would be read as a

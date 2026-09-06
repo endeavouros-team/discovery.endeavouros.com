@@ -5,6 +5,8 @@ description: "This article will guide you through the setup of game launchers on
 
 This article will guide you through the setup of game launchers on Arch Linux.
 
+---
+
 ##### **Table of contents:**
 
 1. **[Steam](#steam)**
@@ -75,7 +77,7 @@ To configure **Proton** through Environment variables, which you may see in **pr
 (see available **[options](https://github.com/ValveSoftware/Proton#runtime-config-options)**)
 
 1. Select game title on left panel.
-2. Right Button -> Properties -> Set launch options…
+2. Right 🖱 Button -> Properties -> Set launch options…
 3. Enter desired variables, separated by a space and ending with `%command%`
 
 - To disable variable, add `=0` after
@@ -89,7 +91,7 @@ To configure **Proton** through Environment variables, which you may see in **pr
 To use specific version of **Proton** for specific game (may be useful if latest has problems);
 
 1. Select game title on left panel.
-2. Right Button -> Properties
+2. Right 🖱 Button -> Properties
    - ✓ Force the use of a specific Steam Play compatibility tool.
    - ▾ From dropdown menu choose **Proton** engine.
 
@@ -105,7 +107,7 @@ Install custom **Proton** engine;
   - Steam -> Settings -> Downloads -> Steam library folders
   - Add library folder 
 (you can choose for example another drive)
-  - Right Button -> Make Default folder 
+  - Right 🖱 Button -> Make Default folder 
 (if you want it as default)
 
 - If you want to use NTFS disks with Linux Steam: **[Using a NTFS disk with Linux and Windows](https://github.com/ValveSoftware/Proton/wiki/Using-a-NTFS-disk-with-Linux-and-Windows)**
@@ -122,6 +124,8 @@ Install custom **Proton** engine;
   - Still doesn't work? Check **[Requirements](https://github.com/ValveSoftware/Proton/wiki/Requirements)** and **[Proton bugs](https://github.com/ValveSoftware/Proton/wiki/Checklist-Proton-bugs)**. If you have an AMD GPU **[check this](https://github.com/ValveSoftware/Proton/wiki/For-AMD-users-having-issues-with-non-OpenGL-games)**.
 - Game stuttering on first launch:
   - This is normal, because shaders have to be loaded first. They are written directly into shader cache.
+
+---
 
 ## Lutris
 
@@ -150,7 +154,7 @@ pacman -S lutris
 
 You can configure **Defaults** for each runner (default settings when you add new game).
 
-1. On left panel hover over **Wine** tab and select ⚙ cog.
+1. On left panel hover 🖱 over **Wine** tab and select ⚙ cog.
 2. ✓ **Show advanced options** on bottom left.
 3. Runner options tab:
    - **Wine version** - most important, here you can set / update the default **Engine** which will be used for all games. It can use anything installed: **System, PlayOnLinux, Steam,** or any **Engine** put in: 
@@ -163,7 +167,7 @@ You can configure **Defaults** for each runner (default settings when you add ne
 
 ### 3. Add game
 
-1. Press to add a game, let's do a minimal setup required to start.
+1. Press + to add a game, let's do a minimal setup required to start.
 2. Game info tab
    - **Name** - enter name of your game, you can name it whatever makes sense for you.
    - **Runner** - select **Wine**.
@@ -179,7 +183,7 @@ Some games have multiple executables, prefer **x64** ones first!
 5. If there's no game image, that's caused by **Name** not being exactly identical to its database one. 
 Fix with **Identifier**. Look up the game on **[Lutris db](https://lutris.net/games/crysis/)** 
 Get this ID: `https://lutris.net/games/crysis`/ and paste it into **Game settings**.
-6. Select game, Right  Button -> Configure
+6. Select game, Right 🖱 Button -> Configure
 7. **Identifier** Change and paste `crysis`.
 8. Apply
 9. Save
@@ -188,7 +192,7 @@ Get this ID: `https://lutris.net/games/crysis`/ and paste it into **Game setting
 
 Here are some essential configuration options to know.
 
-1. Select game, Right  Button -> Configure
+1. Select game, Right 🖱 Button -> Configure
 2. Runner options tab:
    - **Wine version** - you can force **Engine** for a specific game (will be used even if you change global, so don't forget to change that option back if needed).
    - ✓ **Enable DXVK/VKD3D** in most cases it's best to use, but can be toggled in case of problems.
@@ -216,9 +220,11 @@ Here are some essential configuration options to know.
 5. Turn off **Lutris** search mode, now it will be available in your games library and you can begin playing.
 
 ```
- TIP: When using Proton or Protonified engine with Lutris you MUST use option:
+💡 TIP: When using Proton or Protonified engine with Lutris you MUST use option:
 Disable Lutris runtime either globally or for specific game.
 ```
+
+---
 
 ## Wine
 
@@ -234,7 +240,7 @@ Disable Lutris runtime either globally or for specific game.
 6. Problems? Try **[GloriousEggroll](https://github.com/GloriousEggroll/wine-ge-custom/releases)** or **[TK-Glitch](https://github.com/Frogging-Family/wine-tkg-git/releases)** engines, or see full **[7. Problems](#7-problems)** section.
 
 ```
- TIP: Do NOT launch wine / winetricks directly from launcher or terminal without ENVIRONMENT VARIABLES, as this will add unnecessary stuff and mess with your mime-associations, icons, etc.
+💡 TIP: Do NOT launch wine / winetricks directly from launcher or terminal without ENVIRONMENT VARIABLES, as this will add unnecessary stuff and mess with your mime-associations, icons, etc.
 ```
 
 - Default **WINEPREFIX** for system version of Wine: 
@@ -551,7 +557,7 @@ After all, this is the most important question of gaming: *"But can it run Crysi
 `bash ~/.PlayOnLinux/wineprefix/Crysis`
 
 ```
- TIP: Such a PREFIX is fully portable, if you remove this dir with symlinks to devices:
+💡 TIP: Such a PREFIX is fully portable, if you remove this dir with symlinks to devices:
 ~/.PlayOnLinux/wineprefix/Crysis/dosdevices
 Now it's safe to copy / backup PREFIX.
 It will be auto-created next time you run anything in PREFIX - so it's safe!
@@ -569,7 +575,7 @@ Any redistributable software like **DirectX**, **Microsoft Visual C++**, etc.
 Create desktop icon / link.
 
 ```
- TIP: If you don't want auto-installed proprietary software (GOG installers don't ask you about installing redistributables);
+💡 TIP: If you don't want auto-installed proprietary software (GOG installers don't ask you about installing redistributables);
 Create temporary PREFIX CrysisTemp.
 Install game as usual.
 Move game folder to clean Crysis PREFIX.
@@ -621,5 +627,5 @@ Read from **[Lutris](#lutris)** up to **[4. Game configuration](#4-game-configur
 - **Multiplayer** games might not work because of anti-cheat.
 
 ```
- TIP: To disable network for WINEPREFIX use Firewall.
+💡 TIP: To disable network for WINEPREFIX use Firewall.
 ```

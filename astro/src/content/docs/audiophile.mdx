@@ -5,12 +5,16 @@ description: "This article covers configuring audio for optimal playback quality
 
 This article covers configuring audio for optimal playback quality in Arch Linux.
 
+---
+
 #### Table of contents:
 
 1. **[Changing sample rate](#changing-sample-rate)**
 2. **[Resampling quality](#resampling-quality)**
 3. **[USB DAC's](#usb-dacs)**
 4. **[Recommended software](#recommended-software)**
+
+---
 
 ## Changing sample rate
 
@@ -24,6 +28,8 @@ To check out which output sample rate and sample format are the data sent to DAC
 
 To check out which input sample rate is used, change `pcm0p` to `pcm0c` (`c` is short for "capture", `p` is for "playback").
 
+---
+
 ## Resampling quality
 
 If you used PulseAudio with `resample-method = speex-float-10` or `soxr-vhq`, then you might consider uncommenting and changing `resample.quality = 4` to `10` or the maximum `15` in `stream.properties` block in both `~/.config/pipewire`/client.conf and `~/.config/pipewire`/pipewire-pulse.conf (copy them from `/usr/share/pipewire/` if they do not exist). Do not forget to restart PipeWire (without sudo): `systemctl --user restart pipewire.service pipewire-pulse.socket` (never forget `pipewire-pulse.socket` if you want your config changes to be applied). 
@@ -35,6 +41,8 @@ PipeWire uses its own resampling algorithm called Spa. Like with SoX's `sox`, Sp
 `spa-resample -q 15 -f s24 -r 48000 input16bit44100orAnythingElse.wav output24bit48000hz.wav`
 
 It is probably somehow possible to use other resamplers by creating your own sink. Or just use a plugin in your music player (e.g., Qmmp has SoX plugin).
+
+💡
 
 **TIP: Try to use ALSA output when possible, and avoid unnecessary resampling. Check the current status with pw-top. If the "RATE" column of the default sink matches that of the application outputting audio, pipewire is not resampling the signal.**
 
@@ -142,6 +150,8 @@ Bits: 32
 ```
 
 In this case `S16_LE, S24_3LE, S32_LE` are the supported formats and `44100, 48000, 88200, 96000, 176400, 192000, 352800, 384000` are the supported sample rates across all formats.
+
+---
 
 ## Recommended software
 

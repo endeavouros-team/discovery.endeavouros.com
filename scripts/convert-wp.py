@@ -66,6 +66,16 @@ ICONS = {
     "caret-square-down": "▾",
     "cog": "⚙",
     "book": "\U0001f4d6",
+    "book-open": "\U0001f4d6",
+    "book-reader": "\U0001f4d6",
+    "info": "ℹ",
+    "lightbulb": "\U0001f4a1",
+    "mouse": "\U0001f5b1",
+    "flag": "⚑",
+    "share": "↗",
+    "plus": "+",
+    "times": "×",
+    "asterisk": "*",
 }
 
 posts: dict[str, dict] = {}       # slug -> record, whatever its status
