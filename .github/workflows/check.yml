@@ -1,0 +1,64 @@
+# Validate every change. Publishes nothing.
+#
+# Nothing else runs on a push here, so without this an ordinary commit is
+# checked by whoever remembered to run make verify locally -- and a change that
+# broke the build would surface whenever someone next deployed, which is the
+# worst moment to find it.
+#
+# It also makes the wiki editable by people who do not run the toolchain. An
+# article is a Markdown file that can be edited in the GitHub web UI; that only
+# holds if something builds and link-checks the result on their behalf.
+#
+# Read-only token, and the actions are pinned to full commit SHAs rather than
+# tags: a tag can be repointed by whoever controls it.
+
+name: Check
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+permissions:
+  contents: read
+
+jobs:
+  check:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+
+    steps:
+      - name: Check out
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+
+      - name: Set up Node
+        uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020 # v7.0.0
+        with:
+          node-version-file: astro/.nvmrc
+          cache: npm
+          cache-dependency-path: astro/package-lock.json
+
+      - name: Install dependencies
+        working-directory: astro
+        run: npm ci
+
+      # audit-lock.mjs before any dependency code runs, then the build, then
+      # gen-csp.mjs over the output it produced.
+      - name: Build
+        working-directory: astro
+        run: npm run build
+
+      # Cheap, and it catches the class of error that is invisible in review:
+      # a link to a page or an anchor that does not exist in the build.
+      - name: Check internal links
+        run: make links
+
+      - name: Type-check the Astro sources
+        run: make check
+
+      # The build regenerates deploy/nginx-csp.conf. A committed copy that has
+      # drifted from what the build produces fails here rather than shipping
+      # stale script hashes to the preview host.
+      - name: Check the CSP snippet is current
+        run: git diff --exit-code deploy/nginx-csp.conf
