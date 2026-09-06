@@ -1,0 +1,32 @@
+---
+title: "Downgrade packages"
+description: "If a package update causes problems don’t worry, Pacman has the previous version stored in the /var/cache/pacman/pkg/ unless the Pacman cache has been..."
+---
+
+by Bryanpwo
+
+If a package update causes problems don’t worry, Pacman has the previous version stored in the `/var/cache/pacman/pkg/` unless the Pacman cache has been cleaned. Downgrading using this method then can’t be done.
+
+This process will remove the current package and install the older version. Dependency changes will be handled, but Pacman will not handle version conflicts. If a library or other package needs to be downgraded with the packages, please be aware that *you will have to downgrade this package yourself as well*.
+
+```bash
+sudo pacman -U /var/cache/pacman/pkg/package-old_version.pkg.tar.xz
+```
+
+Once the package is reverted, temporarily add it to the IgnorePkg list of `pacman.conf` until the difficulty with the updated package is resolved.
+
+## Downgrading the kernel
+
+If a kernel update causes problems you can use this command as well, but keep in mind that you also have to downgrade all the kernel-related packages like the `linux-kernel-header` and kernel-related VirtualBox, if installed. For example:
+
+```bash
+sudo pacman -U linux-5.2.arch2-1-x86_64.pkg.tar.xz linux-headers-5.2.arch2-1-x86_64.pkg.tar.xz virtualbox-host-modules-arch-6.0.8-2-x86_64.pkg.tar.xz
+```
+
+If you can’t boot the system after a kernel update, go to the chroot wiki article to get into the system, then commence the process as described above.
+
+## Alternatives
+
+Other alternatives exist for this procedure. It is possible that the AUR package downgrade is on your system, and can be used in the same manner (except that it will offer to mark as 'Ignore package' for you). Another method is to downgrade to a specific date (previous to your problem) as shown here:
+
+[Downgrade packages to a specific date](/downgrade-packages-to-a-specific-date/)

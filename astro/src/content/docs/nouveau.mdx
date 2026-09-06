@@ -1,0 +1,30 @@
+---
+title: "Nouveau"
+description: "If your Nvidia card isn’t supported anymore by the proprietary nvidia driver, you can use the open-source driver provided by Linux."
+---
+
+by Bryanpwo
+
+[](/nouveau/)
+
+If your Nvidia card isn’t supported anymore by the proprietary nvidia driver, you can use the open-source driver provided by Linux.
+
+Only in case you have a very old Nvidia GPU use the nouveau driver provided by the package **[xf86-video-](https://www.archlinux.org/packages/extra/x86_64/xf86-video-nouveau/)[nouveau](https://www.archlinux.org/packages/extra/x86_64/xf86-video-nouveau/)**, It is most likely this package will cause tearing and bad performance on GPU from the last 6 years, so it is better to use the modesetting driver shipped by default in the Linux kernel. To enable it, you just have to uninstall the unneeded package and change the following configuration.
+
+`sudo pacman -R xf86-video-nouveau`
+
+`sudo nano /etc/kernel/cmdline`
+
+Add `nouveau` to the line as an additional option.
+
+Save it with [CTRL+X]
+
+To add the option to initramfs image, run: ` sudo reinstall-kernels` (if using systemd-boot)
+
+For Grub use ` sudo dracut-rebuild`
+
+Reboot and your system is running with nouveau modesetting driver.
+
+In some cases, the video quality has a delay or glitches, especially with DRM encoded videos on services as Netflix for example.
+
+In that case, try to install the [nouveau-fw](https://aur.archlinux.org/packages/nouveau-fw) package (AUR) - after install reboot the system.

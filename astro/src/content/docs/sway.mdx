@@ -1,0 +1,63 @@
+---
+title: "Sway"
+description: "Sway is a tiling Wayland compositor and a drop-in replacement for the i3 window manager for X11. It works with your existing i3 configuration and supports..."
+---
+
+Sway is a tiling Wayland compositor and a drop-in replacement for the i3 window manager for X11. It works with your existing i3 configuration and supports most of i3's features, plus a few extras.
+
+## About community edition
+
+**[Github](https://github.com/EndeavourOS-Community-Editions/sway)** | **[Forum](https://forum.endeavouros.com/t/sway-edition-general-conversation/11291)**
+
+- **Wallpaper:** swaybg
+- **Theme:** lxappearance
+- **File manager:** thunar
+- **Terminal:** xfce4-terminal or termite
+- **Bar:** waybar
+
+## Configuration
+
+- Keybindings: `~/.config/sway/cheatsheet`
+- Main config file: `~/.config/sway/config.d/default`
+- Auto-start: `~/.config/sway/config.d/autostart_applications`
+- Bar: `~/.config/waybar/config`
+
+## Keybindings
+
+```ini
+[mod] key is set to the winkey (or should i call it linkey?)
+
+    [mod]+Return = open floating terminal (XFCE4-Terminal)
+    [mod]+(Shift)+Return = open fixed terminal (Termite)
+    [mod]+o = open Browser (firefox)
+    [mod]+n = open File Manager (thunar)
+    [mod]+d = app menu (wofi)
+    [mod]+q = close focused app [kill]
+    (Shift)+(Print-Key) = screenshot/bring up screenshot menu
+    [mod]+(Shift)+e = power-menu
+    [mod]+r = resize mode
+    [mod]+(Shift)+(Space) = float window
+        {HOLD DOWN} [mod] = drag floating window
+    [mod]+(Arrow Keys) = switch focus respectively
+    [mod]+(Shift)+(Minus) = send to scratchpad
+    [mod]+(Minus) = cycle through scratchpad
+```
+
+## Display/login manager
+
+Some login managers support Wayland, and others don't. The following are confirmed to work with Sway;
+
+[**Ly**](https://github.com/nullgemm/ly): a lightweight TUI (ncurses-like) display manager for Linux and BSD.
+
+```bash
+yay -S ly
+```
+
+[**greetd**](https://git.sr.ht/~kennylevinsen/greetd/): a minimal and flexible login manager daemon that makes no assumptions about what you want to launch.
+
+```bash
+yay -S greetd
+```
+
+> **Documentation: 
+[https://github.com/swaywm/sway/wiki](https://github.com/swaywm/sway/wiki)**

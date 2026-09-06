@@ -1,0 +1,43 @@
+---
+title: "Gnome Desktop"
+description: "Get things done with ease, comfort, and control."
+---
+
+Get things done with ease, comfort, and control. 
+An easy and elegant way to use your computer, GNOME is designed to help you have the best possible computing experience.
+
+[https://www.gnome.org](https://www.gnome.org)
+
+[https://wiki.archlinux.org/title/GNOME](https://wiki.archlinux.org/title/GNOME)
+
+The installation and preinstalled packages you got with the default EndeavourOS Gnome install are a bare minimal setup, ready to set up to your personal needs.
+
+In case you want to add some additional features and functionality, we collect some common extra options here.
+
+### Online accounts
+
+Some online accounts, such as [ownCloud](https://owncloud.com/de/), require [gvfs-goa](https://archlinux.org/packages/?name=gvfs-goa) to be installed for full functionality in GNOME applications such as [GNOME Files](https://wiki.archlinux.org/title/GNOME_Files) and GNOME Documents.
+
+`sudo pacman -Syu gvfs-goa`
+
+### Extensions
+
+The catalogue of extensions is available at [https://extensions.gnome.org](https://extensions.gnome.org), they can be installed either through [official repositories](https://archlinux.org/packages/?q=gnome-shell-extension) (only a few), [the AUR](https://aur.archlinux.org/packages?K=gnome-shell-extension) or through [the browser](https://extensions.gnome.org):
+
+To be able to install themfrom inside your Browser you need [https://archlinux.org/packages/extra/any/gnome-browser-connector/](https://archlinux.org/packages/extra/any/gnome-browser-connector/)
+
+```bash
+pacman -Syu gnome-browser-connector
+```
+
+And the Browser extension (add-on), what will be asked for while opening the extensions webpage:
+
+[https://extensions.gnome.org](https://extensions.gnome.org)
+
+(after you have the connector package installed)
+
+Gnome applications are to found in the gnome-extra group:
+
+[https://archlinux.org/groups/x86_64/gnome-extra](https://archlinux.org/groups/x86_64/gnome-extra)
+
+[https://apps.gnome.org/en](https://apps.gnome.org/en)

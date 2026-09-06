@@ -23,7 +23,7 @@ sudo pacman -Syu
 
 You will notice that Arch releases updates daily and we strongly recommend doing a full system update instead of a partial one, so install updates at a time in the day you’re able to read and look upon the updates on our forum, so not when you’re thirty minutes from an important presentation.
 
-The community often warns you if an update is broken, so you know it’s better to wait to perform the update, with big issues, Arch usually fixes those within hours. You can also install the updates once a week and keep an eye out on the forum every day to keep yourself informed. Don’t delay installing the updates longer than that, because this can break your system.
+The community often warns you if an update is broken, so you know it's better to wait to perform the update, with big issues, Arch usually fixes those within hours. You can also install the updates once a week and keep an eye out on the forum every day to keep yourself informed. Don’t delay installing the updates longer than that, because this can break your system.
 
 ## Searching for packages
 
@@ -35,7 +35,7 @@ pacman -Ss package_name
 
 When you’ve found the package you can install it according to the instructions in the paragraph here below.
 
-When you can’t find the desired package, this means it isn’t in the Arch repo, but you’ll find it most likely in the AUR. For searching and installing packages in the AUR we refer to the [yay](https://discovery.endeavouros.com/aur/yay-an-aur-helper-written-in-go/2021/03/) article.
+When you can’t find the desired package, this means it isn’t in the Arch repo, but you’ll find it most likely in the AUR. For searching and installing packages in the AUR we refer to the [yay](/yay-an-aur-helper-written-in-go/) article.
 
 ## Installing packages
 
@@ -87,7 +87,7 @@ sudo pacman -Rs package_name
 
 ## Refreshing mirrors
 
-Sometimes it can happen that your system can’t find the updates or packages in the Arch repo, when using -Syu. In that case, it could be that there’s a problem with the mirrors you’re trying to connect to. Only if this happens you can try force refreshing the local package database (Passing two *–refresh* or *-y* flags will force a refresh of all package databases, even if they appear to be up-to-date.) :
+Sometimes it can happen that your system can’t find the updates or packages in the Arch repo, when using -Syu. In that case, it could be that there’s a problem with the mirrors you’re trying to connect to. Only if this happens you can try force refreshing the local package database (Passing two *--refresh* or *-y* flags will force a refresh of all package databases, even if they appear to be up-to-date.) :
 
 ```bash
 sudo pacman -Syy
@@ -142,4 +142,4 @@ sudo pacman -Syu --ignoregroup=gnome
 
 If you’re interested in a more detailed tutorial, you can also read the following article:
 
-[Pacman actions explained](https://discovery.endeavouros.com/articles/pacman-actions-explained/2019/12/)
+[Pacman actions explained](/pacman-actions-explained/)

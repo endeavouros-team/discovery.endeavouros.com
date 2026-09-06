@@ -15,7 +15,7 @@ Early **SSD**s had a reputation for failing after fewer writes than HDDs.
 
 This might be why you heard it could be bad to use an SSD for swap.
 
-Modern SSDs don’t have this issue
+Modern SSDs don't have this issue
 
 ## Making a swap *partition* with Gparted
 
@@ -41,7 +41,7 @@ So as [Archwiki](https://wiki.archlinux.org/index.php/swap#Swap_file_creation) r
 
 ## Notes if you are using Btrfs
 
-**Note:** Swap files on file systems spanning multiple devices are not supported. See [btrfs(5) § SWAPFILE SUPPORT](https://man.archlinux.org/man/btrfs.5#SWAPFILE_SUPPORT) for all limitations.
+**Note:** Swap files on file systems spanning multiple devices are not supported. See [btrfs(5) § SWAPFILE SUPPORT](https://man.archlinux.org/man/btrfs.5#SWAPFILE_SUPPORT) for all limitations.
 
 To properly initialize a swap file, first create a *non-snapshotted* subvolume to host the file, e.g.
 

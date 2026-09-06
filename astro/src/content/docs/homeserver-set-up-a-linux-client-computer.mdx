@@ -1,0 +1,117 @@
+---
+title: "Homeserver 1 - Set up a Linux client computer"
+description: "On a CLIENT Linux Computer with a Desktop Environment or Window Manager, open a terminal window. Use the static IP address you established for the server..."
+---
+
+By Pudge
+
+On a CLIENT Linux Computer with a Desktop Environment or Window Manager, open a terminal window. Use the static IP address you established for the server and the hostname you decided on. This will establish the route to the server. For configuration files owned by root, use vi or nano to edit these files. 
+ 
+Add the following line to the end of /etc/hosts Your info may be different from the example.
+
+```
+$ sudo nano /etc/hosts
+192.168.0.150  enosServer.localdomain    enosServer
+```
+
+This establishes a relationship between the hostname of enosServer and it’s IP address, kind of like a DNS service. Otherwise, you would have to address the server by it’s IP address and port number, which can be awkward and hard to remember.
+
+Since the SSH port that the enosServer listens on was changed from the default port 22, the Client computer needs to know which port to use.
+
+```
+$ sudo nano /etc/ssh/ssh_config 
+
+(change the following line.)
+FROM
+#Port 22
+TO
+Port 9XXX
+(Use the same port # as in the server)
+```
+
+## *Connect to enosServer with SSH*
+
+In a terminal window, as a user try to connect to enosServer
+
+```
+$ ssh pshare@enosServer
+(if you happen to be at root, don't try to SSH as root)
+```
+
+If you successfully communicated with enosServer, you will get something similar to:
+
+```
+The authenticity of host '[enosserver]:9XXX ([192.168.0.XXX]:9XXX)' can't be established.
+ECDSA key fingerprint is 54:fa:20:25:c1:91:d3:3d:4c:8c:47:02:32:f2:5e:8e.
+Are you sure you want to continue connecting (yes/no)?
+```
+
+The above dialogue is a one-time thing. Type in “yes”, the connection should be completed and you will be asked for pshare’s password. You should then have a terminal prompt of
+
+```ini
+[pshare@enosServer ~]$
+```
+
+You are now logged into enosServer as user pshare. Pay attention to the prompt, it will always let you know which computer you are in and the user name. The SSH server on enosServer was configured to NOT allow login as root. If you need to use root for administration, type in su and enter your server’s root password. Anything you type in the Terminal window will now be executed in the enosServer computer. You can execute 
+pacman -Syu or perform other administrative routines. Type in
+
+```
+# exit            (if you are in as root)
+$ exit            (exit again as user)
+(This is the proper way to log out of a network connection.)
+```
+
+You should be back to your client computers prompt. On the LINUX Client Computer, do not terminate your enosServer session by clicking on the X (close) button at the top right of your terminal window. After properly disconnecting from the enosServer you should return to your local prompt in the terminal window. Now you can close your Client side terminal window by typing in exit once more.
+
+## *SSH into enosServer and bypass the password*
+
+This is all and good, but it is a pain to have to enter the password all the time. Now ssh keys may need to be generated in our client computer as user.
+
+```
+$ ls -l .ssh
+     -rw-------. 1 don don 1831 Jun 8 2019 id_something
+     -rw-r--r--. 1 don don 406 Jun 8 2019 id_something.pub
+```
+
+If the ls -l command produces the above results, you already have ssh keys. You can skip the next section. If you don’t have ssh keys, enter the following commands. For "message" you can use the computer's hostname or any message that will easily 
+Identify your Client computer.
+
+```
+$ ssh-keygen -t ed25519 -C "message"
+(create ssh keys for user, hit enter 3 times for defaults )
+
+$ ls -al
+     drwx------ don don 4096 Jan 5 1309 .ssh
+
+( .ssh should be drwx------ if not $ chmod 700 .ssh then recheck)
+
+$ ls -l .ssh
+     -rw-------. 1 don don 1831 Jun 8 2019 id_ed25519
+     -rw-r--r--. 1 don don 406 Jun 8 2019 id_ed25519.pub
+```
+
+The id_ed25519 file is your PRIVATE SSH Key and you should never do anything with it. Don’t copy, move, or otherwise mess with it. Just leave it alone. The id_ed25519.pub file is your PUBLIC SSH Key. We need to export your PUBLIC SSH Key to the enosServer.
+
+In a terminal as user
+
+```
+$ ssh-copy-id -i ~/.ssh/id_ed25519.pub pshare@enosServer
+```
+
+enter pshare’s password when requested. 
+You will be returned to your client’s prompt. Now try to log into enosServer
+
+```
+$ ssh pshare@enosServer
+```
+
+You should now be logged in to enosServer as pshare without having to enter your password. To do administration, just ssh into the server from a client terminal window. Once in enosServer change to root and do most anything you want from a nice GUI terminal window with mouse, scroll bars, cut and paste, etc. The server and client are now configured to remotely administer the server.
+
+```ini
+[pshare@enosServer ~]$ exit
+```
+
+repeat exit until back in the client computer.
+
+Go to the next tutorial in the series: 
+Homeserver 2 - Use FUSE and SSHFS to view server data in a file manager

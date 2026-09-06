@@ -1,0 +1,53 @@
+---
+title: "KDE Plasma"
+description: "Use Plasma to surf the web, keep in touch with colleagues, friends and family manage your files, enjoy music and videos, and get creative and productive..."
+---
+
+Use Plasma to surf the web, keep in touch with colleagues, friends and family manage your files, enjoy music and videos, and get creative and productive at work. 
+Do it all in a beautiful environment that adapts to your needs,and with the safety, privacy-protection and peace of mind that the best Free Open Source Software has to offer.
+
+[https://wiki.archlinux.org/title/KDE#Plasma](https://wiki.archlinux.org/title/KDE#Plasma)
+
+[https://kde.org/de/plasma-desktop](https://kde.org/de/plasma-desktop)
+
+The installation and preinstalled packages you got with the default EndeavourOS KDE Plasma install are a bare minimal setup, ready to set up to your personal needs.
+
+In case you want to add some additional features and functionality, we collect some common extra options here.
+
+**Gdrive (google): **
+
+to browse your Google Drive in Dolphin, install [kio-gdrive](https://archlinux.org/packages/?name=kio-gdrive)
+
+` sudo pacman -Syu kio-gdrive`
+
+**Dolphin (filebrowser) extras:**
+
+[https://wiki.archlinux.org/title/Dolphin#File_previews](https://wiki.archlinux.org/title/Dolphin#File_previews)
+
+**File indexer Baloo:**
+
+In case you do not need the functionality, or it is using too many resources on older hardware:
+
+[https://wiki.archlinux.org/title/Baloo#Disabling_the_indexer](https://wiki.archlinux.org/title/Baloo#Disabling_the_indexer)
+
+```
+balooctl6 suspend
+balooctl6 disable
+balooctl6 purge
+```
+
+Overview of all apps KDE Plasma offers:
+
+[https://apps.kde.org](https://apps.kde.org)
+
+Most of they are inside the package group for [kde-applications](https://archlinux.org/groups/x86_64/kde-applications/).
+
+Extra functionality for the settings manager are called kcm:
+
+[https://develop.kde.org/docs/features/configuration/kcm](https://develop.kde.org/docs/features/configuration/kcm)
+
+Some are in the repository: [https://archlinux.org/packages/?sort=&q=kcm&maintainer=&flagged=](https://archlinux.org/packages/?sort=&q=kcm&maintainer=&flagged=)
+
+Some more or less usefull options can be found in the AUR:
+
+[https://aur.archlinux.org/packages?O=0&K=kcm](https://aur.archlinux.org/packages?O=0&K=kcm)

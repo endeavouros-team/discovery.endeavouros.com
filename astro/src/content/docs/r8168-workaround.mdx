@@ -1,0 +1,18 @@
+---
+title: "r8168 workaround"
+description: "Realtek 8168 Ethernet card gets r8169 kernel module by default. There is another kernel module package, r8168, for situations where r8169 does not work..."
+---
+
+By Manuel
+
+Realtek 8168 Ethernet card gets `r8169` kernel module by default. There is another kernel module package, `r8168`, for situations where r8169 does not work properly.
+
+To check which of these is in use, the following command should show it:
+
+```
+lsmod | grep r816
+```
+
+To use r8168, install package r8168 and reboot.
+
+To use r8169, uninstall package r8168 and reboot.

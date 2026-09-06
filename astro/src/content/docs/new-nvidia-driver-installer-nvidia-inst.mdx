@@ -1,0 +1,134 @@
+---
+title: "New Nvidia driver installer, nvidia-inst"
+description: "Up from (2023-Feb) nvidia-inst does not support installing (older) legacy drivers. This means certain older Nvidia GPUs should use either the nouveau..."
+---
+
+By Manuel, 2022-Mar-31 
+Latest update: 2026-Jan-12
+
+#### Important for older Nvidia GPUs!
+
+Up from (2023-Feb) **`nvidia-inst` does not support installing (older) legacy drivers**. This means certain older Nvidia GPUs should use either the `nouveau` kernel driver or install the appropriate legacy driver from the AUR (with `yay`).
+
+**IMPORTANT NOTE**: if you have added repository `[kernel-lts] `into file `/etc/pacman.conf`, please remove it from the file because this repository may include outdated packages.
+
+**Tip**: you can still use command `nvidia-inst -t` to find the needed commands, just be sure to change the package names according to the version (for example, change `nvidia-dkms` to `nvidia-580xx-dkms` etc.).
+
+## Overview
+
+`nvidia-inst` helps to install and uninstall driver (and related) packages for Nvidia GPUs.
+
+Here's the output of the `nvidia-inst` command with the help option:
+
+```
+$ nvidia-inst --help
+
+nvidia-inst - help installing drivers for Nvidia GPU
+
+Usage: nvidia-inst [options]
+
+Options:
+-h, --help       This help.
+-b, --bumblebee  Install bumblebee and Nvidia drivers for optimus cards (only very old cards).
+-f, --force      Force driver installation even if a nvidia card is not detected.
+-n, --nouveau    Install (open source) nouveau driver instead of nvidia-dkms.
+-o, --open       Install package nvidia-open-dkms instead of nvidia-dkms.
+-p, --prime      Install also prime render offload.
+-q, --quiet      Suppress log messages.
+-t, --test       Test mode. Nothing in your system will be modified.
+-v, --version    Show version of this software.
+--32             Install also support for 32-bit apps.
+--switcheroo     Install switcheroo-control and enable its service. Use this option separately.
+--conf           Create also file /etc/X11/xorg.conf.d/20-nvidia.conf (might be needed on some older systems).
+--no-dkms        Install only non-dkms packages (e.g. 'nvidia-open' instead of 'nvidia-open-dkms').
+--show-gpu-info  Show information about your GPU. Use this option separately.
+--listseries     List Nvidia driver versions supported by nvidia-inst.
+--ignore         Ignore all errors (useful for testing only).
+--series=X       (Advanced) Use the given Nvidia driver version X (for testing).
+--remove-nothing (Advanced) Do not remove any existing package (for testing).
+--listopts       List options supported by nvidia-inst.
+
+Notes:
+* By default, nvidia-inst detects the Nvidia GPU family and selects automatically between
+Nvidia's open source driver, or the nouveau kernel driver.
+* NVIDIA no longer actively supports older than Turing family GPUs. Thus using
+the nouveau driver (or a driver from the AUR) with them may provide a solution.
+See also: https://wiki.archlinux.org/title/NVIDIA#Installation
+* By default, dkms packages are preferred and will be selected for install if none of options
+--no-dkms
+--nouveau
+--bumblebee
+is used.
+* If you have more than one GPU in the system, then you may need a tool to choose the GPUs to use.
+There are several popular tools in the AUR, e.g.
+- envycontrol
+- optimus-manager
+- supergfxctl
+to mention a few.
+See also:
+- https://discovery.endeavouros.com/?s=nvidia
+- https://wiki.archlinux.org/title/NVIDIA_Optimus
+```
+
+## Options
+
+With `nvidia-inst` you can install drivers for your Nvidia GPU. `nvidia-inst` detects which driver packages are needed. Additional features will be installed based on given *options*.
+
+Likely the most important new options in `nvidia-inst` are
+
+`--test`
+
+Use this to see the suggested commands. Nothing will be changed in your system. 
+Note: without this option `nvidia-inst `will start running the commands it suggests.
+
+`--prime`
+
+This option will install the package `nvidia-prime` in addition to the Nvidia drivers.
+
+`--32`
+
+Also includes support for 32-bit apps. Typically, *gamers* need this.
+
+`--nouveau`
+
+This is needed for Nvidia GPUs older than the Turing family.
+
+`--no-dkms`
+
+Use this option if you don't want to install the **dkms** version of the driver package. The dkms version is slower to install and upgrade, but is compatible with additional kernels (like e.g. `linux-zen` and l`inux-hardened`).
+
+Other new options should be rather self-explanatory. Some options are mainly meant for internal testing of `nvidia-inst`.
+
+## Removing conflicting packages
+
+If nvidia-inst is executed e.g. with option `--nouveau`, it will remove conflicting packages like the default nvidia driver, and then install the nouveau driver. A similar idea is used with all options that need to take care of conflicting packages and/or certain settings: conflicting stuff will be removed first, and then the new packages/settings will be installed.
+
+This also means that if you have Nvidia related packages or settings that you want to save, you need to do that manually before using `nvidia-inst`.
+
+## References
+
+Nvidia install on Discovery
+
+### Examples
+
+#### Enable **legacy** drivers (older Nvidia cards)
+
+Older Nvidia cards like GT 700 or GT 10xx series are not supported by the latest Nvidia driver available from the official Arch repositories. For those cards, there are alternatives:
+
+- the `nouveau` open source kernel driver
+- a legacy Nvidia driver from the `AUR` (for example, `nvidia-580xx-dkms` for Maxwell, Pascal, and Volta family GPUs)
+
+For the older, Nvidia GPUs `nvidia-inst` supports the **nouveau** driver (option `-n`). 
+If legacy Nvidia drivers from the AUR are needed, the user can install them from the AUR, using e.g. `yay`. Then install them manually.
+
+Example:
+
+`yay -S nvidia-580xx-dkms`
+
+After rebooting, the drivers should be active. You will get driver updates as expected using pacman or yay.
+
+#### Bumblebee (for very old machines)
+
+If you need to set up Bumblebee as detailed here: EndeavourOS Bumblebee wiki the nvidia-inst script can do that automatically too:
+
+`nvidia-inst -b`

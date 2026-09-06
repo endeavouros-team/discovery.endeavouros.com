@@ -1,0 +1,78 @@
+---
+title: "Downgrade packages to a specific date"
+description: "I already have covered how to downgrade a single package and the kernel. This article is about how to downgrade all packages to a specific date. The..."
+---
+
+by Bryanpwo
+
+## Warning: Don’t do this unless it is completely necessary!
+
+- Having old and outdated packages in your Arch Linux is not recommended. Read our news articles on the website and our forum to see if users have reported any problems. In case there is a problem don’t update and wait for one or two days to see if the problem is fixed upstream.
+- If this kind of downgrade fails for any reason, you will end up with a broken system.
+
+I already have covered how to downgrade a single package and the kernel. This article is about how to downgrade all packages to a specific date. The reason for doing this can be because the system might be broken after a recent system upgrade. In such a case, you might have to downgrade more than one packages to a previously working version.
+
+If you have no choice and want to fix your unstable system you can downgrade all packages to a previous specific version and date.
+
+In this example we’re going to set the system back to the version that was installed on **20 June 2019**
+
+One way to do this, is to make temporary changes to your /etc/pacman.conf file. To do so, first backup your `pacman.conf`:
+
+```bash
+sudo cp /etc/pacman.conf /etc/pacman.conf.bak
+```
+
+Then, edit file /etc/pacman.conf:
+
+```bash
+sudo nano /etc/pacman.conf
+```
+
+Replace the existing content under these headings with the following lines:
+
+```ini
+[core]
+SigLevel = PackageRequired
+Server=https://archive.archlinux.org/repos/2019/06/20/$repo/os/$arch
+
+[extra]
+SigLevel = PackageRequired Server=https://archive.archlinux.org/repos/2019/06/20/$repo/os/$arch
+
+[community]
+SigLevel = PackageRequired Server=https://archive.archlinux.org/repos/2019/06/20/$repo/os/$arch
+```
+
+If you have other repos enabled, they need the same treatment, or you risk having some things running a version from a different date!
+
+You can instead (and with less effort) temporarily change `/etc/pacman.d/mirrorlist`. Because all the usual */etc/pacman.conf* entries use it already there's much less editing (and fewer chances of a typo).
+
+```bash
+sudo cp /etc/pacman.d/mirrorlist /etc/pacman.d/mirrorlist.normal
+sudo nano /etc/pacman.d/mirrorlist
+```
+
+The only line the replacement needs is as follows: Enter it as shown, remembering to have the date refer to the date you want to revert to!
+
+```ini
+Server=https://archive.archlinux.org/repos/2019/06/20/$repo/os/$arch
+```
+
+Save and close the file with ctrl+o and ctrl+x
+
+Then update the system with:
+
+```bash
+sudo pacman -Syyuu
+```
+
+After that completes, then change the mirrorlist file back to normal.
+
+```bash
+sudo cp /etc/pacman.d/mirrorlist.normal /etc/pacman.d/mirrorlist
+```
+
+Rebooting the system right away is wise (in case of important system changes) and it will now boot into the versions from the date given.
+
+If you want the process to be 'automated' a bit, there is another Wiki entry that will help.
+
+[Easy Downgrade by Date](/easy-downgrade-by-date/)

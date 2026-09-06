@@ -1,0 +1,245 @@
+---
+title: "Live ISO Installation Info Tricks & Tips"
+description: "Our installation medium is already very stable and covers some hardware-specific peculiarities, but it is not an egg-laying wool milk sow. With this, it..."
+---
+
+Our installation medium is already very stable and covers some hardware-specific peculiarities, but it is not an egg-laying wool milk sow. With this, it is possible to install the OS in many different ways, related to partition, format, encryption.
+
+But there are limitations of what is possible to provide over the used framework.
+
+Always keep in mind that EndeavourOS install and enable some stuff by default:
+
+[https://endeavouros.com/#packages](https://endeavouros.com/#packages)
+
+Other things are disabled by default for your security and to keep things simple:
+
+[https://discovery.endeavouros.com/audio/bluetooth/2021/03](/bluetooth/)
+
+## **Here we collect some information to resolve common issues with the installation process:**
+
+##### Online and Offline Installation Methods
+
+![](../../assets/articles/live-iso-tricks-tips/online-offline.png)
+
+##### ⚠ **Generel Warning: **Online is the default option to be used, offline installs are only a fallback option in case of network/internet connection issues (or hardware driver issues with network devices)
+
+##### **Online installation method**
+
+** **This is the **recommended** way to use the installer. It provides all available desktop environment options and allows you to deselect packages or add extras such as the LTS kernel or printing/scanner support. 
+With this method, the system is built and configured in a way very similar to a manual Arch Linux installation: everything is created and installed from scratch, using EndeavourOS configuration and packages freshly pulled from the mirrors. 
+The result is a fully up-to-date system with your preferred desktop environment.
+
+##### **Offline installation method**
+
+This is only a **fallback option**. It installs package versions from the point in time when the ISO was created. It can only install the KDE/Plasma desktop and does not allow you to choose another desktop environment in the installer. 
+The offline method runs entirely without an internet connection, which helps in cases of slow/unreliable connections or network hardware/driver issues. 
+⚠️ **Important warning:** The system will not be up-to-date after installation. On the first update, you may need to resolve issues manually due to changes that happened between the ISO creation and the current package versions. 
+Before running the first update on a fresh offline install, it is recommended to check for known update issues.
+
+[Important-news (on GitHub)](https://github.com/endeavouros-team/Important-news/blob/main/README.md)
+
+[Important-news (on GitLab)](https://gitlab.com/endeavouros-filemirror/Important-news/blob/main/README.md)
+
+##### Preliminary remarks on installation in general (EFI, Bios, legacy, CSM, fastboot, secure-boot)
+
+**64-bit only:** The ISO itself can be used as it is to boot on most Computers supporting **x86-64** **(x64**, **x86_64**, **AMD64**, **Intel 64**) known as 64-bit. From old systems running on legacy Bios [Basic Input systems] to modern UEFI (EFI) [**Unified Extensible Firmware Interface**].
+
+**EFI/BIOS:** In case, modern **EFI systems** can provide the option to support **legacy boot** so called **CSM mode** (*Compatibility Support Module*) Best is to disable this feature if possible, as the installer is not always detecting this correctly. In case you are dual booting with Windows installed in legacy mode, the options are indeed limited to go reinstall Windows in EFI mode or try to add EndeavourOS in **CSM legacy mode**.
+
+**Secureboot:** The main downside is that we do still not support **secure-boot**, so this feature must be disabled to be able to install EndeavourOS in most cases. There are some Firmware opting to add secure-boot keys manually, but these are rare.
+
+**Fastboot:** The fastboot feature from Windows (in case you want to dual boot) needs to be disabled as it will cause issues with hardware like Bluetooth or Wireless devices would not show up.
+
+##### Create the install media (USB key)
+
+[Create install media (USB key)](/create-install-media-usb-key/)
+
+##### **Slow Internet unstable Connections**
+
+In some places, you do have not that stable internet connection, or you are connected over Wi-Fi with a bad bandwidth. Another reason can be restrictions from ISP so that you can not reach servers.
+
+We have some implementations built in to detect and rank mirrors, but the procedure is known to not work in some parts of the world where you have only some not stable mirrors (India, Pakistan, Brazil p.e.).
+
+In this case, the best to do is to use the "update mirrors" tool from the welcome application:
+
+![](../../assets/articles/live-iso-tricks-tips/2023-11-11_11-02-1024x534.png)
+
+Make sure the resulting mirrorlist has at least 8 mirrors showing up, and save it.
+
+![](../../assets/articles/live-iso-tricks-tips/2023-11-11_11-04.png)
+
+Now start the installer, and you will be able to install via the online option.
+
+##### Partition
+
+The easiest way is to use the automatic options to partition your drive/s, you will find 3 main options to apply that:
+
+![](../../assets/articles/live-iso-tricks-tips/2024-06-26_13-15.png)
+
+**Alongside**: this will shrink the main system partition of the drive selected and add all needed partitions automatically, in case you can choose to create a new ESP in any case too also an existing one already would fit the minimum requirements:
+
+![](../../assets/articles/live-iso-tricks-tips/2024-06-26_14-17.png)
+
+![](../../assets/articles/live-iso-tricks-tips/2024-06-26_14-17_1.png)
+
+**Replace**: useful in case of reinstall to overwrite one partition only and leave the rest intact.
+
+**Erase**: this will simply use the complete drive and create everything new, deleting everything ion the selected drive!
+
+**Manual partitioning**:
+
+This is advanced usage! Handle with care.
+
+##### **The requirements for modern EFI (UEFI) systems:**
+
+Partition Table must be GPT here.
+
+1. ESP (Efi System Partition) :
+
+If you take **systemd-bootloader**:
+
+Fat32, flagged as boot, Mount Point: `/efi`, Minimum size: 2048MB (2GB)
+
+If you choose **Grub** Bootloader:
+
+Fat32, flagged as boot, Mount Point: `/boot/efi,` Minimum size 300MB.
+
+2. System Partition
+
+Possible format ext4 or BTRFS Mount Point `/`
+
+##### Older (legacy) Bios Systems:
+
+If you can only boot into CSM (Compatibility Support Module) or on real older **non-efi Bios systems.**
+
+This could be the case if Windows is installed in that mode already, and you do not want to reinstall Windows in EFI mode.
+
+**You have 2 Options here:**
+
+**First Option:** is the old standard using the **MBR** (Master Boot Record, first sector of a hard disk):
+
+Bootloader will get written into the MBR of a msdos partition table, here you need only one System Partition,
+
+mounted as /, flagged as boot.
+
+![](../../assets/articles/live-iso-tricks-tips/2024-06-26_14-55.png)
+
+**The Second Option**: is to use a GPT partition table, and create an 8MB sized **empty** partition, flagged as bios-grub.
+
+[**September 2025**] ]As of the moment this Method can result in non-booting system, so it is currently noit recommended to use this for older Bios/legacy installs.
+
+![](../../assets/articles/live-iso-tricks-tips/2024-06-26_14-40.png)
+
+![](../../assets/articles/live-iso-tricks-tips/2024-06-26_14-41.png)
+
+In this case, Bootloader will get installed onto the "grub-drive".
+
+##### BTRFS
+
+If you choose **BTRFS** it will create a preset of **subvolumes** with automate partition options, and on manual partitions it will resolve subvolumes too.
+
+***Recommendation is to only take BTRFS if you know why you would need to, it is not only another faster more fancy filesystem, and needs some knowledge to earn beforehand!***
+
+[https://archive.kernel.org/oldwiki/btrfs.wiki.kernel.org](https://archive.kernel.org/oldwiki/btrfs.wiki.kernel.org)
+
+##### **Installer can not create partition**
+
+In some cases, it is a good thing to delete the partitions you want to use for EndeavourOS before starting the installation. You can simply use KDE partition Manager, which you can start with the button in the welcome app or via the menu of the live environment.
+
+In 2024, we added GParted in addition, to the ISO for your convenience.
+
+![](../../assets/articles/live-iso-tricks-tips/2023-11-11_11-05-1024x495.png)
+
+![](../../assets/articles/live-iso-tricks-tips/2023-11-11_11-07.png)
+
+##### Advanced installer options
+
+You *can *unselect packages you do not need:
+
+![](../../assets/articles/live-iso-tricks-tips/2023-11-11_12-38-1024x634.png)
+
+This option is only available for online install method!
+
+##### EndeavourOS Desktop Fixes and Theming
+
+EndeavourOS has preset small changes to the settings and themes for all desktop installations to fix problems with the default settings and smooth the interfaces. In addition, installs for other environments (like i3 or sway) will offer some more complete setups to be able to start with a usable Desktop.
+
+If you want an unchanged installation, you can easily turn off these changes by deselecting the appropriate subgroup:
+
+![](../../assets/articles/live-iso-tricks-tips/2023-11-11_12-40-1024x634.png)
+
+#### What to do if install fails or i have issues?
+
+In case the installation is not successful, do **not** reboot or exit the live session! Please send us the installer log on [the forum, or over telegram chat](https://endeavouros.com/community/), we can always make great use of them to fix issues and bugs with the installer:
+
+You ca use the log tool from the panel and send log to Pastebin (internet connection required).
+
+Run the log tool with **inxi** and install log tagged:
+
+![](../../assets/articles/live-iso-tricks-tips/2023-11-11_11-19_1.png)
+
+And post the URL it creates in this little popup window on forum, chat or send it via email:
+
+![](../../assets/articles/live-iso-tricks-tips/2023-11-11_11-19.png)
+
+Connect with us, we will be happy to help in any way:
+
+[https://endeavouros.com/contact/](https://endeavouros.com/contact/)
+
+#### For encrypted installation help/info go here
+
+More info about encrypted installation.
+
+##### Installer process slideshow:
+
+![](../../assets/articles/live-iso-tricks-tips/2024-04-23_20-47.png)
+
+![](../../assets/articles/live-iso-tricks-tips/2024-04-23_20-32_7.png)
+
+![](../../assets/articles/live-iso-tricks-tips/2024-04-23_20-32_6.png)
+
+![](../../assets/articles/live-iso-tricks-tips/2024-04-23_20-32_5.png)
+
+![](../../assets/articles/live-iso-tricks-tips/2024-04-23_20-32_4.png)
+
+![](../../assets/articles/live-iso-tricks-tips/2024-04-23_20-32_3.png)
+
+![](../../assets/articles/live-iso-tricks-tips/2024-04-23_20-32_2.png)
+
+![](../../assets/articles/live-iso-tricks-tips/2024-04-23_20-32_1.png)
+
+![](../../assets/articles/live-iso-tricks-tips/2024-04-23_20-32.png)
+
+![](../../assets/articles/live-iso-tricks-tips/2024-04-23_20-31_3.png)
+
+![](../../assets/articles/live-iso-tricks-tips/2024-04-23_20-31_2.png)
+
+![](../../assets/articles/live-iso-tricks-tips/2024-04-23_20-31_1.png)
+
+![](../../assets/articles/live-iso-tricks-tips/2024-04-23_20-31.png)
+
+![](../../assets/articles/live-iso-tricks-tips/2024-04-23_20-30_7.png)
+
+![](../../assets/articles/live-iso-tricks-tips/2024-04-23_20-30_6.png)
+
+![](../../assets/articles/live-iso-tricks-tips/2024-04-23_20-30_5.png)
+
+![](../../assets/articles/live-iso-tricks-tips/2024-04-23_20-30_4.png)
+
+![](../../assets/articles/live-iso-tricks-tips/2024-04-23_20-30_3.png)
+
+![](../../assets/articles/live-iso-tricks-tips/2024-04-23_20-30_2.png)
+
+![](../../assets/articles/live-iso-tricks-tips/2024-04-23_20-30_1.png)
+
+![](../../assets/articles/live-iso-tricks-tips/2024-04-23_20-30.png)
+
+![](../../assets/articles/live-iso-tricks-tips/2024-04-23_20-29_2.png)
+
+![](../../assets/articles/live-iso-tricks-tips/2024-04-23_20-29_1.png)
+
+![](../../assets/articles/live-iso-tricks-tips/2024-04-23_20-29.png)
+
+![](../../assets/articles/live-iso-tricks-tips/2024-04-23_20-28_1.png)
+
+![](../../assets/articles/live-iso-tricks-tips/2024-04-23_20-28.png)

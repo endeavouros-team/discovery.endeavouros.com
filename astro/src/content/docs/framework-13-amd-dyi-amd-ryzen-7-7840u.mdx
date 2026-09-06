@@ -1,0 +1,78 @@
+---
+title: "Framework 13 AMD DYI AMD Ryzen™ 7 7840U"
+description: "Type: Laptop System: Framework product: Laptop 13 (AMD Ryzen 7040Series)"
+---
+
+## General Things
+
+[Framework Laptop13](https://frame.work/laptop13?tab=specs&slug=laptop-diy-13-gen-amd)
+
+- With Fwupd you can simply update the UEFI Firmware on the device
+- Sleep and Hibernate, working out of the box.
+- All Hardware, including add-on cards, are working without the need for extra driver packages.
+- Power-Profiles-Daemon is good to go with it! No need for extra power saving options.
+- Kernel Boot option/s: `amd_pstate=active`
+- fingerprint Sensor inside Power button is also working out of the box using [Fprint](https://wiki.archlinux.org/title/Fprint) With KDE (SDDM) you can set it easily to be used on login and sudo actions (read about the PAM settings with cause) [https://wiki.archlinux.org/title/SDDM#Using_a_fingerprint_reader](https://wiki.archlinux.org/title/SDDM#Using_a_fingerprint_reader)
+
+## System:
+
+**Machine:** 
+Type: Laptop System: Framework product: Laptop 13 (AMD Ryzen 7040Series) 
+v: A7
+
+Mobo: Framework model: FRANMDCP07 v: A7
+
+**CPU:** 
+Info: 8-core model: AMD Ryzen 7 7840U w/ Radeon 780M Graphics bits: 64 
+type: MT MCP arch: Zen 4 rev: 1 cache: L1: 512 KiB L2: 8 MiB L3: 16 MiB 
+Speed (MHz): avg: 1100 min/max: 400/5134
+
+**Graphics:** 
+Device-1: Advanced Micro Devices [AMD/ATI] Phoenix1 vendor: Framework 
+driver: amdgpu v: kernel arch: RDNA-3 pcie: speed: 16 GT/s lanes: 16 ports:
+
+**Audio:** 
+Device-1: Advanced Micro Devices [AMD/ATI] Rembrandt Radeon High Definition 
+Audio vendor: Framework driver: snd_hda_intel v: kernel pcie: 
+speed: 16 GT/s lanes: 16 bus-ID: c1:00.1 chip-ID: 1002:1640 
+Device-2: Advanced Micro Devices [AMD] ACP/ACP3X/ACP6x Audio Coprocessor 
+vendor: Framework driver: snd_pci_ps v: kernel pcie: speed: 16 GT/s 
+lanes: 16 bus-ID: c1:00.5 chip-ID: 1022:15e2 
+Device-3: Advanced Micro Devices [AMD] Family 17h/19h/1ah HD Audio 
+vendor: Framework driver: snd_hda_intel v: kernel pcie: speed: 16 GT/s 
+lanes: 16 bus-ID: c1:00.6 chip-ID: 1022:15e3
+
+**Network:** 
+Device-1: MEDIATEK MT7922 802.11ax PCI Express Wireless Network Adapter 
+driver: mt7921e v: kernel pcie: speed: 5 GT/s lanes: 1 bus-ID: 01:00.0 
+chip-ID: 14c3:0616
+
+**Bluetooth:** 
+Device-1: MediaTek Wireless_Device driver: btusb v: 0.8 type: USB rev: 2.1 
+speed: 480 Mb/s lanes: 1 bus-ID: 1-5:3 chip-ID: 0e8d:e616
+
+## WIFI:
+
+I do not have issue in general with the wifi but seems it does have a small power management issue so i try to disable that feature:
+
+with [iw](https://archlinux.org/packages/core/x86_64/iw/) installed you can check if powersave mode is active:
+
+`iw dev wlan0 get power_save`
+
+`mkdir -p /etc/NetworkManager/conf.d/`
+
+`sudo nano /etc/NetworkManager/conf.d/disable-wifi-powersave.conf`
+
+adding this in the config:
+
+`[connection]wifi.powersave = 2`
+
+and restart NetworkManager:
+
+`sudo systemctl restart NetworkManager`
+
+joekamprad has a blog about anything else on that device as of he got one to test EndeavourOS on it from Framework:
+
+[https://www.kamprad.net/index.php/framework-13-running-endeavouros-2](https://www.kamprad.net/index.php/framework-13-running-endeavouros-2)
+
+There you can find tutorials on adding plymouth boot splash per example, and other things.

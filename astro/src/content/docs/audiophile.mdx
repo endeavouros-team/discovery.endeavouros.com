@@ -1,0 +1,164 @@
+---
+title: "Audiophile"
+description: "This article covers configuring audio for optimal playback quality in Arch Linux."
+---
+
+This article covers configuring audio for optimal playback quality in Arch Linux.
+
+#### Table of contents:
+
+1. **[Changing sample rate](#changing-sample-rate)**
+2. **[Resampling quality](#resampling-quality)**
+3. **[USB DAC's](#usb-dacs)**
+4. **[Recommended software](#recommended-software)**
+
+## Changing sample rate
+
+By default PipeWire sets a global sample rate of 48kHz. If you need to change it (e.g. you own a DAC supporting a higher value) you can do it by editing the line `default.clock.rate = 48000` in the configuration file `~/.config/pipewire/pipewire.conf`. For example, if you want 192kHz, uncomment and change value `48000` to `default.clock.rate = 192000`. 
+ 
+PipeWire can also change output sample rates supported by your DAC. To configure, uncomment and set the line `default.clock.allowed-rates = [ 48000 ]`, for example, `[ 44100 48000 88200 96000 ]`. The sample rate follows the sample rate of the audio stream being played when the card is idle. 
+ 
+To check out which output sample rate and sample format are the data sent to DAC (probably you need to change digits):
+
+`cat /proc/asound/card0/pcm0p/sub0/hw_params`
+
+To check out which input sample rate is used, change `pcm0p` to `pcm0c` (`c` is short for "capture", `p` is for "playback").
+
+## Resampling quality
+
+If you used PulseAudio with `resample-method = speex-float-10` or `soxr-vhq`, then you might consider uncommenting and changing `resample.quality = 4` to `10` or the maximum `15` in `stream.properties` block in both `~/.config/pipewire`/client.conf and `~/.config/pipewire`/pipewire-pulse.conf (copy them from `/usr/share/pipewire/` if they do not exist). Do not forget to restart PipeWire (without sudo): `systemctl --user restart pipewire.service pipewire-pulse.socket` (never forget `pipewire-pulse.socket` if you want your config changes to be applied). 
+ 
+There is a very little quality difference between `10` and `15`, but the CPU load difference is 2-3x. And the latency difference between `4`, `10`, `15` is yet to be investigated by anybody. `resample.quality = 15` on 44100→48000 Hz on Ryzen 2600 causes `pipewire` or `pipewire-pulse` processes to cause 4.0% one CPU core load. 
+ 
+PipeWire uses its own resampling algorithm called Spa. Like with SoX's `sox`, Speex's `speexenc`, PipeWire includes its standalone version: `spa-resample`. Usage:
+
+`spa-resample -q 15 -f s24 -r 48000 input16bit44100orAnythingElse.wav output24bit48000hz.wav`
+
+It is probably somehow possible to use other resamplers by creating your own sink. Or just use a plugin in your music player (e.g., Qmmp has SoX plugin).
+
+**TIP: Try to use ALSA output when possible, and avoid unnecessary resampling. Check the current status with pw-top. If the "RATE" column of the default sink matches that of the application outputting audio, pipewire is not resampling the signal.**
+
+## USB DAC's
+
+Changing sample rates or formats might help reduce latency with some DACs.
+
+**wireplumber** (default):
+
+Using matching rules using *[wireplumber](https://archlinux.org/packages/extra/x86_64/wireplumber/)* (package) we can set properties for devices.
+
+`mkdir -p ~/.config/wireplumber/main.lua.dcp /usr/share/wireplumber/main.lua.d/50-alsa-config.lua ~/.config/wireplumber/main.lua.d/50-alsa-config.lua`
+
+And edit the file accordingly to your needs.
+
+`~/.config/wireplumber/main.lua.d/50-alsa-config.lua`
+
+```
+--["audio.rate"] = 96000,
+--["audio.allowed-rates"] = "32000,96000",
+```
+
+**pipewire-media-session**:
+
+Using matching rules using *[pipewire-](https://archlinux.org/packages/extra/x86_64/pipewire-media-session/)[media](https://archlinux.org/packages/extra/x86_64/pipewire-media-session/)[-session](https://archlinux.org/packages/extra/x86_64/pipewire-media-session/)* (package) we can set properties for devices. 
+ 
+Copy the default configuration of `alsa-monitor.conf` for *pipewire-media-session* into `~/.config/pipewire/media-session.d`. Then append a new rule-block similar to the following one: 
+ 
+`~/.config/pipewire/media-session.d/alsa-monitor.conf`
+
+```
+rules = {
+…
+{
+matches = [
+{
+node.name = "alsa_output."
+}
+]
+actions = {
+update-props = {
+audio.format = "S24_3LE"
+audio.rate = 96000
+# Following value should be doubled until audio doesn't cut out or other issues stop occurring
+api.alsa.period-size = 128
+}
+}
+}
+…
+}
+```
+
+`alsa_output.<name of node>` node can be obtained using `pw-top`. 
+ 
+Your DAC might support a different format or sample rate. You can check what your DAC supports by querying [ALSA](https://wiki.archlinux.org/title/ALSA): 
+ 
+First get the card number of your DAC:
+
+`aplay -l`
+
+```
+…
+card 3: S2 [Schiit Hel 2], device 0: USB Audio [USB Audio]
+Subdevices: 0/1
+Subdevice #0: subdevice #0
+…
+```
+
+So in this example it would be card 3. Get all supported sample rates and formats:
+
+`cat /proc/asound/cardX/streamX`
+
+```
+…
+Playback:
+…
+Interface 1
+Altset 1
+Format: S16_LE
+Channels: 2
+Endpoint: 0x05 (5 OUT) (ASYNC)
+Rates: 44100, 48000, 88200, 96000, 176400, 192000, 352800, 384000
+Data packet interval: 125 us
+Bits: 16
+…
+Interface 1
+Altset 2
+Format: S24_3LE
+Channels: 2
+Endpoint: 0x05 (5 OUT) (ASYNC)
+Rates: 44100, 48000, 88200, 96000, 176400, 192000, 352800, 384000
+Data packet interval: 125 us
+Bits: 24
+…
+Interface 1
+Altset 3
+Format: S32_LE
+Channels: 2
+Endpoint: 0x05 (5 OUT) (ASYNC)
+Rates: 44100, 48000, 88200, 96000, 176400, 192000, 352800, 384000
+Data packet interval: 125 us
+Bits: 32
+…
+…
+```
+
+In this case `S16_LE, S24_3LE, S32_LE` are the supported formats and `44100, 48000, 88200, 96000, 176400, 192000, 352800, 384000` are the supported sample rates across all formats.
+
+## Recommended software
+
+**[deadbeef](https://deadbeef.sourceforge.io/)**: Modular GTK audio player for GNU/Linux.
+
+`yay -S deadbeef`
+
+[**audacious**](https://audacious-media-player.org/): Lightweight, advanced audio player focused on audio quality.
+
+`pacman -Syu audacious`
+
+**[strawberry](https://www.strawberrymusicplayer.org/)**: A music player aimed at audio enthusiasts and music collectors.
+
+`pacman -Syu strawberry`
+
+> **Sources / Further reading:**
+
+**[https://wiki.archlinux.org/title/PipeWire](https://wiki.archlinux.org/title/PipeWire)**
+
+**[https://gitlab.freedesktop.org/pipewire/pipewire/-/wikis/home](https://gitlab.freedesktop.org/pipewire/pipewire/-/wikis/home)**

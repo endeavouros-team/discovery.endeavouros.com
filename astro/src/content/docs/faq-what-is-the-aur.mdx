@@ -1,0 +1,41 @@
+---
+title: "[FAQ] What is the AUR?"
+description: "The Arch User Repository (AUR) is a collection of user-submitted package description files ( PKGBUILDfiles). These description files can be used to create..."
+---
+
+by Jonathon
+
+The **A**rch **U**ser **R**epository (AUR) is a collection of user-submitted package description files ( `PKGBUILD`files). These description files can be used to create package archive files ( `.pkg.tar.zst` files).
+
+These `PKGBUILD` files can be used by an AUR helper (e.g. `yay` , `aurman` , Pamac) or manually built using `makepkg`. The resulting package archive file can then be installed in the normal way.
+
+All content on the AUR is uploaded by ordinary users and very little checking of their content is done – it is up to *you* to verify the content is safe to use.
+
+The best (most detailed and accurate) source of information about the AUR is the Arch wiki page: [https://wiki.archlinux.org/index.php/Arch_User_Repository ](https://wiki.archlinux.org/index.php/Arch_User_Repository)
+
+Please read it – especially the [AUR FAQ 3](https://wiki.archlinux.org/index.php/Arch_User_Repository#FAQ) section. There’s no need to repeat it all here.
+
+---
+
+## Some frog thinking about that too at the forum:
+
+**originally written by [kresimir](https://forum.endeavouros.com/u/kresimir/summary) here: **[https://forum.endeavouros.com/t/aur-pkgbuilds/6669/18](https://forum.endeavouros.com/t/aur-pkgbuilds/6669/18)
+
+The AUR is one of the safest ways to install software, just because it is so transparent. But it does not tolerate just looking up the package in Pamac and clicking on the Build button, or doing `yay package_name` blindly. It requires that the user knows what’s going on. That’s why I recommend trying to build at least one package manually, to understand what’s going on, before using an AUR helper like pamac or `yay`.
+
+`yay` has a nice feature that allows you to inspect a PKGBUILD file before installing, and to see the differences in the PKGBUILD file when updating a package from the AUR. Do not ignore this feature, it is very useful and will make your AUR usage much safer.
+
+Here are some tips on how to be safe using the AUR.
+
+- First of all, look up the package on [aur.archlinux.org 25](http://aur.archlinux.org), see the comments, upvotes, popularity, name of the packager, etc… If it is not a popular package, be extra careful when inspecting the PKBUILD file. Look at the date the package was last updated. If it is fairly old, or updated by the same person, and people are using it, it’s almost certainly safe. If there is anything fishy going on, it will be removed from the AUR fairly quickly.
+
+What to look for in the PKGBUILD file? You’ll have to learn some elementary shell scripting to understand what’s going on. This is easier than it sounds.
+
+- Inspect even the PKGBUILD files for completely trustworthy packages, just so you learn to recognise a good PKGBUILD file. When you see a dozen good PKGBUILD files and you understand what’s going on there, you’ll already have the feeling for anything that is out of place.
+- Look for anything obviously malicious, like `rm`, `mv` commands, any output redirection, any mention of `/dev` (like `/dev/null`, `/dev/sda`, `/dev/zero`, `/dev/random`), `mkfs`, any call to `pacman`, `systemctl`, anything that touches grub… stuff like that.
+- Look for any command that does stuff in your home directory. Typically, building and installing packages should not touch anything in the home directory. If you find something like that, be very suspicious and make sure you completely understand what that command does.
+- Look for anything that looks intentionally obfuscated. Anything that is written in an unclear way, with many semicolons, `&&`s and `||`s, lots of brackets, `sed`, `awk`, etc… Typically, good PKGBUILDs contain very simple instructions.
+- Make sure the software comes from a trustworthy place, whether it’s a binary distribution or the source code. Check all the URLs in the script, make sure they are official pages for the software you’re installing. All URLs should be listed neatly in the beginning of the file. Look for any downloads of external scripts, with `curl` or `wget`, there should not be anything like that. Beware of random Github places.
+- Use common sense.
+
+Also, when you install something from the AUR, consider upvoting it on [aur.archlinux.org 25](http://aur.archlinux.org), just to let everyone know it’s a good package. Votes are one of the criteria for package inclusion in the official repos. If you notice anything malicious, do not neglect to report it. Upvoting good packages and reporting bad ones is the easiest way to improve the AUR for everyone.

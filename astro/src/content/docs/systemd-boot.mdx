@@ -1,0 +1,62 @@
+---
+title: "systemd-boot"
+description: "In general, you shouldn’t need to do anything special to manage systemd-boot in our default configuration as everything should be managed automatically...."
+---
+
+#### Overview
+
+Systemd-boot is a simple UEFI boot manager that is part of systemd. It has several advantages over other boot managers:
+
+- It is uncomplicated and uses simple text file which only contain a few lines
+- It is less prone to breakage, easy to troubleshoot and doesn’t require any process to rebuild config files
+- It allows each Linux install to manage their own configuration files and doesn’t require detection between different installs
+
+EndeavourOS uses kernel-install with systemd-boot to manage the process. This has a few advantages:
+
+- A more modern approach
+- Completely automates the process of entry creation and removal
+- Safe for multi-booting since it moves your kernels and images to a installation specific subdirectory
+
+#### [](https://forum.endeavouros.com/t/post-cassini-wiki-articles/34538/2#usage-2)Usage
+
+In general, you shouldn’t need to do anything special to manage systemd-boot in our default configuration as everything should be managed automatically. Here are a few tips and trips to help you along the way.
+
+#### [](https://forum.endeavouros.com/t/post-cassini-wiki-articles/34538/2#understanding-reinstall-kernels-3)Understanding reinstall-kernels
+
+The script `reinstall-kernels` both regenerate the initrds and create/update the boot entries. It works with both [dracut](https://github.com/dracutdevs/dracut/wiki) and [mkinitcpio](https://wiki.archlinux.org/title/mkinitcpio) as long as you have either `kernel-install-for-dracut`(The default) or `kernel-install-mkinitcpio`(AUR) installed.
+
+##### [](https://forum.endeavouros.com/t/post-cassini-wiki-articles/34538/2#how-to-modify-kernel-options-4)How to modify kernel options
+
+In [systemd-boot](https://wiki.archlinux.org/title/systemd-boot), it is actually quite simple. You edit the appropriate entry file which can be found on your EFI partition in the `loader/entries` directory. Each entry is a boot option on the menu and each has a line called `options`. You can modify these entries directly, however, these changes may be overwritten when packages are installed or updated.
+
+To make the changes, instead of modifying the entries, modify the file `/etc/kernel/cmdline` which is a one-line file containing a list of kernel options. Then run `sudo reinstall-kernels` which will populate the entries and regenerate the initrds.
+
+If you would prefer to use the current kernel options from the running system, you can instead `rm` the file `/etc/kernel/cmdline` and then run `sudo reinstall-kernels`.
+
+#### How to change the default entry to boot
+
+There is a `default` entry inside `/efi/loader/loader.conf` that determine the default boot entry.
+
+On a new install, it will look something like this:
+
+`default 665eca4ae83246df8ec17d1cbc6a1763*`
+
+That first string of characters is you entry token which identifies the install. That is important if you are dual-booting with another Linux, otherwise it can be replaced with `*`. That line supports wildcards and so if you want to boot the LTS kernel by default you could use something like this:
+
+`default 665eca4ae83246df8ec17d1cbc6a1763*lts.conf`
+
+Alternatively, if you want to boot the mainline kernel by default, something like this should work:
+
+`default 665eca4ae83246df8ec17d1cbc6a1763-*-arch?-?.conf`
+
+These changes will take effect on the next reboot and nothing else is required except modifying the file.
+
+#### More information
+
+There are a few other good sources of information on systemd-boot.
+
+- Not to forget the [Arch-Wiki](https://wiki.archlinux.org/title/systemd-boot)
+- [Freedesktop](https://www.freedesktop.org/software/systemd/man/systemd-boot.html) with all basic Information on handling and Options
+- General info and links can be found also in [Wikipedia](https://en.wikipedia.org/wiki/Systemd-boot)
+- And the [Sourcecode git](https://github.com/systemd/systemd/tree/main/src/boot) can come in handy too
+- [man systemd-boot](https://man.archlinux.org/man/systemd-boot.7.en) and man [loader.conf](https://man.archlinux.org/man/loader.conf.5) for all possible options

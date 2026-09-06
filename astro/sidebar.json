@@ -1,0 +1,433 @@
+[
+  {
+    "label": "ACPI kernel parameters",
+    "items": [
+      {
+        "slug": "acpi-kernel-parameters-and-how-to-choose-them"
+      }
+    ]
+  },
+  {
+    "label": "AMD GPU",
+    "items": [
+      {
+        "slug": "framework-13-amd-dyi-amd-ryzen-7-7840u"
+      },
+      {
+        "slug": "video-playback"
+      }
+    ]
+  },
+  {
+    "label": "Applications",
+    "items": [
+      {
+        "slug": "beginners-guide-to-mpd-config-and-clients"
+      },
+      {
+        "slug": "default-applications"
+      },
+      {
+        "slug": "firewalld"
+      },
+      {
+        "slug": "flatpak-enabling-and-application-management"
+      },
+      {
+        "slug": "flatpak-tweaking-the-visuals"
+      },
+      {
+        "slug": "how-to-install-virt-manager-complete-edition"
+      },
+      {
+        "slug": "how-to-install-virtualbox"
+      },
+      {
+        "slug": "installing-endeavouros-on-virtualbox"
+      },
+      {
+        "slug": "kde-plasma"
+      },
+      {
+        "slug": "uniform-theme-and-fonts-for-qt-apps-in-gtk-environments"
+      },
+      {
+        "slug": "update-troubles-meet-timeshift"
+      }
+    ]
+  },
+  {
+    "label": "ARM",
+    "items": [
+      {
+        "slug": "an-endeavouros-based-simple-home-server"
+      },
+      {
+        "slug": "homeserver-5-configure-a-windows-client-for-samba"
+      },
+      {
+        "slug": "homeserver-6-install-and-setup-a-minidlna-media-server"
+      },
+      {
+        "slug": "homeserver-automatically-mount-server-at-log-in"
+      },
+      {
+        "slug": "homeserver-set-up-a-linux-client-computer"
+      },
+      {
+        "slug": "homeserver-use-fuse-and-sshfs-to-view-server-data-in-a-file-manager"
+      },
+      {
+        "slug": "install-and-setup-a-samba-server"
+      },
+      {
+        "slug": "installing-an-external-ssd-for-the-home-partition-manual"
+      }
+    ]
+  },
+  {
+    "label": "Articles",
+    "items": [
+      {
+        "slug": "does-endeavouros-frown-upon-gui-solutions-for-pacman"
+      },
+      {
+        "slug": "faq-what-is-the-aur"
+      },
+      {
+        "slug": "pacman-actions-explained"
+      },
+      {
+        "slug": "root-partition-full-dont-panic-clear-pacmans-cache-first"
+      }
+    ]
+  },
+  {
+    "label": "Audio",
+    "items": [
+      {
+        "slug": "audiophile"
+      },
+      {
+        "slug": "bluetooth"
+      },
+      {
+        "slug": "getting-information-while-having-sound-issues"
+      },
+      {
+        "slug": "pipewire"
+      },
+      {
+        "slug": "pulseaudio"
+      }
+    ]
+  },
+  {
+    "label": "AUR",
+    "items": [
+      {
+        "slug": "yay-an-aur-helper-written-in-go"
+      }
+    ]
+  },
+  {
+    "label": "bash",
+    "items": [
+      {
+        "slug": "bash-customizations"
+      }
+    ]
+  },
+  {
+    "label": "BTRFS",
+    "items": [
+      {
+        "slug": "adding-swap-after-installation"
+      },
+      {
+        "slug": "arch-chroot"
+      },
+      {
+        "slug": "btrfs-basic-information-and-troubleshooting"
+      },
+      {
+        "slug": "btrfs-with-timeshift-snapshots-on-the-grub-menu"
+      }
+    ]
+  },
+  {
+    "label": "Desktop Environments",
+    "items": [
+      {
+        "slug": "font-management"
+      },
+      {
+        "slug": "gdm-gnome-desktop-manager"
+      },
+      {
+        "slug": "gnome-desktop"
+      },
+      {
+        "slug": "how-to-install-desktop-environments-next-to-your-existing-ones"
+      },
+      {
+        "slug": "lightdm"
+      },
+      {
+        "slug": "removing-a-desktop-environment"
+      },
+      {
+        "slug": "xfce-hi-dpi-screens"
+      }
+    ]
+  },
+  {
+    "label": "Encrypted installation",
+    "items": [
+      {
+        "slug": "encrypted-installation"
+      }
+    ]
+  },
+  {
+    "label": "EndeavourOS tools",
+    "items": [
+      {
+        "slug": "a-gui-app-for-selecting-arch-mirrors"
+      },
+      {
+        "slug": "akm"
+      },
+      {
+        "slug": "endeavouros-update-notifier"
+      },
+      {
+        "slug": "telegram-helpchat-and-reddit-discussion-rules"
+      },
+      {
+        "slug": "welcome"
+      }
+    ]
+  },
+  {
+    "label": "Forum log tool options",
+    "items": [
+      {
+        "slug": "how-to-include-systemlogs-in-your-post"
+      }
+    ]
+  },
+  {
+    "label": "Gaming",
+    "items": [
+      {
+        "slug": "gaming-101"
+      },
+      {
+        "slug": "intel"
+      },
+      {
+        "slug": "steam-lutris-wine"
+      },
+      {
+        "slug": "switcheroo-control"
+      }
+    ]
+  },
+  {
+    "label": "Grub and Refind",
+    "items": [
+      {
+        "slug": "grub-how-to-fix-booting-of-other-arch-based-systems"
+      },
+      {
+        "slug": "how-to-install-refind"
+      }
+    ]
+  },
+  {
+    "label": "Hardware",
+    "items": [
+      {
+        "slug": "optimus-manager-for-nvidia"
+      },
+      {
+        "slug": "tools-to-lower-power-consumption-and-device-cooling"
+      },
+      {
+        "slug": "webcam-setup"
+      }
+    ]
+  },
+  {
+    "label": "Installation",
+    "items": [
+      {
+        "slug": "add-packages-to-be-installed-in-addition-to-desktop-chosen"
+      },
+      {
+        "slug": "create-install-media-usb-key"
+      },
+      {
+        "slug": "customizing-the-endeavouros-install-process"
+      },
+      {
+        "slug": "get-broadcom-working-on-an-installed-system-and-on-live-usb"
+      },
+      {
+        "slug": "live-iso-tricks-tips"
+      }
+    ]
+  },
+  {
+    "label": "Network",
+    "items": [
+      {
+        "slug": "firewall"
+      },
+      {
+        "slug": "printers"
+      },
+      {
+        "slug": "r8168-workaround"
+      }
+    ]
+  },
+  {
+    "label": "Nvidia",
+    "items": [
+      {
+        "slug": "new-nvidia-driver-installer-nvidia-inst"
+      },
+      {
+        "slug": "nouveau"
+      },
+      {
+        "slug": "nvidia-intro"
+      },
+      {
+        "slug": "nvidia-optimus-notebooks-hybrid-graphics"
+      },
+      {
+        "slug": "optimus-switch-another-solution-for-optimus-laptops"
+      }
+    ]
+  },
+  {
+    "label": "Pacman",
+    "items": [
+      {
+        "slug": "automatic-update-of-the-pacman-database"
+      },
+      {
+        "slug": "automatically-ranking-the-mirror-list"
+      },
+      {
+        "slug": "desktop-managers"
+      },
+      {
+        "slug": "downgrade-packages"
+      },
+      {
+        "slug": "downgrade-packages-to-a-specific-date"
+      },
+      {
+        "slug": "easy-downgrade-by-date"
+      },
+      {
+        "slug": "mirrors-intro"
+      },
+      {
+        "slug": "pacman-basic-commands"
+      }
+    ]
+  },
+  {
+    "label": "Signature and keyring",
+    "items": [
+      {
+        "slug": "how-to-check-and-trust-key-and-signature-for-the-endeavouros-iso"
+      },
+      {
+        "slug": "pacman-keyring-issues"
+      }
+    ]
+  },
+  {
+    "label": "Storage and partitions",
+    "items": [
+      {
+        "slug": "how-to-permanently-mount-external-internal-drives-in-linux"
+      },
+      {
+        "slug": "periodic-trim"
+      }
+    ]
+  },
+  {
+    "label": "System rescue",
+    "items": [
+      {
+        "slug": "dracut"
+      },
+      {
+        "slug": "fix-arch-linux-boot-with-arch-chroot"
+      },
+      {
+        "slug": "how-to-boot-without-a-graphical-environment"
+      },
+      {
+        "slug": "repair-a-non-booting-grub"
+      },
+      {
+        "slug": "systemd-boot"
+      }
+    ]
+  },
+  {
+    "label": "Video tutorials",
+    "items": [
+      {
+        "slug": "back-up"
+      },
+      {
+        "slug": "general-linux-tutorials"
+      },
+      {
+        "slug": "gui-applications"
+      },
+      {
+        "slug": "install-endeavouros"
+      },
+      {
+        "slug": "joekamprad-video-tutorials"
+      },
+      {
+        "slug": "maintenance"
+      },
+      {
+        "slug": "pacman-aur-tutorials"
+      }
+    ]
+  },
+  {
+    "label": "Window/Tiling managers",
+    "items": [
+      {
+        "slug": "bspwm-2"
+      },
+      {
+        "slug": "i3-wm"
+      },
+      {
+        "slug": "openbox"
+      },
+      {
+        "slug": "qtile"
+      },
+      {
+        "slug": "sway"
+      }
+    ]
+  }
+]

@@ -1,0 +1,146 @@
+---
+title: "Installing an external SSD for the /home Partition"
+description: "Here are the instructions to install an external USB SSD enclosure as your /home directory on your new EndeavourOS SBC."
+---
+
+Here are the instructions to install an external USB SSD enclosure as your /home directory on your new EndeavourOS SBC.
+
+Install a SSD in a USB 3 enclosure as an external home partition. This SSD can be any size you want. Then this USB 3 SSD can be mounted during boot up in /etc/fstab as /home. This also makes this data easily backed up with rsync along with config files.
+
+Power off the computer and connect a USB 3 external enclosure with a SSD installed.
+
+IMPORTANT: To transfer the contents of /home then empty /home, there should not be anyone logged into a Desktop Environment. Way too many conflicts if someone is logged in.
+
+Boot the computer, at the Desktop Manager, do NOT login.
+
+Press Ctrl-ALT-F2 to open a Console window (tty2).
+
+Login to the console window as root and enter your root password.
+
+\# lb (Odroid N2 & RPi4 will look similar to this, Odroid XU4 will have one mmcblk partition)
+
+NAME FSTYPE FSSIZE LABEL MOUNTPOINT
+
+sda
+
+└─sda1 ext4 XXXXX
+
+mmcblk0
+
+├──mmcblk0p1 vfat 252M BOOT /boot
+
+└──mmcblk0p2 ext4 56.8G ROOT /
+
+/dev/mmcblk0 is our OS device. The /dev/sda is our target device. If the SSD device is brand new and has never been partitioned it may look different. Now we have determined that /dev/sda is our new device (your setup may be different such as /dev/sdb etc)
+
+/dev/sda1 should not show a MOUNTPOINT. It is remotely possible /dev*/*sda1 will be mounted and show a mount point. If so, we have to un-mount it, and any other partition on /dev/sda that shows up as being mounted. Such as possibly /dev*/*sda2, /dev/sda3, etc. until all are un-mounted. Of course, do not un-mount anything on mmcblk1.
+
+`# umount /dev/sda1 and possibly # umount /dev/sda2 etc.` (If necessary)
+
+Next partition the USB SSD as one partition that uses all the space in the SSD
+
+CAUTION: This WILL erase ALL DATA on your SSD.
+
+`# fdisk /dev/sda` ( or adjust to /dev*/*sdb or whatever is relevant )
+
+Command o (That's lower case o...create a new empty DOS partition table)
+
+Command n (add a new partition)
+
+Partition type: p (p = primary)
+
+partition number: 1
+
+First sector: enter to accept default
+
+Last sector: enter to accept default
+
+Partition #1 contains a ext4 signature. (this warning may not appear, if so yes)
+
+do you want to remove the signature? yes
+
+Command: w (write table to disk and exit)
+
+`# mkfs.ext4 -L HOME /dev/sda1` (format our new partition to ext4, `-L HOME` is the label)
+
+Now that `/dev/sda` is partitioned and formatted, we need to mount it on `/mnt`
+
+`# mount -t ext4 /dev/sda1 /mnt`
+
+`# la /mnt` (should see the directory lost+found created by mkfs.ext4 )
+
+`# rm -rf /mnt/lost+found`
+
+`# la /mnt` ( should see lost+found has been removed )
+
+`# cp -rp /home/* /var` (make a backup of your current home directory or directories)
+
+`# cp -rp /home/* /mnt `(copy contents of home to /mnt using recursive & preserve options)
+
+`# la /mnt/username` ( should see the copied contents of home )
+
+`# rm -rf /home/* `(empty the original home folder to be used as a mount point)
+
+`# la /home `( home should be empty, if not repeat above command)
+
+`# umount /dev/sda1` ( un-mount /dev*/*sda1 from mount point /mnt )
+
+`# mount -t ext4 /dev/sda1 /home` ( mount /dev*/*sda1 to now empty home folder)
+
+`# la /home/username` ( should see the home directories and dot files )
+
+Modify `/etc/fstab`
+
+Now that the dirty work is done, finish this up by exiting out of the console window.
+
+Switch to the GUI mode by pressing Ctrl-Alt-F7, F6 , or maybe F1. Log into the desktop.
+
+Open a terminal window
+
+`$ su` then enter root password
+
+`# cp /etc/fstab /etc/fstab.orig` (backup fstab)
+
+Find the UUID for the home SSD partition.
+
+`# lsblk -f /dev/sda`
+
+`NAME FSTYPE FSVER LABEL UUID FSAVAIL FSUSE% MOUNTPOINT`
+
+`sda`
+
+`└─sda1 ext4 1.0 HOME b6bd3cd3-c666-4259-9ad9-125a003ff231 221.7G 0%`
+
+you should see /dev/sda1 with a nice label of "HOME" and its UUID number.
+
+Highlight the UUID number, then right click and click copy.
+
+Using your favorite text editor, add the following line at the end of the /etc/fstab file
+
+`# gedit /etc/fstab &`
+
+`UUID=PASTE-Your-UUID-Number /home ext4 defaults,noatime 0 2`
+
+`# mount -a` (should show no errors if fstab is correct, if not edit /etc/fstab again)
+
+`# lb /dev/sda1` (should show our new /home )
+
+`NAME FSTYPE FSSIZE LABEL MOUNTPOINT`
+
+`sda1 ext4 457.4G HOME /home`
+
+Reboot the computer and log into your Desktop.
+
+After reboot, in a terminal window
+
+`$ lb /dev/sda1`
+
+`NAME FSTYPE FSSIZE LABEL MOUNTPOINT`
+
+`sda1 ext4 457.4G HOME /home`
+
+I would recommend removing the home directory backup(s) from /var.
+
+This frees up storage space and it is better security to not have your home directory in /var.
+
+From now on the home folder will be on the SSD. The SBC device and the USB external SSD enclosure are now married and should always be used together.

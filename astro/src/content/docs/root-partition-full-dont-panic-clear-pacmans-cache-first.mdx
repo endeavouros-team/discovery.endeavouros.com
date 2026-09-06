@@ -1,0 +1,101 @@
+---
+title: "Root partition full? Don't panic, clear Pacman's cache first!"
+description: "After some time, the system might give you a warning that your root partition is almost full."
+---
+
+After some time, the system might give you a warning that your root partition is almost full.
+
+You might panic about this and you're either tempted to do a reinstall and increase your root partition or even worse, trying to use Gparted to decrease your partition, move it and increase your Root partition.
+
+**STOP!!!** Don't do that, especially the latter option, as it can break your system. My advice is just to stay calm, there's a much less radical solution to this problem.
+
+**/var/cache/pacman/pkg/**
+
+When you install a package with Pacman, it stores all downloaded packages in **/var/cache/pacman/pkg/** folder. The package manager doesn't remove old and uninstalled packages automatically by default and after a while, the cache size can consume a substantial amount of real estate on your HDD or SDD.
+
+Fortunately, Pacman has a built-in function to clear the cache, by typing "sudo pacman -Sc" the cache will be entirely cleared. Problem solved, right?!?
+
+Well... yes and no. Yes, your cache is cleared and you will have free space on the partition regained, yay...
+
+So, what's the problem, you might ask me? The problem now is by using the above-described command, you have cleared your entire cache, including the cache of your installed packages. This cache is needed when a package-update doesn't work and you have to downgrade until the issue is solved upstream. This is not a big disaster, because you can also downgrade a package using the Arch repo, but falling back on your local cache is so much easier.
+
+**Paccache**
+
+Don't worry, there's a solution and it's called **paccache**. Now, before you go open your terminal and use yay to look for this nifty package, don't bother, because it isn't a package, it is already present on your system.
+
+The Paccache script is provided by the Pacman package itself. So, you don’t have to bother with installation steps. Paccache will keep the three most recent package versions by default. Except for the three most recent package versions, It will delete all cached versions of each package regardless of whether they’re installed or not.
+
+**How to use it**
+
+To check how many packages are in the paccache just type in:
+
+```
+$ sudo ls /var/cache/pacman/pkg/ | wc -l
+```
+
+This will give you the number of packages that are in your cache if you want to know how much space the cache is taking, type:
+
+```
+$ du -sh /var/cache/pacman/pkg/
+```
+
+Now the system is telling you how big the size of your cache is.
+
+Now you can clear the cache, except the last three versions of each package by typing
+
+```
+$ sudo paccache -r
+```
+
+Depending on your cache history, this may give a lot of space back on your root partition, but now you're at it, why not clear the cache from your uninstalled packages? To do that type the following:
+
+```
+$ sudo paccache -ruk0
+```
+
+**U** in this command stands for all the uninstalled package and depending on your history of uninstalled packages, this also can give your system a lot of space back. Another method to clear uninstalled packages is using:
+
+```
+$ sudo pacman -Sc
+```
+
+Or to completely remove it use:
+
+```
+$ sudo pacman -Scc
+```
+
+Just be careful with cleaning the cache and packages with this command, it seems tempting to use it, but once deleted there's no turning back.
+
+**Automatic cache removal**
+
+You can automate this task using pacman hooks. The pacman hook will automatically clean the package cache after every pacman transaction.
+
+To do so, create a file **/etc/pacman.d/hooks/clean_package_cache.hook** by doing the following:
+
+```
+$ sudo mkdir -p /etc/pacman.d/hooks
+```
+
+```
+$ sudo nano /etc/pacman.d/hooks/clean_package_cache.hook
+```
+
+Then add the following lines:
+
+```ini
+[Trigger]
+Operation = Upgrade
+Operation = Install
+Operation = Remove
+Type = Package
+Target = *
+[Action]
+Description = Cleaning pacman cache...
+When = PostTransaction
+Exec = /usr/bin/paccache -r
+```
+
+Close and save by pressing CTRL + x and from now on your system will automatically clear the cache after each pacman update, removal or update.
+
+EDIT: Since the writing of this article EndeavourOS ships with an automated script that is part of the Welcome app that performs these operations with a couple of mouse clicks.

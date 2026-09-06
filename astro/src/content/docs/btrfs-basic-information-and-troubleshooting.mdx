@@ -1,0 +1,32 @@
+---
+title: "BTRFS basic information and troubleshooting"
+description: "https://btrfs.readthedocs.io/en/latest/Introduction.html"
+---
+
+## Links to official documentation:
+
+[https://btrfs.readthedocs.io/en/latest/Introduction.html](https://btrfs.readthedocs.io/en/latest/Introduction.html)
+
+[https://wiki.archlinux.org/title/btrfs](https://wiki.archlinux.org/title/btrfs)
+
+[https://wiki.gentoo.org/wiki/Btrfs](https://wiki.gentoo.org/wiki/Btrfs)
+
+## Introduction:
+
+BTRFS is a modern [copy on write (COW)](https://en.wikipedia.org/wiki/Copy-on-write) filesystem for Linux aimed at implementing advanced features while also focusing on fault tolerance, repair and easy administration. Its main features and benefits are:
+
+- Snapshots which do not make a full copy of the files
+- Built-in volume management, support for software-based RAID 0, RAID 1, RAID 10 and others
+- Self-healing - checksums for data and metadata, automatic detection of silent data corruptions
+
+In some cases, we see that users simply start installing **BTRFS** because they think it's ***new, fast, fancy, the next big must-have***, or whatever. That's a link to trouble! If you do not have any clue about the four points described beforehand, you should not use **BTRFS**, at least **not **without first reading about what exactly it is and how it basically works, as it is different from traditional file systems in many ways.
+
+## Tips and Tricks:
+
+To handle BTRFS there is a nice GUI tool you can install:
+
+`yay -S btrfs-assistant`
+
+AUR: [https://aur.archlinux.org/packages/btrfs-assistant](https://aur.archlinux.org/packages/btrfs-assistant-git)
+
+SOURCE: [https://gitlab.com/btrfs-assistant/btrfs-assistant](https://gitlab.com/btrfs-assistant/btrfs-assistant)

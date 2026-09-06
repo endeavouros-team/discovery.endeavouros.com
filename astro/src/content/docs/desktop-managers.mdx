@@ -1,0 +1,66 @@
+---
+title: "Desktop Managers"
+description: "If you don’t have automatic login enabled, the Desktop Manager is the first thing you’ll see after your system has been through Grub and the kernel..."
+---
+
+by Bryanpwo
+
+If you don’t have automatic login enabled, the Desktop Manager is the first thing you’ll see after your system has been through Grub and the kernel start-up.
+
+Most people call it a greeter, but it’s so much more than that, it also is responsible for a smooth desktop experience. That’s why it’s key to install the Desktop Environment with the corresponding Desktop Manager.
+
+## Gnome
+
+Gnome recommends [GDM](https://wiki.archlinux.org/index.php/GDM) as their DM. If you installed the Gnome group, GDM is already installed, but not enabled by default. If you’re coming from the offline installer do the following:
+
+```bash
+sudo systemctl -f enable gdm
+```
+
+(the** -f** option forces to disable the already enabled one and enables the new one)
+
+Then reboot the system and GDM will appear on your login screen.
+
+## KDE Plasma
+
+KDE uses [SDDM](https://wiki.archlinux.org/index.php/SDDM), to install it enter the following
+
+```bash
+sudo pacman -S sddm
+```
+
+Then follow the disable/enable instructions described under Gnome, replacing gdm for sddm.
+
+## Deepin
+
+Deepin uses Lightdm, but with a customized script (DDE) to make the DM more in sync with the DE. This DDE is already shipped when you’ve installed the deepin group, you only have to change the Lightdm file to enable it.
+
+```bash
+sudo nano /etc/lightdm/lightdm.conf
+```
+
+And change the next line to look like this:
+
+```ini
+greeter-session=lightdm-deepin-greeter
+```
+
+Be careful to look for the line without the # in front of it (there’s also a line that starts with # greeter-session=) **don’t change that line**. After you’ve done that save and close the file with ctrl+o and ctrl+x and reboot.
+
+## Budgie
+
+Budgie doesn’t have a specific designated DM, but since it’s recommended to install the Gnome group with this DE, you can use GDM. To enable it read the Gnome section.
+
+## Cinnamon
+
+Cinnamon uses Lightdm, but if you want to make the DM look more like Linux Mint you can install [lightdm-slick-greeter](https://github.com/linuxmint/slick-greeter) and to customize it to your liking. You can also install [lightdm-settings](https://github.com/linuxmint/lightdm-settings). Since both packages are in the AUR, you can use [yay to install them.](http://endeavouros.com/docs/aur/yay/)
+
+After install you have to change the lightdm config file, just read the deepin section for this and change the line into this:
+
+```ini
+greeter-session=lightdm-slick-greeter
+```
+
+Save and close the file (see Deepin) and reboot. To customize Lightdm just open the lightdm-settings app so you can change the position of the login box and change the background picture.
+
+EDIT March 16 2021: EndeavourOS installations from 2020 or newer have this procedure simplified with a button on the Welcome app.

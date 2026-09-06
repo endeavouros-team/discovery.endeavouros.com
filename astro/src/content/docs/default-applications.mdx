@@ -1,0 +1,90 @@
+---
+title: "Default applications / MIME"
+description: "This article will discuss how default applications are set and ways to change them."
+---
+
+This article will discuss how default applications are set and ways to change them.
+
+#### Table of contents:
+
+1. **[Override default applications](#override-default-applications)**
+2. **[MIME types format](#mime-types-format)**
+
+## Introduction
+
+The `/usr/local/share/applications/mimeapps.list` & `/usr/share/applications/mimeapps.list` files specify which application is registered to open specific MIME types by default. These files are provided by the distribution. To override the system defaults for individual users, you need to create a `~/.config/mimeapps.list` file with a list of MIME types for which you want to override the default registered application.
+
+## Override default applications
+
+1. Consult the `/usr/share/applications/mimeapps.list` file to determine the MIME types for which you want to change the default registered application. For example, the following sample of the mimeapps.list file specifies the default registered application for the text/html and application/xhtml+xml MIME types:
+
+```ini
+[Default Applications]
+text/html=firefox.desktop
+application/xhtml+xml=firefox.desktop
+```
+
+- The default application (Firefox) is defined by specifying its corresponding .desktop file (firefox.desktop). The system default location for other applications’ .desktop files is `/usr/share/applications/`. Individual users’ .desktop files can be stored in `~/.local/share/applications/`.
+
+1. Create the `~/.config/mimeapps.list` file. In the file, specify the MIME types and their corresponding default registered applications:
+
+```ini
+[Default Applications]
+text/html=myapplication1.desktop
+application/xhtml+xml=myapplication2.desktop
+
+[Added Associations]
+text/html=myapplication1.desktop;
+application/xhtml+xml=myapplication2.desktop;
+```
+
+- This sets the default registered application for the text/html MIME type to myapplication1.desktop, and the default registered application for the application/xhtml+xml MIME type to myapplication2.desktop.
+- For these settings to function properly, ensure that both the myapplication1.desktop and myapplication2.desktop files are placed in the `/usr/share/applications/` directory. Individual users’ .desktop files can be stored in `~/.local/share/applications/`.
+
+1. You can use the `gio mime` command to verify that the default registered application has been set correctly:
+
+```
+$ gio mime text/html
+Default application for “text/html”: myapplication1.desktop
+Registered applications:
+	myapplication1.desktop
+	firefox.desktop
+Recommended applications:
+	myapplication1.desktop
+	firefox.desktop
+```
+
+## MIME types format
+
+Consider the following example: 
+`mimeapps.list`
+
+```ini
+[Added Associations]
+image/jpeg=bar.desktop;baz.desktop
+video/H264=bar.desktop
+
+[Removed Associations]
+video/H264=baz.desktop
+
+[Default Applications]
+image/jpeg=ristretto.desktop
+inode/directory=thunar.desktop
+```
+
+Each section assigns one or more desktop entries to MIME types;
+
+- **Added Associations** indicates that the applications support opening that MIME type. For example, `bar.desktop` and `baz.desktop` can open JPEG images. This might affect the application list you see when right-clicking a file in a file browser.
+- **Removed Associations** indicates that the applications *do not* support that MIME type. For example, `baz.desktop` cannot open H.264 video.
+- **Default Applications** indicates that the applications should be the default choice for opening that MIME type. For example, JPEG images should be opened with `ristretto.desktop`. This implicitly adds an association between the application and the MIME type. If there are multiple applications, they are tried in order.
+
+```
+ TIP: Although deprecated, several applications still read/write to ~/.local/share/applications/mimeapps.list. To simplify maintenance, simply symlink it to ~/.config/mimeapps.list:
+
+$ ln -s ~/.config/mimeapps.list ~/.local/share/applications/mimeapps.list
+```
+
+> **Sources / Further reading:** 
+**[https://wiki.archlinux.org/title/Default_applications](https://wiki.archlinux.org/title/Default_applications) 
+[https://wiki.archlinux.org/title/XDG_MIME_Applications](https://wiki.archlinux.org/title/XDG_MIME_Applications) 
+[https://help.gnome.org/admin/system-admin-guide/stable/mime-types-application-user.html.en](https://help.gnome.org/admin/system-admin-guide/stable/mime-types-application-user.html.en)**

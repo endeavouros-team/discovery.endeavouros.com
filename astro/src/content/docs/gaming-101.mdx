@@ -8,13 +8,9 @@ The following article will help you take the first steps towards gaming on Arch 
 ##### **Table of contents:**
 
 1. **[Requirements](#requirements)**
-
 2. **[Additional Software](#additional-software)**
-
 3. **[G-Sync](#g-sync)**
-
 4. **[Glossary](#glossary)**
-
 5. **[Resources](#resources)**
 
 > **Sources:** 
@@ -26,12 +22,11 @@ The following article will help you take the first steps towards gaming on Arch 
 
 Search for your GPU in the **[database](http://vulkan.gpuinfo.org/)**;
 
-If there’s an entry you’re good to go! 
- Not on the list? That means your GPU is too old to support Vulkan. Without it, **DXVK** won’t work and performance and compatibility will be worse. However you still can game;
+✓ If there's an entry you're good to go! 
+ Not on the list? That means your GPU is too old to support Vulkan. Without it, **DXVK** won't work and performance and compatibility will be worse. However you still can game;
 
 - Skip next steps: **3. Install Vulkan** and **4. Install Vulkan driver for your GPU driver**.
-
-- Make sure to disable **DXVK/D3DVK** globally in **[Lutris](https://discovery.endeavouros.com/wp-admin/post.php?post=2812&action=edit#heading--linux-gaming-lutris-config)** and **Steam**.
+- Make sure to disable **DXVK/D3DVK** globally in **[Lutris](/steam-lutris-wine/#2-configuration)** and **Steam**.
 
 #### 2. Install **Vulkan**
 
@@ -110,22 +105,18 @@ yay -S emulationstation
 
 Getting Nvidia G-sync to work properly on Linux may require some additional steps.
 
-The most important consideration is the window manager’s compositor, specifically the ability to re-direct fullscreen windows. Most compositors are capable of doing this, those that cannot will need to be either disabled temporarily or swapped out.
+The most important consideration is the window manager's compositor, specifically the ability to re-direct fullscreen windows. Most compositors are capable of doing this, those that cannot will need to be either disabled temporarily or swapped out.
 
 Besides this, usage of a frame limiter is neccassary to ensure all rendered frames stay within the G-Sync range of the monitor, slightly below the maximum refresh rate. For example if your monitor is 144 Hz, cap it at approximately 142 fps. **MangoHud** is the easiest way to accomplish this, execute it as a run command within Lutris or Steam.
 
-How to tell if G-Sync is actually enabled? Open **nvidia-settings**, navigate to “OpenGL settings” then tick the boxes “enable G-sync visual indicator” and “enable graphics API visual indicator”. Now launch a game and check the top left corner overlay, it should say “FLIP” and “G-SYNC” in green letters. In-game V-Sync should also be enabled.
+How to tell if G-Sync is actually enabled? Open **nvidia-settings**, navigate to "OpenGL settings" then tick the boxes "enable G-sync visual indicator" and "enable graphics API visual indicator". Now launch a game and check the top left corner overlay, it should say "FLIP" and "G-SYNC" in green letters. In-game V-Sync should also be enabled.
 
 #### Compatible **compositors**:
 
 - Compton / Picom
-
 - Compiz
-
 - KWin
-
 - Mutter
-
 - Muffin
 
 #### **Config files**
@@ -157,7 +148,7 @@ Make sure that xfwm vblank mode is set to glx, by typing this command in termina
 xfconf-query -c xfwm4 -p /general/vblank_mode -t string -s "glx" --create
 ```
 
-To prevent flickering on the desktop, add a new rule under “application profiles” in **nvidia-settings**:
+To prevent flickering on the desktop, add a new rule under "application profiles" in **nvidia-settings**:
 
 ```
 This feature = process name (procname)
@@ -171,8 +162,46 @@ Value = false
 
 #### Platforms
 
+| Platform | Pros | Cons |
+|---|---|---|
+| Linux Steam | • Very easy to use<br />• Performance same or better than Windows & Native<br />• Big community | • Based on proprietary **Steam** client made by **Valve**<br />• Game library and saves depends on Valve (unless manually backup) |
+| Linux Wine | • Easy when you know how<br />• Performance same or better than Windows & Native<br />• Big community<br />• FOSS<br />• Gives you 100% control of your engine, data and games | • Requires some knowledge or tools for ease of use<br />• May break on updates if always using latest engine (not recommended practice!) |
+| Linux Native | • Best performance | • May break on updates, unless sandboxed<br />• Currently limited number of games |
+
 #### Common terms
+
+| Term | Description |
+|---|---|
+| PREFIX / WINEPREFIX | Separate directory inside your Linux, which represents a "Windows" machine, it's drives, folders, registry, etc. |
+| Engine / (Wine / Proton) | • Allows you to run Windows programs on Linux<br />• Downgrade / update engine version for any **PREFIX** |
+| ARCH | Architecture of **PREFIX** is **win64** or **win32** based on chosen **Engine**<br />⚠ You can use only one **ARCH** for **PREFIX** since it's created, in most cases you should use **win64**! |
+| dll override / WINEDLLOVERRIDES | It's not always possible to run an application on builtin DLLs. Sometimes native DLLs simply work better.<br /><br />You can override any dll in your **PREFIX**, these DLL overrides can be set using **winecfg** or use the `WINEDLLOVERRIDES` environment variable to set them.<br /><br />Options available:<br />• native (=n)<br />• builtin (=b)<br />• disable (=)<br />• native, builtin (=n,b)<br />• builtin, native (=b,n) |
+| Winetricks / Protontricks | Very important tool in your arsenal to tweak **PREFIX** and overcome some known problems, or install **Windows** libraries, to cover unfinished parts of **Wine**. |
+| DXVK | **Vulkan**-based translation layer for DirectX 9 / 10 / 11<br />Probably the most important project for gaming on Linux! |
+| VKD3D | Aims to implement the full DirectX 12 API on top of **Vulkan**.<br />⚠ Early in development, may have lots of bugs and performance problems. |
+| Esync | Removes wineserver overhead for synchronization objects. This can increase performance for some games, especially ones that rely heavily on the CPU. |
+| Fsync | More recent alternative with even better performance improvements, then **Esync**. However, you do need an **Engine** and **Kernel** that supports it. |
 
 #### Engines
 
+| Engine | Description |
+|---|---|
+| Wine | The most **[important](https://wiki.winehq.org/Importance_Of_Wine)** project for the topic at hand, in 1993 there were bunch of absolutely insane people who decided to reverse-engineer Windows proprietary software and redirect it to Linux native FOSS style for future compatibility. |
+| Wine staging | It contains bug fixes and features, which have not been integrated into the development branch yet.<br /><br />The idea of Wine Staging is to provide experimental features faster to end users and to give developers a way to test their patches before being integrated into the main branch. |
+| Proton | A fork of **Wine** maintained by **Valve / Steam**.<br />And what a great boost it gave for Linux gaming!<br /><br />It is basically a set of patches;<br />• **DXVK** enabled by default<br />• **Esync** ready<br />• **Fsync** ready<br /><br />Made to work with **Steam**, so keep this in mind when hearing term "**Protonified**"! Although it's not officially recommended, you can easily use **Proton** with **Wine** directly. |
+| Wine-TKG <br />Proton-TKG | Custom bleeding edge builds by **Tk-Glitch**, may greatly improve compatibility or performance, especially with new games!<br /><br />• **Esync** ready<br />• **Fsync** ready<br /><br />If you have new game which doesn't work from day 1 - try this, most likely will be the first build to run your game. |
+| Wine-GE<br />Proton-GE | Custom bleeding edge builds by **GloriousEggroll** "the most **[patched](https://github.com/GloriousEggroll/proton-ge-custom#overview)** Wine", may greatly improve compatibility or performance, especially with new games!<br /><br />• **Esync** ready<br />• **Fsync** ready<br />• **vkd3d** ready<br /><br />If you have new game which doesn't work from day 1 - try this, it most likely will be the first build to run your game. |
+
 ## Resources
+
+| Project | Repository | Devs | Bugs | Wiki | Support |
+|---|---|---|---|---|---|
+| DXVK | **[GitHub](https://github.com/doitsujin/dxvk)** | **[doitsujin](https://github.com/doitsujin)**, **[Joshua-Ashton](https://github.com/Joshua-Ashton)** | **[GitHub](https://github.com/doitsujin/dxvk/issues)** | **[Wiki](https://github.com/doitsujin/dxvk/wiki)** |  |
+| VKD3D | **[GitHub (Proton)](https://github.com/HansKristian-Work/vkd3d-proton)**<br />**[Git (Wine)](https://source.winehq.org/git/vkd3d.git/)** | **[Józef Kucia (RIP)](https://www.winehq.org/news/2019091101)**, Alexandre Julliard, **[Hans-Kristian Arntzen](https://github.com/HansKristian-Work)** | **[GitHub](https://github.com/HansKristian-Work/vkd3d-proton/issues)** | **[Wiki](https://wiki.winehq.org/Vkd3d)** |  |
+| Lutris | **[Website](https://lutris.net/)**, **[Database](https://lutris.net/games)** | **[Mathieu Comandon](https://lutris.net/about/)** | **[GitHub](https://github.com/lutris/lutris/issues)** | **[Wiki](https://github.com/lutris/lutris/wiki)** | **[Donate](https://lutris.net/donate)** |
+| Wine | **[Website](https://www.winehq.org/)**, **[Database](https://appdb.winehq.org/)** | **[army of them](https://wiki.winehq.org/Who%27s_Who)** | **[Bugzilla](https://bugs.winehq.org/)** | **[Wiki](https://wiki.winehq.org/Main_Page#Contribute)**, **[Docs](https://www.winehq.org/documentation)** | **[Donate](https://www.winehq.org/donate)** |
+| Wine staging | **[GitHub](https://github.com/wine-staging/wine-staging)** | **[zfigura](https://github.com/zfigura)**, **[alesliehughes](https://github.com/alesliehughes)** | **[Bugzilla](https://bugs.winehq.org/buglist.cgi?bug_status=UNCONFIRMED&bug_status=NEW&bug_status=ASSIGNED&bug_status=STAGED&bug_status=REOPENED&bug_status=NEEDINFO&bug_status=RESOLVED&list_id=610554&product=Wine-staging&query_format=advanced)** | **[Wiki](https://wiki.winehq.org/Wine-Staging)** | **[Patreon](https://www.patreon.com/winestaging)** |
+| Proton | **[GitHub](https://github.com/ValveSoftware/Proton)**, **[Database](https://www.protondb.com/)** | Valve | **[GitHub](https://github.com/ValveSoftware/Proton/issues)** | **[Wiki](https://github.com/ValveSoftware/Proton/wiki)**, **[Options](https://github.com/ValveSoftware/Proton#runtime-config-options)** | **[Patreon (protondb)](https://www.patreon.com/protondb)** |
+| Wine-TKG<br />Proton-TKG | **[GitHub](https://github.com/Frogging-Family/wine-tkg-git/releases)** | **[Frogging-Family](https://github.com/Frogging-Family)** | **[Bugs](https://github.com/Frogging-Family/wine-tkg-git/issues)** | **[GitHub](https://github.com/Frogging-Family/wine-tkg-git)** | **[Patreon](https://www.patreon.com/tkglitch)** |
+| Wine-GE<br />Proton-GE | **[GitHub (Wine)](https://github.com/GloriousEggroll/wine-ge-custom/releases)**<br />**[GitHub (Proton)](https://github.com/GloriousEggroll/proton-ge-custom/releases)** | **[GloriousEggroll](https://github.com/GloriousEggroll)**, **[Credits](https://github.com/GloriousEggroll/proton-ge-custom#credits)** |  | **[GitHub](https://github.com/GloriousEggroll/proton-ge-custom#proton-ge-custom)** | **[Patreon](https://www.patreon.com/gloriouseggroll)** |
+| PlayOnLinux (Phoenicis) | **[Website](https://www.playonlinux.com/wine/)**,<br />**[Binaries](https://www.playonlinux.com/wine/binaries/phoenicis/)** | **[qparis](https://github.com/qparis)**, **[plata](https://github.com/plata)** | **[GitHub (Winebuild)](https://github.com/PhoenicisOrg/phoenicis-winebuild/issues)** |  |  |

@@ -1,0 +1,138 @@
+---
+title: "Bspwm"
+description: "Bspwm is Binary Space Partitioning Window Manager. This is a tiling window manager. If you come from a traditional desktop environment like Xfce, you..."
+---
+
+By Flying cakes
+
+Bspwm is** B**inary **S**pace **P**artitioning **W**indow **M**anager. This is a tiling window manager. If you come from a traditional desktop environment like Xfce, you notice that the primary way of managing open windows is the mouse. Those are floating window managers.
+
+Then there are tiling window managers, where all windows are visible on the desktop and are automatically arranged so as to fill the complete screen real estate. A tiling window manager doesn’t mean it needs to be controlled via the keyboard, however, the way they function, it is very efficient to use keyboard shortcuts to control your windows.
+
+Bspwm only manages your windows. The keyboard shortcuts are handled by a different program called *sxhkd*. This is different from i3wm, where the window manager manages your keyboard shortcuts also.
+
+### Functioning
+
+`bspwm` is a tiling window manager that represents windows as the leaves of a full binary tree.
+
+`bspc` is a program that writes messages on *bspwm*’s socket.
+
+When a program is run, it is placed in a tree, splitting the current branch. Windows can have 4 states - tiled, pseudo_tiled, floating and full screen.
+
+- *Tiled* means the window’s size will fill up the maximum area possible without overlapping other windows around it. It will stay in it’s set location based on it’s position in the window tree.
+- *Pseudo Tiled* is the same as tiled except the window can be resized at will. The position stays the same though.
+- *Floating* means the window can be placed anywhere on the desktop and resized at will.
+- *Fullscreen* is pretty self explanatory.
+
+### Configuration
+
+Bspwm settings are modified via running shell commands. If you run the same commands every time bspwm starts up, you will get the same configuration. You surely do want some commands to be run whenever bspwm starts, like window border related settings, startup apps etc. These are defined in `~/.config/bspwm/bspwmrc`. This file will contain the `bspc` commands that will be run at startup. It is actually a shell script that bspwm runs at startup so you can put any other shell command you want. You can also use loops, if-else constructs in case you want to do something complex and fancy. (like applying different settings based on the display resolution - that way you can run the same config file across all your systems and still get pixel values tailored to the specific monitor it runs on).
+
+Keybindings are defined in `~/.config/sxhkd/sxhkdrc`. Apart from bspwm related keybindings, you can also put keybindings for commonly used commands. For eg. I am usually ssh-ing into a system on my network, so I add a command to open terminal and run the ssh command. This is bound to a keyboard shortcut. You can also bind shortcuts to launch commonly used applications. Another thing I recommend binding is the music controls if you use Mpd.
+
+Its totally up to you. Different people have different uses and you can bind whatever you regularly use. Makes your workflow faster.
+
+Bspwm is very feature rich. This is just an introduction; look up on the internet for lot more things you can do with it.
+
+Extra reading :
+
+1. Readme at [https://github.com/baskerville/bspwm 1](https://github.com/baskerville/bspwm) explains well how windows are managed.
+2. [https://github.com/IntrepidPig/bspwm-doc/blob/master/getting-started.md](https://github.com/IntrepidPig/bspwm-doc/blob/master/getting-started.md)
+
+## Polybar
+
+The [offici](https://github.com/polybar/polybar/wiki)al wiki on their GitHub is pretty good. You just need to copy-paste the relevant module code in your config file and change the values of variables.
+
+In the config bundled with our Bspwm edition, there is a section at the beginning where all the colors are defined. You can directly put in hex codes wherever a color value is required, but having them all defined at one place as variables make it a bit easier to manage.
+
+### How it works?
+
+Polybar config consists of bar definitions and module definitions. You can have multiple bars defined in one config file. Each bar has settings about its size, border, padding, position etc.
+
+Modules are the units that you place on the bar. They can show basic system info like CPU usage, Ram usage, or WM related info like workspaces. You can also create custom modules to show the output of a script on the bar.
+
+Each bar can have one or more modules place in one of the three alignments - left, center or right. (`modules-left`, `modules-center` and `modules-right`) The bar does not need to have all the modules place on it. You can define many modules and use only a few of them if you like. In fact, the Polybar config with our Bspwm edition has three modules that are defined but are not there on the bar by default.
+
+### Start/Re-start Polybar
+
+Polybar can be started from the terminal using the command below:
+
+```
+polybar [bar-name] -c /path/to/config
+```
+
+Add the `-r` flag if you are editing/testing config. This flag makes polybar automatically restart when the config file is updated.
+
+In our Bspwm edition, we have used a launch script to first terminate any running instances of polybar and then start a new instance of polybar. The file can be seen [here on GitHub](https://github.com/EndeavourOS-Community-Editions/bspwm/blob/main/.config/polybar/launch.sh).
+
+So if you’re running our configs, then all you need to do is to run `~/.config/polybar/launch.sh` in a terminal.
+
+### System Tray
+
+In Polybar, system tray is not a module. It can be aligned to left, right or center. But it cannot be positioned between other modules. Also, you will notice that it is not there in active modules list. System tray is enabled by adding a value to `tray-position` property.
+
+### Disabled modules
+
+In the Bspwm edition, there are some disabled modules. I added them because many people like to use it, but kept them disabled since its not something I wanted on a default config. To enable them, you just need to add the corresponding module name where the active modules are listed.
+
+- Network speed indicator - Displays real-time network speed on the bar. You need to set the correct interface name for your network in the module definition. (modules are defined in the same config file). 
+Module name is `netspeed`. Add this to the modules list and restart Polybar.
+- Mpd Info - Shows current playing track info in `Artist - Track` format. You need to have a running Mpd instance. In the module definition, you need to set the correct host and port for Mpd. 
+Module name is `mpd`. 
+Note that Mpd or its configs are not bundled with our Bspwm edition. If you are new to Mpd and want to set it up, you can read the [relevant Arch Wiki entry](https://wiki.archlinux.org/index.php/Music_Player_Daemon), or create a thread on our forum. I’ll be happy to help you in case you face any roadblocks.
+- Mpd Controls - Shows previous, play/pause, next button to control music playback via Mpd. Again, you need to set the correct host and port in the module definition. 
+Module name is `mpd_control`.
+- Pending Updates - This module shows a number on your bar indicating the number of packages that can be updated. 
+Module name is `checkupdates`. 
+Note that this module is different from the `eos-update-notifier`.
+
+### For PC Users
+
+Our config comes with a backlight and battery module by default. They are for laptop users. On a PC with AC supply, those modules are automatically disabled by Polybar on startup. So you don’t need to worry about having redundant modules on your bar. You can go ahead and remove them too if you like.
+
+### Extra Modules
+
+There are GitHub repositories that collect user-written modules/scripts that are meant to be used with Polybar. 
+Two such popular repos are [polybar/polybar-scripts](https://github.com/polybar/polybar-scripts) and [TiagoDanin/Awesome-Polybar](https://github.com/TiagoDanin/Awesome-Polybar).
+
+External links:
+
+1. Polybar Wiki Home: [https://github.com/polybar/polybar/wiki](https://github.com/polybar/polybar/wiki)
+2. [https://github.com/polybar/polybar-scripts](https://github.com/polybar/polybar-scripts)
+3. [https://github.com/TiagoDanin/Awesome-Polybar](https://github.com/TiagoDanin/Awesome-Polybar)
+
+## More Configs
+
+### Rofi
+
+Rofi is used to show the app launcher and powermenu. Rofi settings are defined in `~/.config/rofi/config.rasi`. The default config is pretty basic and you can customize Rofi very much.
+
+Powermenu script is in the same folder, with name `powermenu.sh`. At the beginning of script, you have the options defined as variables. You may edit them if you want a different icon or different text for the options. This script also lets you change the order in which the options are displayed, by changing the order in echo statement.
+
+### Dunst
+
+Dunst shows your notifications. Config is located in `~/.config/dunst/dunstrc`. You can change the colors, position etc.
+
+One important setting you may want to change is the binding for `Ctrl + grave`. By default, this is used to show notification history. Useful in case you miss a notification or want to see the details again. The keybinding may conflict with other applications. For example, the same keybinding is also used in Code-OSS/VSCode. To disable the behaviour in dunst, open dunstrc file and comment out line 270. 
+[https://github.com/EndeavourOS-Community-Editions/bspwm/blob/main/.config/dunst/dunstrc#L270](https://github.com/EndeavourOS-Community-Editions/bspwm/blob/main/.config/dunst/dunstrc#L270) 
+To comment it, you simply put a pound symbol at beginning of line.
+
+### Wallpapers
+
+We use Nitrogen to set/change wallpaper.
+
+To change the wallpaper, open Nitrogen application. Click on "Preferences" and on the pop up, add your wallpaper directory to the list. Save it and now Nitrogen will display your wallpapers from which you can choose the one to set.
+
+In case you want to use a different application to set wallpaper, open `~/.config/bspwm/bspwmrc` file and comment out or remove the line that says `nitrogen --restore &`. Then you can go forward to setting up whichever wallpaper setter you want to use.
+
+## Transparency/ Compositor
+
+We use picom for compositing. Config file is `~/.config/picom.conf`. You may want to change the transparency values or enable background blur.
+
+## Resolution and Arandr
+
+When you log in for first time, resolution may be too less. You can use “Change Display Resolution” on welcome app. **Resolution will increase, but you need to reload Bspwm now.** Press `Mod+Alt+r`.
+
+To make it permanent, open Arandr, and save your resolution (last button on toolbar). Save it in `~/.screenlayout/` as file name `monitor.sh`
+
+Now when you reboot and log in, your resolution will be reloaded.

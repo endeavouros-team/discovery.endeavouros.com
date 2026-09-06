@@ -1,0 +1,86 @@
+---
+title: "Intel"
+description: "https://wiki.archlinux.org/index.php/Intelgraphics"
+---
+
+First of all, a link to the detailed ArchWiki:
+
+[https://wiki.archlinux.org/index.php/Intel_graphics](https://wiki.archlinux.org/index.php/Intel_graphics)
+
+Since Intel provides and supports robust open-source drivers in the Linux kernel and Mesa, Intel graphics are essentially plug-and-play on EndeavourOS.
+
+That’s why it is strongly recommended **not** to install the legacy `xf86-video-intel` driver package unless you are troubleshooting extremely old pre-Gen4 hardware. The built-in `modesetting` driver which comes bundled with the Xorg server and Wayland compositors rely directly on the kernel Direct Rendering Manager (DRM) and Mesa, offering superior performance, stability, and power management.
+
+More options on the arch package man page:
+
+[Intel Arch Manpage](https://man.archlinux.org/man/intel.4.en)
+
+or directly intel informations on the linux driver:
+
+[https://01.org/linuxgraphics](https://01.org/linuxgraphics)
+
+## Understanding Intel Kernel Drivers: `i915` vs. `xe`
+
+Depending on the age and generation of your Intel processor or discrete GPU, your system will use one of two kernel drivers:
+
+1. **`i915` Driver**: The mature, stable driver for older and current Intel integrated graphics (from Haswell / Broadwell up through Comet Lake, and still handling display/audio or legacy fallbacks on newer chips).
+2. **`xe` Driver**: Intel’s modern, high-performance DRM driver designed for modern integrated graphics (Tiger Lake and newer, including Alder Lake, Raptor Lake, Meteor Lake, Lunar Lake, Arrow Lake) and Intel Arc discrete GPUs (Alchemist, Battlemage, etc.).
+
+### Checking Your Current Driver
+
+You can check which graphics driver is currently handling your GPU by running:
+
+```bash
+lspci -nnk | grep -A 3 VGA
+```
+
+Look at the `Kernel driver in use:` line in the output. It will show either `i915` or `xe`.
+
+## Testing and Forcing the New `xe` Driver
+
+On many processors (such as Tiger Lake, Alder Lake, and Raptor Lake) and discrete GPUs (such as Intel Arc cards like the A740/A750/A770), the older `i915` driver may still claim the hardware by default, even when the modern `xe` driver is fully available in the kernel.
+
+If auto-detection falls back to `i915` or you want to explicitly force the `xe` driver on supported hardware, you can prevent `i915` from probing your device and instruct `xe` to take over using kernel parameters.
+
+1. First, find your GPU’s PCI device ID using `lspci`:`lspci -nn | grep -i vga `Or for discrete graphics / Arc cards:`lspci -nn | grep -i display `Example output: `00:02.0 VGA compatible controller [0300]: Intel Corporation Raptor Lake-S GT1 [UHD Graphics 770] [8086:a780] (rev 04)` 
+In this example, the PCI ID is `a780`.
+2. Add the force-probe kernel parameters (detailed below in the bootloader section):`i915.force_probe=!a780 xe.force_probe=a780`
+
+*(Note: The `xe` driver is under active development. While it brings significant performance improvements, some features or stability on specific laptops/motherboards may still vary.)*
+
+## Adding Kernel Parameters to set options
+
+EndeavourOS provides flexibility with bootloaders, supporting both **systemd-boot** (default for UEFI installations) and **GRUB**. Depending on which bootloader your system uses, apply kernel parameters as follows:
+
+### 1. If using `systemd-boot` (Default)
+
+On EndeavourOS UEFI installations using systemd-boot, kernel parameters are managed globally via `/etc/kernel/cmdline`.
+
+1. Open the command line file with your preferred text editor (e.g. `nano`):`sudo nano /etc/kernel/cmdline`
+2. Add your desired kernel options (such as disabling Panel Self Refresh `i915.enable_psr=0` or forcing the Xe driver) to the single line of text:`quiet rwloglevel=3 i915.enable_psr=0 i915.force_probe=!a780 xe.force_probe=a780`
+3. Save the file and regenerate your boot entries/UKIs by running the EndeavourOS helper command:`sudo reinstall-kernels`
+
+### 2. If using GRUB
+
+If your system is configured with GRUB:
+
+1. Open `/etc/default/grub` in an editor:`sudo nano /etc/default/grub`
+2. Locate the `GRUB_CMDLINE_LINUX_DEFAULT` line and add your parameters inside the quotes:`GRUB_CMDLINE_LINUX_DEFAULT="quiet loglevel=3 i915.enable_psr=0"`
+3. Save the file and update GRUB:`sudo grub-mkconfig -o /boot/grub/grub.cfg`
+
+## Common Intel Graphics Troubleshooting Options & Module Parameters
+
+If you experience graphical flickering, screen corruption, or freezing on Intel graphics, here are some common parameters to test. You can find comprehensive lists of available module parameters and tuning options in the official documentation:
+
+- **[ArchWiki: Intel Graphics Kernel Parameters](https://wiki.archlinux.org/index.php/Intel_graphics)**
+- **[Linux Kernel DRM/i915 Documentation](https://docs.kernel.org/gpu/i915.html)**
+- **[Linux Kernel DRM/xe Documentation](https://docs.kernel.org/gpu/xe/index.html)**
+
+### Common Parameters to Know:
+
+- **Disable Panel Self Refresh (PSR)**: PSR can cause screen flickers, micro-stutters, or temporary black screens on some laptop panels when content is static. You can disable it with:
+  - For `i915`: `i915.enable_psr=0`
+  - For `xe`: `xe.enable_psr=0`
+- **Driver Force Probe**:
+  - `i915.force_probe=...` / `i915.force_probe=!device_id`
+  - `xe.force_probe=device_id`

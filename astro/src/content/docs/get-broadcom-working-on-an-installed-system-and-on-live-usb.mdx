@@ -1,0 +1,29 @@
+---
+title: "Get Broadcom working on an installed system and on Live USB"
+description: "This method pretty much works with all arch distros for those individuals unfortunate enough to choose computers that include Broadcom wifi."
+---
+
+**By community member Archy**
+
+This method pretty much works with all arch distros for those individuals unfortunate enough to choose computers that include Broadcom wifi. 
+First, since 5x kernel’s , some arch distros that previously needed wifi installed post os-install, seem to work without doing so. I’m not sure which one’s.
+
+Procedure: 
+BEFORE installing or trying live usb of an arch distro! 
+(rolling release, so that means minutes before)
+
+1. go to /www.archlinux.org/packages/
+2. download latest linux-headers package onto usb separate from iso.
+3. download latest dkms package onto usb separate from iso.
+4. download latest broadcom-wl-dkms onto usb separate from iso.
+
+Reboot into live USB ISO or perform install of arch distro (Endeavour OS)
+
+1. with your driver USB files inserted either cd to or enter path to drivers in following commands in order listed.
+2. `sudo pacman -U dkms`
+3. `sudo pacman -U linux-headers`
+4. `sudo pacman -U broadcom`
+5. `sudo modprobe wl`
+6. `sudo depmod -a`
+7. Wait a few moments then connect to your wifi network if live USB.
+8. If a new install, wait a minute if the system doesn’t find wifi network within 5 minutes reboot to a working wifi connection.

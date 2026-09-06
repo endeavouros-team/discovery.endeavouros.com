@@ -1,0 +1,178 @@
+---
+title: "How to install Desktop Environments next to your existing ones"
+description: "I’ve already told you how to install a group, in this section I’m going to give you the specific commands you need to enter to install a specific Desktop..."
+---
+
+by Bryanpwo
+
+I’ve already told you how to install a group, in this section I’m going to give you the specific commands you need to enter to install a specific Desktop Environment and also remove an installed Desktop Environment.
+
+## Gnome
+
+```bash
+sudo pacman -S gnome
+```
+
+This installs the basic Gnome DE, for the extra’s like games etc. install
+
+```bash
+sudo pacman -S gnome-extra
+```
+
+The reason why I didn’t put it behind the first command is that you might want to choose which extra packages you want to install on your system. Doing it this way you have a clear overview of which packages you want, without worrying to select a must-needed package by accident. If you don’t mind having the complete extra’s, you can put the two groups in one command. (with a space between the two groups.)
+
+If you want to exclude packages from the DE group you can do so by the following.
+
+```
+Enter a selection (default=all): 1-15 20
+```
+
+In this case, it will install packages 1 through 15 and package number 20.
+
+```
+Enter a selection (default=all): ^5-8 ^15
+```
+
+This will install everything that belongs to the DE group, except packages 5 through 8 and package number 15.
+
+For the last two steps, I’m going to refer to this one in the other DE sections.
+
+## Xfce
+
+```bash
+sudo pacman -S xfce4
+```
+
+This will install the basic XFCE4 DE if you desire the extra packages as the Whisker menu, then do the this
+
+```bash
+sudo pacman -S xfce4-goodies
+```
+
+If you don't want to install all the goodies, you can select the desired apps by following the steps described in Gnome.
+
+## Deepin
+
+```bash
+sudo pacman -S deepin deepin-extra
+```
+
+For selecting packages in the deepin-extra group see Gnome.
+
+## Budgie
+
+```bash
+sudo pacman -S budgie-desktop
+```
+
+Budgie doesn’t have an extra package, but it is recommended that you install the Gnome group as well for a better experience.
+
+```bash
+sudo pacman -S gnome
+```
+
+## Cinnamon
+
+```bash
+sudo pacman -S cinnamon system-config-printer gnome-keyring blueberry cinnamon-translations
+```
+
+The install packages I give you for Cinnamon are recommended, but in my opinion it’s almost mandatory to have a better DE experience.
+
+## Mate
+
+```bash
+sudo pacman -S mate mate-extra system-config-printer blueman
+```
+
+Like Cinnamon the packages I added are recommended, but for a better experience it’s almost mandatory. (my opinion)
+
+## KDE Plasma
+
+Installing KDE differs a bit from the other DE’s, since there are a few choices to install it the way you like it.
+
+For a minimal Plasma desktop install
+
+```bash
+sudo pacman -S plasma-desktop
+```
+
+For a full Plasma desktop install
+
+```bash
+sudo pacman -S plasma
+```
+
+or
+
+```bash
+sudo pacman -S plasma-meta
+```
+
+for the extra packages install
+
+```bash
+sudo pacman -S kde-applications
+```
+
+or
+
+```bash
+sudo pacman -S kde-applications-meta
+```
+
+And remove qt5ct (tool to configure qt apps in gtk environments)
+
+`sudo pacman -R qt5ct`
+
+remove the configuration:
+
+`sudo nano /etc/environment`
+
+comment the line:
+
+`QT_QPA_PLATFORMTHEME=qt5ct`
+
+to look like this
+
+`#QT_QPA_PLATFORMTHEME=qt5ct`
+
+save the file with [**Ctrl+X**]
+
+To use the Discover installation tool install
+
+```
+packagekit-qt5
+```
+
+## Removing an installed DE
+
+To remove a Desktop Environment and its extra group simply use this command.
+
+```bash
+sudo pacman -Rs package_group_name package_group_name-extra
+```
+
+More detailed help on uninstalling an unneeded DE completely is provided here:
+
+[Removing a desktop environment](/removing-a-desktop-environment/)
+
+## Install DE/WM like it would be installed from the ISO on installed systems:
+
+We have a package in the EndeavourOS repo called `eos-packagelist` that can provide you with a list of packages we use for a particular edition. To list available editions use this command:
+
+```bash
+eos-packagelist --list
+```
+
+Then to list the packages for that edition, for example `Openbox Edition`:
+
+```bash
+eos-packagelist "Openbox Edition"
+```
+
+Finally to install an edition, use the `--install` option.
+
+```bash
+eos-packagelist --install "Openbox Edition"
+```

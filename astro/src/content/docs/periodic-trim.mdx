@@ -1,0 +1,56 @@
+---
+title: "Set-up Periodic TRIM"
+description: "Warning: Users need to be certain that their SSD supports TRIM before attempting to use it. Data loss can occur otherwise!"
+---
+
+[Source: [Periodic_TRIM](https://wiki.archlinux.org/index.php/Solid_state_drive#Periodic_TRIM)]
+
+***Warning:** Users need to be certain that their SSD supports TRIM before attempting to use it. Data loss can occur otherwise!*
+
+check if your drive support it:
+
+```bash
+sudo hdparm -I /dev/sdx | grep TRIM
+```
+
+(change to the drive letter (x) you want to check)
+
+make sure util-linux is installed:
+
+```bash
+sudo pacman -S util-linux hdparm --needed
+```
+
+check what you have already running:
+
+cat /etc/fstab
+
+if your drive shows like this:
+
+```
+/dev/sda1 / ext4 defaults,discard 0 1
+```
+
+continous TRIM is enabled! what in my opinion is bad to use as it will put system under continous load…
+
+enable periodic TRIM:
+
+remove **discard** option from your device inside fstab that it looks like this:
+
+```
+/dev/sda1 / ext4 defaults 0 1
+```
+
+Starting the scheduler to trim device/s once a week::
+
+```bash
+sudo systemctl start fstrim.timer
+
+sudo systemctl enable fstrim.timer
+```
+
+to check if it works see:
+
+```bash
+systemctl status fstrim.timer
+```

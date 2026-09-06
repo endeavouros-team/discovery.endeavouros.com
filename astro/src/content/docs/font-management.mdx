@@ -1,0 +1,59 @@
+---
+title: "Font management"
+description: "Many unwanted fonts get installed on Linux systems, and that can make the font scroll list in editors and word processors painfully long. There are many..."
+---
+
+**By Cmarch**
+
+Many unwanted fonts get installed on Linux systems, and that can make the font scroll list in editors and word processors painfully long. There are many methods and apps to trim font lists, but somehow those unwanted fonts always creep back in when your back is turned, or you do a reinstallation.
+
+An easy solution to tame those unwanted fonts is to use a *~/.config/fontconfig/fonts.conf* file to whitelist and blacklist fonts. It’s easy to implement, can be easily modified, and can be saved and used over and over. Another benefit is the fonts are not deleted, they just don’t show up in your user session. All fonts listed in the &lt;rejectfont> section are blacklisted, while fonts listed in the &lt;acceptfont> section are whitelisted as subsets of the rejected fonts you want to allow. Think of the rejects as a larger parent set and the accepts as a smaller, select sub-set of that parent.
+
+Edit or create a *~/.config/fontconfig/fonts.conf* file and:
+
+1. Put the fonts you do not want to see in the rejectfont section.
+2. Put any fonts from the above &lt;rejectfont> section that you might want to keep in the &lt;acceptfont> section.
+3. Fonts not added to the &lt;rejectfont> section will not be affected.
+
+A sample *~/.config/fontconfig/fonts.conf* file might look like this:
+
+```
+<?xml version='1.0'?>
+<!DOCTYPE fontconfig SYSTEM 'fonts.dtd'>
+<fontconfig>
+ <!-- Local settings -->
+ <selectfont>
+    <rejectfont>
+       <glob>/usr/share/fonts/noto/Noto*</glob>
+       <glob>/usr/share/fonts/gsfonts/*</glob>
+       <glob>/usr/share/fonts/TTF/DejaVuMathTeX*</glob>
+       <glob>/usr/share/fonts/TTF/odo*</glob>
+       <glob>/usr/share/fonts/mathjax2/*</glob>
+       <glob>/usr/share/fonts/croscore/*</glob>
+    </rejectfont>
+    <acceptfont>
+       <glob>/usr/share/fonts/noto/NotoSans-*</glob>
+       <glob>/usr/share/fonts/noto/NotoSerif-*</glob>
+       <glob>/usr/share/fonts/gsfonts/NimbusMono*</glob>
+       <glob>/usr/share/fonts/gsfonts/NimbusRoman*</glob>
+       <glob>/usr/share/fonts/gsfonts/NimbusSans*</glob>
+       <glob>/usr/share/fonts/gsfonts/URW*</glob>
+    </acceptfont>
+ </selectfont>
+</fontconfig>
+In this 
+fonts.conf
+ file all the Noto fonts were initially rejected and then later NotoSans and NotoSerif were added back by whitelisting them.
+```
+
+Note:
+
+- Your *fonts.conf* file may contain other useful stuff, that’s ok, leave it there.
+- Be sure and save a backup of this file for future use. If your working fonts.conf file gets deleted or disappears on a reinstallation of your OS, you can always recover it.
+
+In this fonts.conf file all the Noto fonts were initially rejected and then later NotoSans and NotoSerif were added back by whitelisting them.
+
+For reference see:
+
+- Font Management – [https://wiki.archlinux.org/title/Fonts](https://wiki.archlinux.org/title/Fonts)
+- Whitelist and blacklist fonts. – [https://wiki.archlinux.org/index.php/Font_configuration#Whitelisting_and_blacklisting_fonts](https://wiki.archlinux.org/index.php/Font_configuration#Whitelisting_and_blacklisting_fonts)

@@ -1,6 +1,7 @@
 // @ts-check
 import { defineConfig } from 'astro/config';
 import starlight from '@astrojs/starlight';
+import sidebar from './sidebar.json' with { type: 'json' };
 
 export default defineConfig({
   site: 'https://discovery.endeavouros.com',
@@ -27,23 +28,13 @@ export default defineConfig({
         { icon: 'github', label: 'GitHub', href: 'https://github.com/endeavouros-team' },
         { icon: 'discourse', label: 'Forum', href: 'https://forum.endeavouros.com' },
       ],
-      // Discovery's 102 articles carry 32 flat categories and no hierarchy, so
-      // the sidebar has to be authored rather than derived from the file tree.
-      // This is the demo subset; the full mapping is a decision for the team.
-      sidebar: [
-        {
-          label: 'Package management',
-          items: [{ slug: 'pacman-basic-commands' }],
-        },
-        {
-          label: 'Storage and partitions',
-          items: [{ slug: 'adding-swap-after-installation' }],
-        },
-        {
-          label: 'Gaming',
-          items: [{ slug: 'gaming-101' }],
-        },
-      ],
+      // Discovery's 102 articles carry flat categories and no hierarchy, so the
+      // sidebar cannot be derived from the file tree. sidebar.json is generated
+      // from the WordPress categories by scripts/convert-wp.py, as a starting
+      // point rather than an answer: which groups, in what order and what gets
+      // promoted is a content decision for the team, and re-authoring this by
+      // hand is what closes it.
+      sidebar,
       pagination: false,
       lastUpdated: false,
     }),

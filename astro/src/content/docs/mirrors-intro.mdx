@@ -1,0 +1,53 @@
+---
+title: "Mirrors intro"
+description: "On an EndeavourOS system, Arch mirror addresses are gathered as a list into file /etc/pacman.d/mirrorlist."
+---
+
+## What are mirrors and why are they important?
+
+*Mirrors* are the package servers we use when installing or updating packages. There are lots of mirrors (for Arch) around the world, and to keep package updates running smoothly, the mirrors should be both:
+
+- fast (high data rate and responsiveness)
+- up to date
+
+On an EndeavourOS system, Arch mirror addresses are gathered as a list into file **/etc/pacman.d/mirrorlist**.
+
+In the** /etc/pacman.d/mirrorlist** file, lines that begin with a # are ignored, and then the order (from top to bottom) is respected. If a problem exists with the first entry, pacman defaults to using the next active line down.
+
+Usually (but not always) the closest mirrors are the fastest. That’s why we usually want to use mirrors from the user’s current location (country) or some nearby countries.
+
+Another important factor is that the mirrors we use are up to date, meaning they have been synced with the *master* Arch package server recently. Better to use a mirror that has the latest Arch packages.
+
+Yet another (temporary) concern may be that a particular mirror is offline, e.g. under maintenance. Sometimes a mirror may even be permanently offline.
+
+That’s why having a decent list of mirrors on your machine is important.
+
+Note that the list of mirrors can (and usually should) be ranked to get the best experience when updating or installing packages. Ranking mirrors organizes the list of mirrors so that the best mirrors for your location are at the beginning of the list.
+
+## Mirror ranking tools
+
+EndeavourOS has the following tools directly available for ranking the **Arch** mirrors (in alphabetic order):
+
+- rate-mirrors
+- reflector
+- reflector-simple
+
+Each of them has pros and cons, so experimenting in your location may be needed to have a good result.
+
+## What about EndeavourOS mirrors?
+
+EndeavourOS has its own packages as well, thus EndeavourOS has its own list of mirrors and you can find the mirror list is in file **/etc/pacman.d/endeavouros-mirrorlist**.
+
+To be able to rank EndeavourOS mirrors, first you need to install `eos-rankmirrors` package if not already installed.
+
+` yay -S --needed eos-rankmirrors`
+
+EndeavourOS mirrors can now be ranked with a terminal command (note: call *without* sudo!)
+
+` eos-rankmirrors`
+
+It fetches the latest EndeavourOS mirrorlist from the EndeavourOS development site, and ranks the mirrors found in that list. Then it shows you the ranking result, and prepares to write the ranked list to file **/etc/pacman.d/endeavouros-mirrorlist**. For writing the file it needs elevated privileges, and asks you the required password.
+
+Note that `eos-rankmirrors` can be configured with file `/etc/eos-rankmirrors.conf`. For example, to make the ranking process significantly faster, you can exclude mirrors you know are very slow or not always working well. Use variable `EOS_IGNORED_MIRRORS` for that by adding *unique* partial names of mirrors to the variable (using *bash* syntax).
+
+Alternatively, `rate-mirrors` can rank EndeavourOS mirrors as well.

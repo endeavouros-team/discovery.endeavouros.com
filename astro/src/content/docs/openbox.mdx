@@ -1,0 +1,47 @@
+---
+title: "Openbox"
+description: "Openbox is a highly configurable and minimal floating window manager. This lets you manage your windows with your mouse the way you would do on a..."
+---
+
+## Introduction
+
+Openbox is a highly configurable and minimal floating window manager. This lets you manage your windows with your mouse the way you would do on a traditional DE like Xfce, but Openbox allows much more configuration, as is the case with most standalone window managers. An expected side effect is that Openbox is very light on system resources.
+
+## Main Configuration
+
+Openbox main config is at `~/.config/openbox/rc.xml`. You usually don't need to edit it manually. You can use the bundled `obconf` utility to make changes to the config via a GUI. This `rc.xml` file contains
+
+- Keyboard shortcuts
+- Theming
+- Desktop and Virtual Desktop settings
+- Application Window settings
+
+The right click menu config is stored at `~/.config/openbox/menu.xml`. This file provides a **static menu**.
+
+Autostart applications are defined in `~/.config/openbox/autostart`.
+
+Under `~/.config/openbox/scripts/` you'll find the various scripts Openbox CE uses to function.
+
+## Application launcher menu
+
+The menu activated by clicking the bottom left button is jgmenu. Its config is stored at `~/.config/openbox/jgmenu/jgmenurc`.
+
+## Dunst
+
+Dunst shows your notifications. Config is located in `~/.config/dunst/dunstrc`. You can change the colours, position etc.
+
+One important setting you may want to change is the binding for `Ctrl + grave`. By default, this is used to show notification history. Useful in case you miss a notification or want to see the details again. The keybinding may conflict with other applications. For example, the same keybinding is also used in Code-OSS/VSCode. To disable the behaviour in dunst, open dunstrc file and comment out line 274.
+
+[https://github.com/EndeavourOS-Community-Editions/openbox/blob/main/.config/dunst/dunstrc#L274](https://github.com/EndeavourOS-Community-Editions/openbox/blob/main/.config/dunst/dunstrc#L274)
+
+To comment it, you simply put a pound symbol at beginning of line.
+
+## Panel
+
+The panel we use is Tint2. Its config is stored at `~/.config/tint2/tint2rc`. The panel too can be configured via the bundled Tint2 settings application.
+
+## Contribute
+
+Development happens over at our GitHub repo. The repository is at [https://github.com/EndeavourOS-Community-Editions/openbox/](https://github.com/EndeavourOS-Community-Editions/openbox/)
+
+Feel free to discuss issues and suggestions on our forum : [https://forum.endeavouros.com/c/desktop-environments/openbox/24](https://forum.endeavouros.com/c/desktop-environments/openbox/24)

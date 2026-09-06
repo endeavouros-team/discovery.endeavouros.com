@@ -1,0 +1,49 @@
+---
+title: "Automatic update of the Pacman database"
+description: "A corrupted Pacman database usually is caused by sudden power loss when the system is running or during a system update. There is a way to prevent this..."
+---
+
+by Joekamprad
+
+A corrupted Pacman database usually is caused by sudden power loss when the system is running or during a system update. There is a way to prevent this from happening.
+
+## Backup automatically with systemd:
+
+Automated backup In order to keep the back up up-to-date; automation of the aforementioned backup command makes sense.
+
+This can be realized with the tool [pakbak-git [AUR]](https://aur.archlinux.org/packages/pakbak-git) 
+Pakbak is a bash script that is triggered by a Systemd service once the contents of the **/var/lib/**pacman**/local** directory have been changed.
+
+After installing Pakbak, the destination and the number of backups to be kept in rotation can be set.
+
+`sudo nano /etc/pakbak.conf`
+
+```
+# Backup the database to this folder
+target_folder = /var/local/pakbak
+# Define how long backups should be kept
+keep_days = 5
+# Define how many backups should be kept
+keep_number = 5
+```
+
+## Note:
+
+The target directory must be created or already exist. 
+Environment variables in the path, such as $HOME will not be processed.
+
+## test if it is working
+
+To test whether the bash script works as expected, you can manually initiate the execution with root privileges:
+
+`sudo sh /usr/lib/systemd/scripts/pakbak`
+
+Then enable the Systemd service, which is the directory **/var/lib/pacman/local** automatically monitored for changes:
+
+`sudo systemctl enable pakbak.path`
+
+## Conclusion
+
+Now you will have created regularly: **pakbak-year-month-day-220137.tar.xz** archives in the path you specified inside config file (target_folder = **/var/local/**pakbak)
+
+You can easely unpack and replace to **/var/lib/pacman/local** in case of pamac databse corruption.

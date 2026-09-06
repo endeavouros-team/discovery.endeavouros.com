@@ -1,0 +1,88 @@
+---
+title: "Flatpak - Tweaking the visuals"
+description: "One of the downsides to using Flatpaks instead of traditional applications is theming. Sometimes the theme used by the application does not always match..."
+---
+
+One of the downsides to using Flatpaks instead of traditional applications is theming. Sometimes the theme used by the application does not always match the system theme. This is caused by the Flatpak application running in its own container. There are a couple of options available to the user to correct this issue.
+
+**Option #1 – Install a theme directly from the Flathub repository.**
+
+This is the officially support method of theming a Flatpak application. There are, at the time writing, 201 of the most common GTK themes available in the Flathub repository. To list the themes available, open a terminal and type the following:
+
+`flatpak remote-ls flathub | grep org.gtk.Gtk3theme`
+
+This will list all the themes available in the Flathub repository. Read through the list and install the theme that matches the system theme in use.
+
+**Important:** The theme installed using this method must be the same as the system theme. If a different theme is installed, the Flatpak application will use its default theme of Adwaita.
+
+**Example**
+
+For this example, the system theme in use is the Greybird-Geeko Dark theme.
+
+1. Open a terminal and type:
+
+`flatpak remote-ls flathub | grep org.gtk.Gtk3theme`
+
+You will see a screen similar to the following. I have edited the results to keep this article short.
+
+```ini
+[mark@FX504GD ~]$ flatpak remote-ls | grep org.gtk.Gtk3theme
+Adapta-Brila-Eta Gtk+ theme org.gtk.Gtk3theme.Adapta-Brila-Eta 3.22 x86_64
+Adapta-Brila Gtk+ theme org.gtk.Gtk3theme.Adapta-Brila 3.22 x86_64
+Adapta-Eta Gtk+ theme org.gtk.Gtk3theme.Adapta-Eta 3.22 x86_64
+Adapta-Nokto-Eta Gtk+ theme org.gtk.Gtk3theme.Adapta-Nokto-Eta 3.22 x86_64
+....... (edited)
+Flat-Remix-GTK-Yellow org.gtk.Gtk3theme.Flat-Remix-GTK-Yellow 3.22 x86_64
+Greybird-Geeko GTK+ Theme org.gtk.Gtk3theme.Greybird-Geeko-Dark 3.22 x86_64
+Greybird-Geeko GTK+ Theme org.gtk.Gtk3theme.Greybird-Geeko-Light 3.22 x86_64
+Greybird-dark GTK+ Theme org.gtk.Gtk3theme.Greybird-dark 3.22 x86_64
+....... (edited)
+Deepin Gtk+ theme (dark) org.gtk.Gtk3theme.deepin-dark 3.22 x86_64
+Deepin Gtk+ theme org.gtk.Gtk3theme.deepin 3.22 x86_64
+elementary stylesheet org.gtk.Gtk3theme.elementary 3.22 x86_64
+```
+
+1. Find the theme that matches the system theme and install it by typing:
+
+`flatpak install org.gtk.Gtk3theme.Graybird-Geeko-Dark`
+
+1. (Optional) Log out or reboot the computer. Sometimes this is needed to make sure that the theme is applied properly to the Flatpak application.
+
+The visual theme used by the Flatpak application should now look the same as the system theme in use.
+
+**Option #2 – Use a script to copy the needed theme information to the Flatpak application’s folder directly.**
+
+If the theme used by the system is not available from the Flathub repository, there is another option available. One can use a script to copy the needed settings to the Flatpak application’s folder.1 This script only needs to be run once and it will apply the fix to all Flatpak applications installed on the system.
+
+**Warning:** This method is not officially supported by the developers of Flatpaks. Use at your own risk.
+
+1. Open your favorite text editor.
+
+1. Copy the below text and paste it into your text editor.
+
+```
+#!/usr/bin/env bash
+
+for dir in $HOME/.var/app/*/
+do
+    confdir="${dir}config/gtk-3.0"
+    mkdir -p $confdir
+    cp $HOME/.config/gtk-3.0/settings.ini $confdir/settings.ini
+done
+```
+
+1. Save the file in the home folder as `flatheme.sh`
+
+1. Make the script executable so it can be used. Open a terminal and type:
+
+`chmod a+x flatheme.sh`
+
+1. Run the script by typing `./flatheme.sh`
+
+Now when a Flatpak application is run, it will use the same theme as the system theme.
+
+NOTE: This script needs to be run every time a new Flatpak application is installed. It does **not** need to be run when existing Flatpak applications are updated.
+
+Doing one of the above solutions should allow Flatpak applications to blend in with traditionally installed applications. However, these will not “fix” parts of an application’s interface that are not modified by the chosen theme. In those cases, the Flatpak application will do the same thing as traditionally installed applications and use the system default theme settings.
+
+1Thank you to GitHub user abiosoft for this script. The original script can be found at [https://github.com/abiosoft/dotfiles/blob/master/flatpak/fixflatpaktheme.sh](https://github.com/abiosoft/dotfiles/blob/master/flatpak/fixflatpaktheme.sh)

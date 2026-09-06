@@ -1,0 +1,81 @@
+---
+title: "Nvidia intro"
+description: "As most newer cards will work with the latest drivers, older cards are no longer supported by the latest drivers. Nvidia is sorting out older GPU to..."
+---
+
+**Latest update:** 12-jan-2026
+
+As most newer cards will work with the latest drivers, older cards are no longer supported by the latest drivers. Nvidia is sorting out older GPU to legacy branch this cards are not supported by the latest driver.
+
+[nvidia-open](https://archlinux.org/packages/extra/x86_64/nvidia-open/): open source NVIDIA kernel modules package best for all cards up from 16xx
+
+The first thing you should do is get knowledge about your card and supported driver:
+
+##### NVIDIA Turing GPU, GTX 16xx RTX 20xx and newer.
+
+These are supported by the main nvidia packages [nvidia](https://archlinux.org/packages/extra/x86_64/nvidia-open/)[-](https://archlinux.org/packages/extra/x86_64/nvidia-open/)[open](https://archlinux.org/packages/extra/x86_64/nvidia-open/), [nvidia-open-lts](https://archlinux.org/packages/extra/x86_64/nvidia-open-lts#/) and [nvidia-open-dkms](https://archlinux.org/packages/extra/x86_64/nvidia-open-dkms/)
+
+You always need at minimum `nvidia-open` and `nvidia-utils` packages installed, in addition you may need lib32 support packages for Gaming on Steam or Wine: [lib32-nvidia-utils](https://archlinux.org/packages/multilib/x86_64/lib32-nvidia-utils/) per example.
+
+If these packages do not work, [nvidia-beta](https://aur.archlinux.org/packages/nvidia-beta/)AUR may have a newer driver version that offers support.
+
+For older Legacy Devices, read here: [about-legacy-gpu](https://www.nvidia.com/en-us/drivers/unix/legacy-gpu/) on Nvidia Website.
+
+### Overview over the legacy branches:
+
+**(unsupported means no package for driver at the repositories)**
+
+| GPU family | Driver | Nvidia (proprietary) Status |
+|---|---|---|
+| [Blackwell (GBXXX)](https://en.wikipedia.org/wiki/Blackwell_(microarchitecture)) and newer | [nvidia-open](https://archlinux.org/packages/?name=nvidia-open) (linux)<br />[nvidia-open-lts](https://archlinux.org/packages/?name=nvidia-open-lts) (linux-lts)<br />[nvidia-open-dkms](https://archlinux.org/packages/?name=nvidia-open-dkms) (any kernel) | Recommended by upstream<br />Current, supported |
+| Turing (NV160/TUxxx) and newer<br />* [GTX 1650 and newer](https://nouveau.freedesktop.org/CodeNames.html) | [nvidia-open](https://archlinux.org/packages/extra/x86_64/nvidia-open/) (linux)<br />[nvidia-open-lts](https://archlinux.org/packages/extra/x86_64/nvidia-open-lts/) (linux-lts)<br />[nvidia-open-dkms](https://archlinux.org/packages/extra/x86_64/nvidia-open-dkms/) (any kernel)<br />Also supported by:<br />[nvidia-580xx-dkms](https://aur.archlinux.org/packages/nvidia-580xx-dkms/)AUR (prperietary)<br />Alternative open source [Nouveau NVK](https://docs.mesa3d.org/drivers/nvk.html):<br />[vulkan-nouveau](https://archlinux.org/packages/extra/x86_64/vulkan-nouveau/) | Recommended by upstream<br />Current, supported<br />No RTD3 power management on Turing<br />Crashes on some laptops<br /><br />nvidia-open has no RTD3 Power Management on Turing, possible crashes on Ampere-equiped laptops.<br /> |
+| Maxwell (NV110/GMxxx) <br />* [GTX 745, GTX 970](https://nouveau.freedesktop.org/CodeNames.html) | [nvidia-580xx-dkms](https://aur.archlinux.org/packages/nvidia-580xx-dkms) (AUR)<br />Alternative: open-source [nouveau](https://wiki.archlinux.org/title/Nouveau)<br /> | Legacy, supported |
+| Kepler (NVE0/GKxxx)<br />* [GTX 660, Quadro K6000](https://nouveau.freedesktop.org/CodeNames.html) | [nvidia-470xx-dkms](https://aur.archlinux.org/packages/nvidia-470xx-dkms) (AUR)<br />Alternative: open-source [nouveau](https://wiki.archlinux.org/title/Nouveau) | Legacy, unsupported |
+| Fermi (NVC0/GF1xx)<br />* [GTX 465, Quadro NVS 4200M](https://nouveau.freedesktop.org/CodeNames.html) | [nvidia-390xx-dkms](https://aur.archlinux.org/packages/nvidia-390xx-dkms) (AUR)<br />Alternative: open-source [nouveau](https://wiki.archlinux.org/title/Nouveau) | Legacy, unsupported |
+| Tesla (NV50/G80–90–GT2xx)<br />* [8300 GS, Quadro FX 4600](https://nouveau.freedesktop.org/CodeNames.html) | [nvidia-340xx-dkms](https://aur.archlinux.org/packages/nvidia-340xx-dkms) (AUR)<br />Alternative: open-source [nouveau](https://wiki.archlinux.org/title/Nouveau)<br /> | Legacy, unsupported |
+| Curie (NV40/G70) and older<br />* [GT 6800, Quadro FX 1400](https://nouveau.freedesktop.org/CodeNames.html) | No longer packaged,<br />open-source [nouveau](https://wiki.archlinux.org/title/Nouveau) | Legacy, unsupported |
+
+You will need the related [nvidia-580xx-utils](https://aur.archlinux.org/packages/nvidia-580xx-utils) [AUR] (example branch) package installed in addition to got the driver working.
+
+In case you also may want lib32 support packages for Gaming (steam/wine) [lib32-nvidia-580xx-utils](https://aur.archlinux.org/packages/lib32-nvidia-580xx-utils) [AUR] (example branch), and you also need the same version of nvidia-settings if you want that installed: [nvidia-580xx-settings](https://aur.archlinux.org/packages/nvidia-580xx-settings) [AUR]
+
+Find your Cards Codenames here: [https://nouveau.freedesktop.org/CodeNames.html](https://nouveau.freedesktop.org/CodeNames.html)
+
+The EndeavourOS tool for Nvidia Drivers: [nvidia-installer (nvidia-inst)](/new-nvidia-driver-installer-nvidia-inst/) only supports the **[latest driver](https://www.archlinux.org/packages/extra/x86_64/nvidia-open/)**
+
+### **To see what driver version support your card go here:**
+
+[Nvidia Driver Search](http://www.nvidia.com/Download/index.aspx)
+
+Put in the info for your card, and choose Linux-64bit as OS.
+
+Or see here main Nvidia packages supported card list: [https://www.nvidia.com/](https://www.nvidia.com/)
+
+**For GeForce it seems to show all drivers only on this page:**
+
+[Nvidia-geforce](https://www.geforce.com/drivers/)
+
+##### You can also use our tool to check your card:
+
+`nvidia-inst --test`
+
+This will show info about your GPU, related installed packages, and gives the commands to install Nvidia packages, but will not actually change anything itself, usefull in case you have no clue to show someone helping you.
+
+If you have PC with a dedicated card plugged in you can use nvidia-inst to get latest driver installed, for more info go here:
+
+[nvidia-inst](/new-nvidia-driver-installer-nvidia-inst/)
+
+With the introduction of the [eos-hwtool](https://github.com/endeavouros-team/PKGBUILDS/tree/master/eos-hwtool#readme) you can easily get drivers installed with one simple command:
+
+`eos-hwtool --no32 --install-recommended`
+
+If you do plan to install steam best is to install 32 bit libs too: `eos-hwtool --install-recommended`
+
+For other Nvidia settings choose the right article for your hardware:
+
+https://discovery.endeavouros.com/category/nvidia/
+
+** Notes:**
+
+**No RTD3 power management on Turing 
+Crashes on some laptops:** The proprietary NVIDIA Linux driver supports **RTD3 runtime power management** only in specific configurations and treats it as *experimental* on Turing GPUs. Documentation notes *initial experimental support* for Turing notebook GPUs, and real-world reports show that RTD3 is often disabled by default or leads to instability (e.g., ‘Runtime D3 status: Not supported’ or system hangs/crashes) on some laptops. For details, see the official NVIDIA README on dynamic power management and user reports on Arch and Fedora forums.

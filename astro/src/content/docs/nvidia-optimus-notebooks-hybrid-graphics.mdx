@@ -1,0 +1,90 @@
+---
+title: "Optimus Notebooks (hybrid graphics)"
+description: "It will be that you have such hybrid system with a combination of NVIDIA and intel GPU."
+---
+
+Find out if you are on such system run this from terminal:
+
+`lspci -vnn | grep '\''[030[02]\]'`
+
+if it gives out something like this with two devices:
+
+`00:02.0 VGA compatible controller [0300]: Intel Corporation Haswell-ULT Integrated Graphics Controller [8086:0a16] (rev 09) (prog-if 00 [VGA controller])`
+
+`01:00.0 3D controller [0302]: NVIDIA Corporation GK107M [GeForce GT 750M] [10de:0fe4] (rev ff) (prog-if ff)`
+
+It will be that you have such hybrid system with a combination of NVIDIA and intel GPU.
+
+Some basic information on that: [https://wiki.archlinux.org/index.php/Hybrid_graphics](https://wiki.archlinux.org/index.php/Hybrid_graphics)
+
+### DRM Modesetting:
+
+As of 2021 the proprietary Nvidia Driver supports handling of Optimus hybrid systems per default.
+
+It will boot on intel integrated per default. Modesetting DRM needs to be enabled Archlinux packaging does this by default for latest Nvidia drivers.
+
+**Only the old [legacy drivers](https://www.nvidia.com/en-us/drivers/unix/legacy-gpu/) [nvidia-470xx-dkms](https://aur.archlinux.org/packages/nvidia-470xx-dkms)** and older would need to have it added to boot kernel options to get loaded:
+
+##### With systemd-boot:
+
+create a dropin config:
+
+`sudo nano /etc/dracut.conf.d/nvidia.conf`
+
+and add the following line:
+
+add_drivers+=" nvidia nvidia-drm nvidia-modeset nvidia-uvm "
+
+rebuild kernel images:
+
+`sudo reinstall-kernels`
+
+##### With Grub Bootloader:
+
+`sudo nano /etc/default/grub`
+
+and add it to the CMD line (adding not removing anything thats already there):
+
+`GRUB_CMDLINE_LINUX_DEFAULT="quiet splash nvidia_drm.modeset=1 nvidia nvidia-drm nvidia-modeset nvidia-uvm"` (only example line yours may look different)
+
+`sudo dracut-rebuild`
+
+### Switching decent GPU on:
+
+To be able to switch between the two GPUs usage, you can use one of the options to have this available in different ways:
+
+[Switcheroo-Control](https://gitlab.freedesktop.org/hadess/switcheroo-control) D-Bus service to check the availability of dual-GPU, integrates with the settings of KDE/plasma Gnome, and Cinnamon: “Launch using Dedicated Graphics Card” menu item appears on application starter contextual menu per example. [switcheroo-control](/switcheroo-control/)
+
+**Supergfxctl is a useful utility provided by [ASUS Linux](https://wiki.archlinux.org/title/ASUS_Linux). It helps with managing GPU switching functionality on hybrid laptops.** (While supergfxctl was originally designed with ASUS Optimus laptops in mind, it has since evolved into a standalone tool that functions with any laptops with hybrid graphics.)
+
+[Supergfxctl](https://wiki.archlinux.org/title/Supergfxctl)
+
+**EnvyControl is a CLI tool that provides an easy way to switch between GPU modes on Nvidia Optimus systems**:
+
+Envy-Control
+
+**Optimus-manager is one solution currently where you can switch between the two GPU’s:**
+
+[Optimus-Manager](/optimus-manager-for-nvidia/)
+
+**Optimus Switch is completely powerdown Nvidia GPU and will save more power, but needs to reboot system to do so:**
+
+[Optimus-Switch](/optimus-switch-another-solution-for-optimus-laptops/)
+
+**Render Offload is a new mechanism build inside the Nvidia Driver:**
+
+[Render-Offload](https://download.nvidia.com/XFree86/Linux-x86_64/435.17/README/primerenderoffload.html)
+
+Overview (may more recent) on Archwiki: [https://wiki.archlinux.org/title/NVIDIA_Optimus#Available_methods](https://wiki.archlinux.org/title/NVIDIA_Optimus#Available_methods)
+
+## Some helpful links to tutorials:
+
+[https://github.com/linesma/Optimus-indicator](https://github.com/linesma/Optimus-indicator)
+
+[https://forum.endeavouros.com/t/optimus-manager-issues/7403/15](https://forum.endeavouros.com/t/optimus-manager-issues/7403/15)
+
+[https://github.com/Askannz/optimus-manager](https://github.com/Askannz/optimus-manager)
+
+[https://wiki.archlinux.org/index.php/PRIME](https://wiki.archlinux.org/index.php/PRIME)
+
+[https://forum.endeavouros.com/t/optimus-switch-another-solution-for-optimus-laptops](https://forum.endeavouros.com/t/optimus-switch-another-solution-for-optimus-laptops)

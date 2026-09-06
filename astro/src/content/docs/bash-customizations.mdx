@@ -1,0 +1,36 @@
+---
+title: "Bash customizations"
+description: "EndeavourOS do ship only default .bashrc (bash configuration) but as you may know there are endless."
+---
+
+EndeavourOS do ship only default .bashrc (bash configuration) but as you may know there are endless.
+
+[https://www.gnu.org/software/bash](https://www.gnu.org/software/bash)
+
+[https://wiki.archlinux.org/title/Bash](https://wiki.archlinux.org/title/Bash)
+
+Here you will find some basic settings and hints on customizing your bash prompt and behavior of the shell.
+
+`~/.bashrc` Per-user config file, applied after `/etc/bash.bashrc`
+
+~/.bash_profile Per-user, after /etc/profile. If this file does not exist, ~/.bash_login and ~/.profile are checked in that order. The skeleton file /etc/skel/.bash_profile also sources ~/.bashrc.
+
+~/.bash_logout Per-user, after exit of a login shell.
+
+`/etc/profile` Sources application settings in `/etc/profile.d/*.sh` and `/etc/bash.bashrc`.
+
+Most requested is the history search function added on top of up/down keys showing the history roll of input:
+
+Add these two lines to users `.bashrc`:
+
+`bind '"\e[A":history-search-backward' # history with arrow up keybind '"\e[B":history-search-forward' # history with arrow down key`
+
+With this you can start typing per example sudo and with up and down keys it will show all commands used starting with sudo...
+
+The prompt itself can be configured and as you like in many many ways also for some examples see this online tool per example:
+
+[https://wiki.archlinux.org/title/Bash/Prompt_customization](https://wiki.archlinux.org/title/Bash/Prompt_customization)
+
+[https://ezprompt.net](https://ezprompt.net)
+
+[https://bash-prompt-generator.org](https://bash-prompt-generator.org)
