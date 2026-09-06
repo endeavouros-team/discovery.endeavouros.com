@@ -1,0 +1,28 @@
+# Preview stack for the Discovery wiki on sra-oracle.
+#
+# One service, one hostname. The main site has its own stack out of its own
+# repository; the two share the box and nothing else, because both builds emit
+# root-relative URLs (/index.css, /favicon.svg, /gaming-101/) and neither can be
+# moved under a path prefix to share a hostname.
+#
+# Bound to 127.0.0.1: only cloudflared needs to reach this. The box's iptables
+# already rejects external traffic on this port, so this is a second layer.
+#
+# Content arrives by rsync from scripts/deploy-preview.sh; the volumes are bind
+# mounts, so a redeploy needs no container restart.
+#
+# The config is mounted as a DIRECTORY, not a single file. A single-file bind
+# mount pins one inode, and rsync writes a replacement and renames it, so the
+# container would keep serving the old config forever with no visible error.
+
+services:
+
+  eos-wiki:
+    image: nginx:alpine
+    container_name: eos-wiki
+    ports:
+      - "127.0.0.1:8083:80"
+    volumes:
+      - ./html:/usr/share/nginx/html:ro
+      - ./conf:/etc/nginx/conf.d:ro
+    restart: unless-stopped
