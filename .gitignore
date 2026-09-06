@@ -1,0 +1,11 @@
+# build output
+astro/dist/
+astro/.astro/
+astro/node_modules/
+
+# scratch
+*.log
+.DS_Store
+
+# Python bytecode from scripts/ importing wp_common
+__pycache__/

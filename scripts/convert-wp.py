@@ -2,10 +2,12 @@
 """Convert Discovery's WordPress articles to Starlight Markdown.
 
 The Gutenberg handling this needs -- the three <pre> shapes, <br>-joined
-commands, language inference, heading shifting -- is shared with the main
-site's news importer and lives in scripts/wp_common.py. What stays here is
-what is Starlight's alone: .mdx output, the <YouTube> component, and flattening
-cross-article embeds to plain links.
+commands, language inference, heading shifting -- lives in the sibling
+scripts/wp_common.py, a hand-kept copy of the main site's file of the same
+name. What stays here is what is Starlight's alone: .mdx output, the <YouTube>
+component, and flattening cross-article embeds to plain links.
+
+Run from the repository root:
 
     scripts/convert-wp.py pacman-basic-commands adding-swap-after-installation
 """
@@ -14,12 +16,11 @@ import re
 import sys
 from pathlib import Path
 
-sys.path.insert(0, str(Path(__file__).resolve().parents[2] / "scripts"))
-import wp_common as wp  # noqa: E402
+import wp_common as wp
 
 API = "https://discovery.endeavouros.com/wp-json/wp/v2"
 FIELDS = "slug,title,content,date,modified,categories"
-OUT = Path(__file__).resolve().parent.parent / "src/content/docs"
+OUT = Path(__file__).resolve().parents[1] / "astro/src/content/docs"
 
 
 def on_embed(block: str, stats: dict) -> str | None:
