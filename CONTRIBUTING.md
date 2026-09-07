@@ -14,12 +14,28 @@ language — `bash` and `ini` are what the importer infers — which is what the
 highlighting and the copy button work from.
 
 `make convert SLUGS="the-slug"` re-imports one article from the WordPress
-export, `make convert` re-imports all 102, and either rewrites
-`astro/sidebar.json`, which `astro/astro.config.mjs` imports — nothing is derived
-from the file tree. The export lives outside the repository and its location is
-the `EXPORT` variable in the Makefile. A run ends with a list of what it could not
-do, and that list is the part to read; the README covers what it rewrites and what
-it drops.
+export and `make convert` re-imports all 102. The export lives outside the
+repository and its location is the `EXPORT` variable in the Makefile. A run ends
+with a list of what it could not do, and that list is the part to read; the
+README covers what it rewrites and what it drops.
+
+## Adding an article
+
+Nothing is derived from the file tree, so an article missing from the sidebar is
+reachable by search and by nothing else. Three steps:
+
+1. Write `astro/src/content/docs/<slug>.mdx` — or `make convert
+   SLUGS="<slug>"`, if it is in the WordPress export — with `title`,
+   `description`, and `lastUpdated: YYYY-MM-DD` if you know when the content was
+   last revised.
+2. Add `{ "slug": "<slug>" }` to the group it belongs in, in
+   `astro/sidebar.json`. That file is hand-authored; `make convert` checks it
+   but never writes it, and `astro/astro.config.mjs` imports it.
+3. `make check`.
+
+An article in no group, a slug listed twice, or a slug whose `.mdx` is gone
+comes out under `sidebar` in the warning list at the end of a `make convert`
+run. That check is the only thing standing between a new article and silence.
 
 ## Before you commit
 

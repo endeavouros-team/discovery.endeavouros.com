@@ -28,15 +28,18 @@ export default defineConfig({
         { icon: 'github', label: 'GitHub', href: 'https://github.com/endeavouros-team' },
         { icon: 'discourse', label: 'Forum', href: 'https://forum.endeavouros.com' },
       ],
-      // Discovery's 102 articles carry flat categories and no hierarchy, so the
-      // sidebar cannot be derived from the file tree. sidebar.json is generated
-      // from the WordPress categories by scripts/convert-wp.py, as a starting
-      // point rather than an answer: which groups, in what order and what gets
-      // promoted is a content decision for the team, and re-authoring this by
-      // hand is what closes it.
+      // Discovery's articles carry no hierarchy, so the sidebar cannot be
+      // derived from the file tree. sidebar.json is hand-authored, from Joe
+      // Kamprad's menu plan of 2026-09-07: nine sections, the subgroups
+      // collapsed. Nothing generates it -- `make convert` only checks that
+      // every published article appears in it exactly once -- so a new article
+      // is added to that file by hand or it is unreachable.
       sidebar,
       pagination: false,
-      lastUpdated: false,
+      // The date comes from each article's `lastUpdated` frontmatter, which the
+      // importer takes from WordPress's modified date. Left to itself Starlight
+      // reads git, where every article was last touched by the import.
+      lastUpdated: true,
     }),
   ],
   // Astro's native security.csp is deliberately NOT used here: it only hashes

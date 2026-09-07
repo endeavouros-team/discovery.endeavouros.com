@@ -22,6 +22,10 @@ scripts/wp_common.py, a hand-kept copy of the main site's file of the same name.
 What stays here is what is Discovery's alone: .mdx output, the <YouTube>
 component, resolving every image to a file in this repository, and rewriting the
 links and anchors that used to point at WordPress.
+
+astro/sidebar.json is hand-authored and this script never writes it. A run
+checks it instead, and says so in the warning list: an article nobody filed, a
+slug filed twice, a slug whose article is gone.
 """
 
 import argparse
@@ -95,7 +99,7 @@ def warn(kind: str, detail: str) -> None:
 
 
 def read_wxr(path: Path) -> None:
-    """Every post in the export, published or not, and its categories."""
+    """Every post in the export, published or not."""
     for item in ET.parse(path).getroot().find("channel").findall("item"):
         kind = item.findtext("wp:post_type", namespaces=NS)
         if kind == "attachment":
@@ -109,10 +113,12 @@ def read_wxr(path: Path) -> None:
             "slug": item.findtext("wp:post_name", namespaces=NS),
             "id": item.findtext("wp:post_id", namespaces=NS),
             "title": html.unescape(item.findtext("title") or ""),
+            # The honest age signal. post_date is when it was first published,
+            # which for a wiki says nothing: Timeshift is dated 2019 and was
+            # last edited in 2022.
+            "modified": (item.findtext("wp:post_modified_gmt", namespaces=NS) or "")[:10],
             "status": item.findtext("wp:status", namespaces=NS),
             "body": body,
-            # The display name, not the nicename: the sidebar shows it.
-            "cats": [c.text for c in item.findall("category") if c.get("domain") == "category"],
             "anchors": anchor_map(body),
         }
         posts[rec["slug"]] = rec
@@ -429,38 +435,60 @@ def escape(t: str) -> str:
 # --- output -----------------------------------------------------------------
 
 
-def write(slug: str, title: str, body: str) -> None:
+def write(slug: str, title: str, body: str, modified: str = "") -> None:
     body = wp.strip_repeated_title(body, title)
     # The description is read off the body before it is escaped: it is YAML,
     # not MDX, and &lt; in a search result would be the escaping showing.
-    fm = ["---", f'title: "{title}"', f'description: "{wp.synth_description(body, title)}"', "---"]
+    fm = ["---", f'title: "{title}"', f'description: "{wp.synth_description(body, title)}"']
+    # Unquoted, so YAML reads it as the date Starlight's schema wants. The
+    # config asks Starlight to print it; without this it would fall back to
+    # git, where every file was last touched by the import.
+    if modified:
+        fm.append(f"lastUpdated: {modified}")
+    fm.append("---")
     if "<YouTube" in body:
         fm += ["", 'import YouTube from "../../components/YouTube.astro";']
     OUT.mkdir(parents=True, exist_ok=True)
     (OUT / f"{slug}.mdx").write_text("\n".join(fm) + "\n\n" + mdx_safe(body))
 
 
-def sidebar(written: list[str]) -> int:
-    """One group per WordPress category, each article under its first one.
+def check_sidebar() -> int:
+    """Check the hand-authored sidebar; nothing here writes it.
 
-    A starting point, not a decision: 31 flat categories is how WordPress was
-    organised, not how a wiki sidebar should read, and re-authoring this is
-    the team's call.
+    astro/sidebar.json is Joe Kamprad's menu plan of 2026-09-07, typed out by
+    hand: the WordPress categories were a filing system, not a hierarchy, and
+    what a reader looks for is an editorial decision. Nothing regenerates it,
+    so a new article would simply be unreachable. These three warnings are what
+    stop that -- an article in no group, a slug filed twice, a slug whose
+    article is gone -- and a new article is added to that file by hand.
     """
-    groups: dict[str, list[str]] = {}
-    for slug in written:
-        cats = posts[slug]["cats"]
-        groups.setdefault(cats[0] if cats else "Uncategorised", []).append(slug)
-    # By title, not slug: the title is what the sidebar shows, and a series
-    # like "Homeserver 1 - ..." only reads in order if 2 sorts before 10.
-    def natural(slug: str) -> list:
-        return [int(t) if t.isdigit() else t.lower()
-                for t in re.split(r"(\d+)", posts[slug]["title"])]
-    SIDEBAR.write_text(json.dumps(
-        [{"label": label, "items": [{"slug": s} for s in sorted(groups[label], key=natural)]}
-         for label in sorted(groups, key=str.lower)],
-        indent=2, ensure_ascii=False) + "\n")
-    return len(groups)
+    global here
+    listed: list[str] = []
+
+    def walk(items: list[dict]) -> None:
+        for item in items:
+            if "items" in item:
+                walk(item["items"])
+            else:
+                listed.append(item["slug"])
+
+    walk(json.loads(SIDEBAR.read_text()))
+    seen: set[str] = set()
+    for slug in listed:
+        here = slug
+        if slug in seen:
+            warn("sidebar", "listed twice in sidebar.json")
+        elif not (OUT / f"{slug}.mdx").exists():
+            warn("sidebar", "in sidebar.json, but there is no article")
+        seen.add(slug)
+    # Every published post, not only the ones this run wrote: sidebar.json
+    # covers the whole wiki whatever SLUGS narrowed the run to.
+    for slug, rec in sorted(posts.items()):
+        if rec["status"] == "publish" and slug not in seen:
+            here = slug
+            warn("sidebar", "published, but in no sidebar group")
+    here = ""
+    return len(listed)
 
 
 def convert_wxr(args) -> int:
@@ -482,7 +510,7 @@ def convert_wxr(args) -> int:
             continue
         here = slug
         body, st = wp.convert(icons(rec["body"]), on_embed=on_embed, on_image=image, on_link=target)
-        write(slug, rec["title"], body)
+        write(slug, rec["title"], body, rec["modified"])
         written.append(slug)
         for k, v in st.items():
             totals[k] = totals.get(k, 0) + v
@@ -494,8 +522,8 @@ def convert_wxr(args) -> int:
         )
 
     here = ""
-    groups = sidebar(written)
-    print(f"\n  {len(written)} articles in {groups} sidebar groups: "
+    listed = check_sidebar()
+    print(f"\n  {len(written)} articles, {listed} in the sidebar: "
           + ", ".join(f"{v} {k}" for k, v in sorted(totals.items())))
     if warnings:
         print(f"\n  {len(warnings)} things this could not do:")
