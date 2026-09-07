@@ -5,6 +5,10 @@ lastUpdated: 2021-12-18
 ---
 
 import YouTube from "../../components/YouTube.astro";
+import { Image } from "astro:assets";
+import cover from "../../assets/articles/back-up/video_tutorial-1.jpg";
+
+<Image src={cover} alt="" class="cover" width={1200} />
 
 <YouTube url="https://youtu.be/Ne_hHj8S1QQ" />
 

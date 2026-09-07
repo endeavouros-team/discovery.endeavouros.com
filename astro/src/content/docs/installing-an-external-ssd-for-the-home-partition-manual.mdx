@@ -4,6 +4,11 @@ description: "Here are the instructions to install an external USB SSD enclosure
 lastUpdated: 2021-04-04
 ---
 
+import { Image } from "astro:assets";
+import cover from "../../assets/articles/installing-an-external-ssd-for-the-home-partition-manual/Install-PNG-File.png";
+
+<Image src={cover} alt="" class="cover" width={1200} />
+
 Here are the instructions to install an external USB SSD enclosure as your /home directory on your new EndeavourOS SBC.
 
 Install a SSD in a USB 3 enclosure as an external home partition. This SSD can be any size you want. Then this USB 3 SSD can be mounted during boot up in /etc/fstab as /home. This also makes this data easily backed up with rsync along with config files.

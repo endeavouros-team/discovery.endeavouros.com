@@ -4,6 +4,11 @@ description: "If you want to play your MP3s, display Pictures, and view videos, 
 lastUpdated: 2023-03-27
 ---
 
+import { Image } from "astro:assets";
+import cover from "../../assets/articles/homeserver-6-install-and-setup-a-minidlna-media-server/arm-a7-640x353-1.jpg";
+
+<Image src={cover} alt="" class="cover" width={1200} />
+
 If you want to play your MP3s, display Pictures, and view videos, on your Smart TV or any other DLNA device, a minidlna server will need to be installed.
 
 IN A LINUX CLIENT computer, from a Terminal window, SSH into the headless enosServer and become root.

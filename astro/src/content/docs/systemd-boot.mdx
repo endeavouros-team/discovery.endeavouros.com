@@ -4,6 +4,11 @@ description: "In general, you shouldn’t need to do anything special to manage 
 lastUpdated: 2026-03-22
 ---
 
+import { Image } from "astro:assets";
+import cover from "../../assets/articles/systemd-boot/systemd-boot-1.png";
+
+<Image src={cover} alt="" class="cover" width={1200} />
+
 #### Overview
 
 Systemd-boot is a simple UEFI boot manager that is part of systemd. It has several advantages over other boot managers:

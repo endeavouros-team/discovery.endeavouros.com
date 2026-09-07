@@ -4,6 +4,11 @@ description: "One of the downsides to using Flatpaks instead of traditional appl
 lastUpdated: 2021-03-29
 ---
 
+import { Image } from "astro:assets";
+import cover from "../../assets/articles/flatpak-tweaking-the-visuals/cardboard_box-1.jpg";
+
+<Image src={cover} alt="" class="cover" width={1200} />
+
 One of the downsides to using Flatpaks instead of traditional applications is theming. Sometimes the theme used by the application does not always match the system theme. This is caused by the Flatpak application running in its own container. There are a couple of options available to the user to correct this issue.
 
 **Option #1 – Install a theme directly from the Flathub repository.**

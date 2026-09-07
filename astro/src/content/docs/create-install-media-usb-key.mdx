@@ -4,6 +4,11 @@ description: "There are many methods of creating Live USB images using Linux. Th
 lastUpdated: 2024-09-28
 ---
 
+import { Image } from "astro:assets";
+import cover from "../../assets/articles/create-install-media-usb-key/linux-distro-usb-994x400-1.jpg";
+
+<Image src={cover} alt="" class="cover" width={1200} />
+
 ### What **NOT** To Do
 
 Some USB Writing utilities alter the labels of the partitions included in the ISO image. **This causes the boot to fail**. There are workarounds to fix the failure, but that is beyond the scope of this article. For best results, it is recommended that you **NOT** use these types of utilities to create your Live USB. Some of the more widely known utilities that fall into this category are:

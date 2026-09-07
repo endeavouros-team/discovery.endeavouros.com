@@ -14,6 +14,7 @@ Exits non-zero if any link is dead, printing every one.
 
 import re
 import sys
+import urllib.parse
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parent.parent
@@ -39,7 +40,11 @@ def main() -> int:
                     bad.append(f"{f.relative_to(dist)} -> dead anchor {href}")
                 continue
             n += 1
-            p = href.split("#")[0].split("?")[0].lstrip("/")
+            # An href is a URL and a path is not: a filename with a character
+            # that has to be escaped -- the fraction slash in tux-b/w.jpg is
+            # the one in this build -- arrives here as %E2%81%84 and would look
+            # missing on disk. The browser and nginx both undo this.
+            p = urllib.parse.unquote(href.split("#")[0].split("?")[0].lstrip("/"))
             if not p:
                 continue
             if p.endswith("/"):

@@ -4,6 +4,11 @@ description: "The Arch User Repository (AUR) is a collection of user-submitte
 lastUpdated: 2022-10-08
 ---
 
+import { Image } from "astro:assets";
+import cover from "../../assets/articles/faq-what-is-the-aur/AUR.png";
+
+<Image src={cover} alt="" class="cover" width={1200} />
+
 by Jonathon
 
 The **A**rch **U**ser **R**epository (AUR) is a collection of user-submitted package description files ( `PKGBUILD`files). These description files can be used to create package archive files ( `.pkg.tar.zst` files).

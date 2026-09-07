@@ -89,6 +89,14 @@ plain text and the run prints why. That warning list at the end of a run is the 
 read: it names every image that could not be found, every dropped icon and every link that
 lost its destination.
 
+The article's WordPress featured image comes across as a banner under the title. The
+export keeps it as a `_thumbnail_id` pointing at an attachment, which resolves to a file in
+the uploads backup; it is stored beside that article's body images and rendered with
+`<Image>` capped at 1200px, so the built banner is a resized copy rather than the original.
+Its `alt` is empty on purpose — it is decoration and the heading under it names the page.
+99 of the 101 articles have one; the two whose author never set one simply get none, and
+that is not a warning.
+
 Each article's frontmatter carries `lastUpdated`, taken from the export's
 `wp:post_modified_gmt`, and Starlight prints it under the page. The modified date rather
 than the publish date, because for a wiki that is the honest one:

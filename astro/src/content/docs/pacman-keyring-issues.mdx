@@ -4,6 +4,11 @@ description: "sudo pacman -Sy archlinux-keyring endeavouros-keyring"
 lastUpdated: 2022-11-14
 ---
 
+import { Image } from "astro:assets";
+import cover from "../../assets/articles/pacman-keyring-issues/arch-pacman.jpg";
+
+<Image src={cover} alt="" class="cover" width={1200} />
+
 *Written by Jonathon*
 
 If you’re getting an error similar to “`Can’t update: signature from *** is marginal trust`” or “`invalid or corrupted package`” you probably just need to update your package signing keys:

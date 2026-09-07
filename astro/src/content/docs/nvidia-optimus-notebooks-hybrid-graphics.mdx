@@ -4,6 +4,11 @@ description: "It will be that you have such hybrid system with a combination of 
 lastUpdated: 2026-05-11
 ---
 
+import { Image } from "astro:assets";
+import cover from "../../assets/articles/nvidia-optimus-notebooks-hybrid-graphics/nvidiaLogo2.jpg";
+
+<Image src={cover} alt="" class="cover" width={1200} />
+
 Find out if you are on such system run this from terminal:
 
 `lspci -vnn | grep '\''[030[02]\]'`

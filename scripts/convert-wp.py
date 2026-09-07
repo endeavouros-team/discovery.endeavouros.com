@@ -93,6 +93,7 @@ SKIP = {
 posts: dict[str, dict] = {}       # slug -> record, whatever its status
 by_id: dict[str, dict] = {}
 attachments: dict[str, str] = {}  # attachment slug -> file URL
+att_urls: dict[str, str] = {}     # attachment post id -> file URL, for _thumbnail_id
 uploads: zipfile.ZipFile | None = None
 assets: dict[tuple[str, str], str] = {}
 here = ""                         # the article being converted, for warnings
@@ -106,13 +107,22 @@ def warn(kind: str, detail: str) -> None:
 # --- the export -------------------------------------------------------------
 
 
+def meta(item: ET.Element, key: str) -> str:
+    """One <wp:postmeta> value, by key."""
+    for m in item.findall("wp:postmeta", namespaces=NS):
+        if m.findtext("wp:meta_key", namespaces=NS) == key:
+            return m.findtext("wp:meta_value", namespaces=NS) or ""
+    return ""
+
+
 def read_wxr(path: Path) -> None:
     """Every post in the export, published or not."""
     for item in ET.parse(path).getroot().find("channel").findall("item"):
         kind = item.findtext("wp:post_type", namespaces=NS)
         if kind == "attachment":
-            attachments[item.findtext("wp:post_name", namespaces=NS)] = (
-                item.findtext("wp:attachment_url", namespaces=NS) or "")
+            url = item.findtext("wp:attachment_url", namespaces=NS) or ""
+            attachments[item.findtext("wp:post_name", namespaces=NS)] = url
+            att_urls[item.findtext("wp:post_id", namespaces=NS)] = url
             continue
         if kind != "post":
             continue
@@ -125,6 +135,9 @@ def read_wxr(path: Path) -> None:
             # which for a wiki says nothing: Timeshift is dated 2019 and was
             # last edited in 2022.
             "modified": (item.findtext("wp:post_modified_gmt", namespaces=NS) or "")[:10],
+            # The featured image, by attachment id. WordPress's theme showed it
+            # above the title and the export keeps only the pointer.
+            "thumb": meta(item, "_thumbnail_id"),
             "status": item.findtext("wp:status", namespaces=NS),
             "body": body,
             "anchors": anchor_map(body),
@@ -142,8 +155,9 @@ def read_media(path: Path) -> None:
     """
     for item in ET.parse(path).getroot().find("channel").findall("item"):
         if item.findtext("wp:post_type", namespaces=NS) == "attachment":
-            attachments[item.findtext("wp:post_name", namespaces=NS)] = (
-                item.findtext("wp:attachment_url", namespaces=NS) or "")
+            url = item.findtext("wp:attachment_url", namespaces=NS) or ""
+            attachments[item.findtext("wp:post_name", namespaces=NS)] = url
+            att_urls[item.findtext("wp:post_id", namespaces=NS)] = url
 
 
 # --- anchors ----------------------------------------------------------------
@@ -355,6 +369,26 @@ def image(src: str, alt: str, stats: dict) -> str | None:
     return f"![{alt}]({store(url, data)})"
 
 
+def cover_image(rec: dict) -> str | None:
+    """The article's WordPress featured image, stored beside its body images.
+
+    This is what the old theme drew above the title, and the export keeps it as
+    an attachment id rather than a URL. Two of the 101 articles never had one;
+    that is an author's choice, not a failure, so it is silent. An id that
+    resolves to a file the uploads backup does not hold is the real gap and
+    warns.
+    """
+    url = att_urls.get(rec.get("thumb") or "")
+    if not url:
+        return None
+    url = unjetpack(url)
+    data = from_zip(urllib.parse.urlsplit(url).path)
+    if not data:
+        warn("cover", url)
+        return None
+    return store(url, data)
+
+
 def store(url: str, data: bytes) -> str:
     """Where the file lands, and how the article refers to it. One directory
     per article, so the tree says what belongs to what."""
@@ -443,7 +477,7 @@ def escape(t: str) -> str:
 # --- output -----------------------------------------------------------------
 
 
-def write(slug: str, title: str, body: str, modified: str = "") -> None:
+def write(slug: str, title: str, body: str, modified: str = "", cover: str | None = None) -> None:
     body = wp.strip_repeated_title(body, title)
     # The description is read off the body before it is escaped: it is YAML,
     # not MDX, and &lt; in a search result would be the escaping showing.
@@ -454,10 +488,21 @@ def write(slug: str, title: str, body: str, modified: str = "") -> None:
     if modified:
         fm.append(f"lastUpdated: {modified}")
     fm.append("---")
+    imports = []
     if "<YouTube" in body:
-        fm += ["", 'import YouTube from "../../components/YouTube.astro";']
+        imports.append('import YouTube from "../../components/YouTube.astro";')
+    if cover:
+        imports.append('import { Image } from "astro:assets";')
+        imports.append(f'import cover from "{cover}";')
+    if imports:
+        fm += [""] + imports
+    # alt="" on purpose: the h1 under it already names the page, and every one
+    # of these is decoration the theme chose. width caps what Astro emits --
+    # without it the resized asset is the full-size original, and some of these
+    # are 2500px wide.
+    banner = '<Image src={cover} alt="" class="cover" width={1200} />\n\n' if cover else ""
     OUT.mkdir(parents=True, exist_ok=True)
-    (OUT / f"{slug}.mdx").write_text("\n".join(fm) + "\n\n" + mdx_safe(body))
+    (OUT / f"{slug}.mdx").write_text("\n".join(fm) + "\n\n" + banner + mdx_safe(body))
 
 
 def check_sidebar() -> int:
@@ -509,6 +554,7 @@ def convert_wxr(args) -> int:
     wanted = args.slugs or sorted(
         s for s, r in posts.items() if r["status"] == "publish" and s not in SKIP)
     written: list[str] = []
+    covers = 0
     totals: dict[str, int] = {}
     for slug in wanted:
         rec = posts.get(slug)
@@ -522,8 +568,10 @@ def convert_wxr(args) -> int:
             continue
         here = slug
         body, st = wp.convert(icons(rec["body"]), on_embed=on_embed, on_image=image, on_link=target)
-        write(slug, rec["title"], body, rec["modified"])
+        cover = cover_image(rec)
+        write(slug, rec["title"], body, rec["modified"], cover)
         written.append(slug)
+        covers += bool(cover)
         for k, v in st.items():
             totals[k] = totals.get(k, 0) + v
         print(
@@ -535,7 +583,7 @@ def convert_wxr(args) -> int:
 
     here = ""
     listed = check_sidebar()
-    print(f"\n  {len(written)} articles, {listed} in the sidebar: "
+    print(f"\n  {len(written)} articles, {covers} with a banner, {listed} in the sidebar: "
           + ", ".join(f"{v} {k}" for k, v in sorted(totals.items())))
     if warnings:
         print(f"\n  {len(warnings)} things this could not do:")

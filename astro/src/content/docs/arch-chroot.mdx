@@ -4,6 +4,11 @@ description: "If your machine doesn’t boot caused of a Bootloader or update is
 lastUpdated: 2024-01-06
 ---
 
+import { Image } from "astro:assets";
+import cover from "../../assets/articles/arch-chroot/cassini-arch-chroot.png";
+
+<Image src={cover} alt="" class="cover" width={1200} />
+
 If your machine doesn’t boot caused of a Bootloader or update issue, there is a way to get into your system through the terminal with ***Change of root*** also known as ***Chroot***.
 
 This is a rescue mode where you mount the partitions of the installed system, as it would happen on a real OS boot, and with the help of a chroot helper, you can log in to the installed system and run some rescue tasks.

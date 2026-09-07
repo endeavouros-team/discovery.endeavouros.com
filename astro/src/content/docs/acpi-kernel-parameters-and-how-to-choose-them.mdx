@@ -4,6 +4,11 @@ description: "The introduction of Optimus laptops and other power-saving feature
 lastUpdated: 2021-08-17
 ---
 
+import { Image } from "astro:assets";
+import cover from "../../assets/articles/acpi-kernel-parameters-and-how-to-choose-them/linux-inside.jpg";
+
+<Image src={cover} alt="" class="cover" width={1200} />
+
 The introduction of Optimus laptops and other power-saving features have created new challenges for Linux users. Some of the issues include having the proprietary graphics card work when the system boots, improper CPU scaling, and general system instability. Many times the advice given is to add an Advanced Configuration and Power Interface (ACPI) kernel parameter to grub. While a specific ACPI kernel parameter may be given, it is sometimes not appropriate to the hardware it is being applied to. This can cause system instability and some functions of the laptop to not work properly. Once the user does find a parameter that works, they are told to add it to their grub config file so it will be automatically loaded at boot. This can cause its own problems. If the user does not use the proper syntax when adding this parameter, it will be ignored and not work. Let’s take a look at how to choose the proper ACPI kernel parameter and then how to properly add it to the grub config file.
 
 Before you decide which ACPI kernel parameter you need, you have to ask yourself one question.

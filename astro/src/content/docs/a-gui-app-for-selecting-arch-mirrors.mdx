@@ -4,6 +4,11 @@ description: "All countries having Arch mirrors are shown, and any combination o
 lastUpdated: 2022-01-06
 ---
 
+import { Image } from "astro:assets";
+import cover from "../../assets/articles/a-gui-app-for-selecting-arch-mirrors/EndeavourOS_6.jpg";
+
+<Image src={cover} alt="" class="cover" width={1200} />
+
 Mirror ranking or selecting the best mirrors (package servers) can be done with a command line utility called `reflector`. A GUI wrapper for reflector is `reflector-simple`. It provides a simple graphical user interface:
 
 ![](../../assets/articles/a-gui-app-for-selecting-arch-mirrors/reflector-simple-app.png)

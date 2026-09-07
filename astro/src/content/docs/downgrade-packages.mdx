@@ -4,6 +4,11 @@ description: "If a package update causes problems don’t worry, Pacman has the 
 lastUpdated: 2021-06-29
 ---
 
+import { Image } from "astro:assets";
+import cover from "../../assets/articles/downgrade-packages/arch-pacman-invaders-1920x1080-1.png";
+
+<Image src={cover} alt="" class="cover" width={1200} />
+
 by Bryanpwo
 
 If a package update causes problems don’t worry, Pacman has the previous version stored in the `/var/cache/pacman/pkg/` unless the Pacman cache has been cleaned. Downgrading using this method then can’t be done.

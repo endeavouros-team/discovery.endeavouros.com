@@ -4,6 +4,11 @@ description: "Warning: Users need to be certain that their SSD supports TRIM be
 lastUpdated: 2021-08-17
 ---
 
+import { Image } from "astro:assets";
+import cover from "../../assets/articles/periodic-trim/Install-PNG-File.png";
+
+<Image src={cover} alt="" class="cover" width={1200} />
+
 [Source: [Periodic_TRIM](https://wiki.archlinux.org/index.php/Solid_state_drive#Periodic_TRIM)]
 
 ***Warning:** Users need to be certain that their SSD supports TRIM before attempting to use it. Data loss can occur otherwise!*

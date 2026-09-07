@@ -4,6 +4,11 @@ description: "Actually - this item has been upgraded and error-checked into an a
 lastUpdated: 2021-08-25
 ---
 
+import { Image } from "astro:assets";
+import cover from "../../assets/articles/easy-downgrade-by-date/arch-pacman.jpg";
+
+<Image src={cover} alt="" class="cover" width={1200} />
+
 Actually - this item has been upgraded and error-checked into an actual EndeavourOS application, ***eos-shifttime***. This has been left here for the sake of those who want to know how it works, for those who want to see how to add mini-apps to the Welcome *Personal Commands* tab, and as an explanation for the uses it might be put to.
 
 This a little setup I have made to ease usage of the Arch Archives. You can think of it as an alternative to the downgrade of a single package (which may need multiple packages downgraded to match!) and is often used to temporarily 'hold' updates until a more suitable time, while ensuring that packages are correctly in sync for use together.

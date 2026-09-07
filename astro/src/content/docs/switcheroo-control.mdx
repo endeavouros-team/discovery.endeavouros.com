@@ -5,6 +5,10 @@ lastUpdated: 2026-05-11
 ---
 
 import YouTube from "../../components/YouTube.astro";
+import { Image } from "astro:assets";
+import cover from "../../assets/articles/switcheroo-control/hybrid.png";
+
+<Image src={cover} alt="" class="cover" width={1200} />
 
 [Switcheroo-Control](https://gitlab.freedesktop.org/hadess/switcheroo-control) D-Bus service to check the availability of dual-GPU, integrates with the settings of KDE/plasma Gnome, and Cinnamon: “Launch using Dedicated Graphics Card” menu item appears on application starter contextual menu per example.
 

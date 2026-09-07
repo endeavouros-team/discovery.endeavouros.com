@@ -55,6 +55,23 @@
    dimensions to fall back on and collapses to 0x0 without this. */
 .site-title img { height: 1.75rem; width: auto; }
 
-/* 1,708 code blocks across the wiki, so this is the component that matters
-   most. Give it a little more room to breathe than the default. */
+/* 261 fenced code blocks across the wiki, so this is the component that
+   matters most. Give it a little more room to breathe than the default. */
 .expressive-code .frame pre { padding-block: 0.9rem; }
+
+/* The WordPress featured image, above the body. It is a banner, not a figure:
+   a fixed strip the whole width of the column so the fold looks the same on
+   every article, whatever aspect ratio the author's picture happened to be.
+   object-fit crops rather than letterboxes, which is the right trade for
+   decoration. */
+.sl-markdown-content img.cover {
+  width: 100%;
+  height: 240px;
+  object-fit: cover;
+  border-radius: 0.5rem;
+  margin: 0 0 1.5rem;
+}
+
+@media (max-width: 50rem) {
+  .sl-markdown-content img.cover { height: 160px; }
+}

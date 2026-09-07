@@ -4,6 +4,11 @@ description: "When downloading packages, pacman uses the mirrors in the order th
 lastUpdated: 2021-06-29
 ---
 
+import { Image } from "astro:assets";
+import cover from "../../assets/articles/automatically-ranking-the-mirror-list/mirrorlist.jpg";
+
+<Image src={cover} alt="" class="cover" width={1200} />
+
 ## New solution to auto rank and update mirror list:
 
 When downloading packages, pacman uses the mirrors in the order they are listed in `/etc/pacman.d/mirrorlist` and `/etc/pacman.d/endeavouros-mirrorlist` The order in which servers appear in the list sets their priority.
