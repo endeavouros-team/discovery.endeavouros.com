@@ -60,7 +60,16 @@
     "label": "ARM",
     "items": [
       {
-        "slug": "an-endeavouros-based-simple-home-server"
+        "slug": "homeserver-set-up-a-linux-client-computer"
+      },
+      {
+        "slug": "homeserver-use-fuse-and-sshfs-to-view-server-data-in-a-file-manager"
+      },
+      {
+        "slug": "homeserver-automatically-mount-server-at-log-in"
+      },
+      {
+        "slug": "install-and-setup-a-samba-server"
       },
       {
         "slug": "homeserver-5-configure-a-windows-client-for-samba"
@@ -69,16 +78,7 @@
         "slug": "homeserver-6-install-and-setup-a-minidlna-media-server"
       },
       {
-        "slug": "homeserver-automatically-mount-server-at-log-in"
-      },
-      {
-        "slug": "homeserver-set-up-a-linux-client-computer"
-      },
-      {
-        "slug": "homeserver-use-fuse-and-sshfs-to-view-server-data-in-a-file-manager"
-      },
-      {
-        "slug": "install-and-setup-a-samba-server"
+        "slug": "an-endeavouros-based-simple-home-server"
       },
       {
         "slug": "installing-an-external-ssd-for-the-home-partition-manual"
@@ -89,10 +89,10 @@
     "label": "Articles",
     "items": [
       {
-        "slug": "does-endeavouros-frown-upon-gui-solutions-for-pacman"
+        "slug": "faq-what-is-the-aur"
       },
       {
-        "slug": "faq-what-is-the-aur"
+        "slug": "does-endeavouros-frown-upon-gui-solutions-for-pacman"
       },
       {
         "slug": "pacman-actions-explained"

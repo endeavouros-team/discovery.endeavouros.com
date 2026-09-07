@@ -451,8 +451,13 @@ def sidebar(written: list[str]) -> int:
     for slug in written:
         cats = posts[slug]["cats"]
         groups.setdefault(cats[0] if cats else "Uncategorised", []).append(slug)
+    # By title, not slug: the title is what the sidebar shows, and a series
+    # like "Homeserver 1 - ..." only reads in order if 2 sorts before 10.
+    def natural(slug: str) -> list:
+        return [int(t) if t.isdigit() else t.lower()
+                for t in re.split(r"(\d+)", posts[slug]["title"])]
     SIDEBAR.write_text(json.dumps(
-        [{"label": label, "items": [{"slug": s} for s in sorted(groups[label])]}
+        [{"label": label, "items": [{"slug": s} for s in sorted(groups[label], key=natural)]}
          for label in sorted(groups, key=str.lower)],
         indent=2, ensure_ascii=False) + "\n")
     return len(groups)
