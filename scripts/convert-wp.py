@@ -505,8 +505,15 @@ def icons(body: str) -> str:
     body = re.sub(r"<!--\s*wp:font-awesome/icon.*?<!--\s*/wp:font-awesome/icon\s*-->",
                   lambda m: "<p>" + named(m, "block") + "</p>", body, flags=re.S)
     body = re.sub(r"<svg[^>]*>.*?</svg>", lambda m: named(m, "inline svg"), body, flags=re.S)
-    return re.sub(r"\[icon name=\"([^\"]+)\"[^\]]*\]",
+    body = re.sub(r"\[icon name=\"([^\"]+)\"[^\]]*\]",
                   lambda m: glyph(m.group(1), "shortcode"), body)
+    # A heading that held nothing but the icon was a visual marker in front
+    # of a note. As a heading it is a one-glyph entry in the page outline.
+    def only_glyph(m: re.Match) -> str:
+        text = re.sub(r"<[^>]+>|&nbsp;|\s", "", m.group(1))
+        return "" if text in ICONS.values() else m.group(0)
+
+    return re.sub(r"<h[1-6][^>]*>(.*?)</h[1-6]>\s*", only_glyph, body, flags=re.S)
 
 
 def mdx_safe(body: str) -> str:
