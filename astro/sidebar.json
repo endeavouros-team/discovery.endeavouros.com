@@ -247,9 +247,6 @@
         "collapsed": true,
         "items": [
           {
-            "slug": "firewall"
-          },
-          {
             "slug": "firewalld"
           },
           {

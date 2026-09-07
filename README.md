@@ -6,9 +6,9 @@ database, no admin panel, nothing writable in the webroot.
 
 **This has not launched.** The live wiki is still the WordPress install at
 discovery.endeavouros.com. What exists here is a preview at
-`https://eos-wiki.sradjoker.cc` — unlisted, serving `noindex` — holding all 102 of
-Discovery's published articles. "What launch still needs" at the end is the honest list of
-what stands between the two.
+`https://eos-wiki.sradjoker.cc` — unlisted, serving `noindex` — holding 101 of Discovery's
+102 published articles; the one left out is named in `SKIP` in the importer, with why.
+"What launch still needs" at the end is the honest list of what stands between the two.
 
 Three tasks cover most of what people come here for:
 
@@ -63,6 +63,13 @@ repositories — `~/Documents/code/discovery-export/` by default, `EXPORT=` to o
 email addresses. The only part of it that is committed is the images the importer extracts,
 under `astro/src/assets/articles/<slug>/`, which is why nothing on these pages hotlinks the
 WordPress install any more.
+
+One published post is deliberately not converted. `SKIP` near the top of
+`scripts/convert-wp.py` names it and says why: `firewall`, the ufw article, which Joe had
+meant to make private once FirewallD became the default and which the export caught before
+he did. It has to live there rather than as a deleted `.mdx`, because the next `make
+convert` would write a deleted file straight back — and `SKIP` is also what keeps the
+sidebar check from asking where it went.
 
 Three shapes of Gutenberg code block become fenced blocks, with `bash` or `ini` inferred
 from the first token. Headings are shifted so the shallowest becomes `h2`, because articles

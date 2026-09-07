@@ -14,7 +14,7 @@ language — `bash` and `ini` are what the importer infers — which is what the
 highlighting and the copy button work from.
 
 `make convert SLUGS="the-slug"` re-imports one article from the WordPress
-export and `make convert` re-imports all 102. The export lives outside the
+export and `make convert` re-imports all 101. The export lives outside the
 repository and its location is the `EXPORT` variable in the Makefile. A run ends
 with a list of what it could not do, and that list is the part to read; the
 README covers what it rewrites and what it drops.

@@ -82,6 +82,14 @@ ICONS = {
     "asterisk": "*",
 }
 
+# Published in the export, but not on the wiki. The export is a snapshot of a
+# WordPress install nobody is tending any more, so `publish` is not always the
+# intent -- and the fix cannot be to delete the .mdx, which the next run would
+# write straight back.
+SKIP = {
+    "firewall": "ufw, superseded by firewalld; Joe meant to make it private",
+}
+
 posts: dict[str, dict] = {}       # slug -> record, whatever its status
 by_id: dict[str, dict] = {}
 attachments: dict[str, str] = {}  # attachment slug -> file URL
@@ -484,7 +492,7 @@ def check_sidebar() -> int:
     # Every published post, not only the ones this run wrote: sidebar.json
     # covers the whole wiki whatever SLUGS narrowed the run to.
     for slug, rec in sorted(posts.items()):
-        if rec["status"] == "publish" and slug not in seen:
+        if rec["status"] == "publish" and slug not in seen and slug not in SKIP:
             here = slug
             warn("sidebar", "published, but in no sidebar group")
     here = ""
@@ -498,7 +506,8 @@ def convert_wxr(args) -> int:
         read_media(Path(args.media))
     uploads = zipfile.ZipFile(args.uploads)
 
-    wanted = args.slugs or sorted(s for s, r in posts.items() if r["status"] == "publish")
+    wanted = args.slugs or sorted(
+        s for s, r in posts.items() if r["status"] == "publish" and s not in SKIP)
     written: list[str] = []
     totals: dict[str, int] = {}
     for slug in wanted:
@@ -507,6 +516,9 @@ def convert_wxr(args) -> int:
             raise SystemExit(f"  no post named {slug!r} in the export")
         if rec["status"] != "publish":
             print(f"  {slug}: {rec['status']}, not converted")
+            continue
+        if slug in SKIP:
+            print(f"  {slug}: skipped -- {SKIP[slug]}")
             continue
         here = slug
         body, st = wp.convert(icons(rec["body"]), on_embed=on_embed, on_image=image, on_link=target)
