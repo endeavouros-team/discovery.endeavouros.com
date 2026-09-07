@@ -59,19 +59,36 @@
    matters most. Give it a little more room to breathe than the default. */
 .expressive-code .frame pre { padding-block: 0.9rem; }
 
-/* The WordPress featured image, above the body. It is a banner, not a figure:
-   a fixed strip the whole width of the column so the fold looks the same on
-   every article, whatever aspect ratio the author's picture happened to be.
-   object-fit crops rather than letterboxes, which is the right trade for
-   decoration. */
+/* The WordPress featured image, beside the opening paragraphs. A post
+   thumbnail is what it was and what most of them still are -- 60 of the 99 are
+   under 800px wide, several are square logos and one is 149px -- so a
+   full-width strip would upscale and crop the majority of them. max-width with
+   auto dimensions means the box shrinks to the picture; nothing is ever drawn
+   larger than its source. */
 .sl-markdown-content img.cover {
-  width: 100%;
-  height: 240px;
-  object-fit: cover;
+  float: right;
+  max-width: 220px;
+  max-height: 220px;
+  width: auto;
+  height: auto;
+  margin: 0.25rem 0 1rem 1.5rem;
   border-radius: 0.5rem;
-  margin: 0 0 1.5rem;
 }
 
+/* A float is out of flow, so on an article shorter than the picture it would
+   hang past the end of the content and over whatever follows. r8168-workaround
+   is 62 words and qtile 55. */
+.sl-markdown-content::after {
+  content: "";
+  display: table;
+  clear: both;
+}
+
+/* Narrow enough that 220px beside the text leaves neither column readable. */
 @media (max-width: 50rem) {
-  .sl-markdown-content img.cover { height: 160px; }
+  .sl-markdown-content img.cover {
+    float: none;
+    display: block;
+    margin: 0 auto 1rem;
+  }
 }

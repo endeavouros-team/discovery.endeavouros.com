@@ -89,13 +89,17 @@ plain text and the run prints why. That warning list at the end of a run is the 
 read: it names every image that could not be found, every dropped icon and every link that
 lost its destination.
 
-The article's WordPress featured image comes across as a banner under the title. The
-export keeps it as a `_thumbnail_id` pointing at an attachment, which resolves to a file in
-the uploads backup; it is stored beside that article's body images and rendered with
-`<Image>` capped at 1200px, so the built banner is a resized copy rather than the original.
-Its `alt` is empty on purpose — it is decoration and the heading under it names the page.
-99 of the 101 articles have one; the two whose author never set one simply get none, and
-that is not a warning.
+The article's WordPress featured image comes across as a thumbnail, floated beside the
+opening paragraphs and never wider than 220px. The export keeps it as a `_thumbnail_id`
+pointing at an attachment, which resolves to a file in the uploads backup; it is stored
+beside that article's body images and rendered with `<Image>` asked for the file's own
+width, capped at 440 for a 2x display. It is a post thumbnail, not a hero — 60 of them are
+under 800px wide and one is 149px — so nothing is ever drawn larger than its source. Its
+`alt` is empty on purpose: it is decoration and the heading beside it names the page.
+
+98 of the 101 articles have one. Two authors never set a featured image, which is not a
+warning; `pacman-basic-commands` had one and is in `NO_COVER` in the importer, because the
+picture carries a stock-library watermark across it.
 
 Each article's frontmatter carries `lastUpdated`, taken from the export's
 `wp:post_modified_gmt`, and Starlight prints it under the page. The modified date rather

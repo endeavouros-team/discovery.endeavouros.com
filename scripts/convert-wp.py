@@ -32,6 +32,7 @@ import argparse
 import html
 import json
 import re
+import struct
 import sys
 import time
 import urllib.error
@@ -89,6 +90,16 @@ ICONS = {
 SKIP = {
     "firewall": "ufw, superseded by firewalld; Joe meant to make it private",
 }
+
+# Articles that keep their text but lose their featured image. The picture is
+# the problem, not the article, so this is separate from SKIP.
+NO_COVER = {
+    "pacman-basic-commands": "watermarked stock image",
+}
+
+# A thumbnail is never drawn wider than this, so there is no reason to ship a
+# larger file: twice the 220px the CSS allows, for a 2x display.
+COVER_MAX = 440
 
 posts: dict[str, dict] = {}       # slug -> record, whatever its status
 by_id: dict[str, dict] = {}
@@ -369,15 +380,56 @@ def image(src: str, alt: str, stats: dict) -> str | None:
     return f"![{alt}]({store(url, data)})"
 
 
-def cover_image(rec: dict) -> str | None:
+def dimensions(data: bytes) -> tuple[int, int] | None:
+    """Pixel size out of the file header.
+
+    Needed only to keep <Image> from asking for a size the file does not have,
+    and PNG, JPEG and WebP are all that the featured images are. Four unpacks
+    of a header is a smaller thing to own than a dependency.
+    """
+    if data[:8] == b"\x89PNG\r\n\x1a\n":
+        return struct.unpack(">II", data[16:24])
+    if data[:6] in (b"GIF87a", b"GIF89a"):
+        return struct.unpack("<HH", data[6:10])
+    if data[:4] == b"RIFF" and data[8:12] == b"WEBP":
+        kind = data[12:16]
+        if kind == b"VP8X":
+            return (int.from_bytes(data[24:27], "little") + 1,
+                    int.from_bytes(data[27:30], "little") + 1)
+        if kind == b"VP8 ":
+            w, h = struct.unpack("<HH", data[26:30])
+            return w & 0x3FFF, h & 0x3FFF
+        if kind == b"VP8L":
+            bits = int.from_bytes(data[21:25], "little")
+            return (bits & 0x3FFF) + 1, ((bits >> 14) & 0x3FFF) + 1
+    if data[:2] == b"\xff\xd8":
+        # JPEG keeps the size in a start-of-frame segment, reached by walking
+        # the segment lengths -- it is not at a fixed offset.
+        i = 2
+        while i + 9 < len(data) and data[i] == 0xFF:
+            marker = data[i + 1]
+            if 0xC0 <= marker <= 0xCF and marker not in (0xC4, 0xC8, 0xCC):
+                h, w = struct.unpack(">HH", data[i + 5:i + 9])
+                return w, h
+            i += 2 + struct.unpack(">H", data[i + 2:i + 4])[0]
+    return None
+
+
+def cover_image(rec: dict) -> tuple[str, int | None] | None:
     """The article's WordPress featured image, stored beside its body images.
 
-    This is what the old theme drew above the title, and the export keeps it as
-    an attachment id rather than a URL. Two of the 101 articles never had one;
-    that is an author's choice, not a failure, so it is silent. An id that
+    This is what the old theme drew beside the title, and the export keeps it
+    as an attachment id rather than a URL. Two of the 101 articles never had
+    one; that is an author's choice, not a failure, so it is silent. An id that
     resolves to a file the uploads backup does not hold is the real gap and
     warns.
+
+    Returns the import path and the width to ask <Image> for -- the file's own,
+    capped at COVER_MAX. Asking for more than the file has makes Astro write
+    attributes describing an upscale it did not perform.
     """
+    if rec["slug"] in NO_COVER:
+        return None
     url = att_urls.get(rec.get("thumb") or "")
     if not url:
         return None
@@ -386,7 +438,12 @@ def cover_image(rec: dict) -> str | None:
     if not data:
         warn("cover", url)
         return None
-    return store(url, data)
+    size = dimensions(data)
+    if not size:
+        # No width attribute at all, rather than a guessed one: Astro then uses
+        # the file's own size, which is never an upscale.
+        warn("cover", url + " (could not read its size)")
+    return store(url, data), min(size[0], COVER_MAX) if size else None
 
 
 def store(url: str, data: bytes) -> str:
@@ -477,7 +534,8 @@ def escape(t: str) -> str:
 # --- output -----------------------------------------------------------------
 
 
-def write(slug: str, title: str, body: str, modified: str = "", cover: str | None = None) -> None:
+def write(slug: str, title: str, body: str, modified: str = "",
+          cover: tuple[str, int | None] | None = None) -> None:
     body = wp.strip_repeated_title(body, title)
     # The description is read off the body before it is escaped: it is YAML,
     # not MDX, and &lt; in a search result would be the escaping showing.
@@ -493,14 +551,17 @@ def write(slug: str, title: str, body: str, modified: str = "", cover: str | Non
         imports.append('import YouTube from "../../components/YouTube.astro";')
     if cover:
         imports.append('import { Image } from "astro:assets";')
-        imports.append(f'import cover from "{cover}";')
+        imports.append(f'import cover from "{cover[0]}";')
     if imports:
         fm += [""] + imports
-    # alt="" on purpose: the h1 under it already names the page, and every one
-    # of these is decoration the theme chose. width caps what Astro emits --
-    # without it the resized asset is the full-size original, and some of these
-    # are 2500px wide.
-    banner = '<Image src={cover} alt="" class="cover" width={1200} />\n\n' if cover else ""
+    # alt="" on purpose: the h1 beside it already names the page, and every one
+    # of these is decoration the theme chose. The width asked for is the file's
+    # own, capped: 60 of these are under 800px, and asking for more would have
+    # Astro write attributes for an upscale it does not perform.
+    banner = ""
+    if cover:
+        w = f" width={{{cover[1]}}}" if cover[1] else ""
+        banner = f'<Image src={{cover}} alt="" class="cover"{w} />\n\n'
     OUT.mkdir(parents=True, exist_ok=True)
     (OUT / f"{slug}.mdx").write_text("\n".join(fm) + "\n\n" + banner + mdx_safe(body))
 
@@ -583,7 +644,7 @@ def convert_wxr(args) -> int:
 
     here = ""
     listed = check_sidebar()
-    print(f"\n  {len(written)} articles, {covers} with a banner, {listed} in the sidebar: "
+    print(f"\n  {len(written)} articles, {covers} with a thumbnail, {listed} in the sidebar: "
           + ", ".join(f"{v} {k}" for k, v in sorted(totals.items())))
     if warnings:
         print(f"\n  {len(warnings)} things this could not do:")
