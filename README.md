@@ -121,6 +121,10 @@ reachable only once its slug is added to this file by hand.** That is what `make
 checks and what the `sidebar` warnings in a run mean: a published article in no group, a
 slug listed twice, a slug whose `.mdx` no longer exists.
 
+The home page's "Start here" grid is the other hand-picked list: six `LinkCard`s in
+`astro/src/content/docs/index.mdx`, nothing derived from traffic or dates, and a comment in
+the file saying so. Changing which six is editing that file.
+
 ## Building
 
 Node 22.12 or later and the dependencies, once per checkout. `astro/.nvmrc` pins the version

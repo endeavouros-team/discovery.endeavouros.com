@@ -19,7 +19,46 @@ hero:
       icon: external
 ---
 
-import { Card, CardGrid } from '@astrojs/starlight/components';
+import { Card, CardGrid, LinkCard } from '@astrojs/starlight/components';
+
+## Start here
+
+{/* Hand-picked and static: not traffic, not dates, not anything derived. Six
+    articles a new EndeavourOS user needs early. This is Joe's list to change --
+    edit the LinkCards below and nothing else has to move. */}
+
+<CardGrid>
+  <LinkCard
+    title="Pacman basic commands"
+    href="/pacman-basic-commands/"
+    description="The package manager at the center of the system: how to maintain, expand and update it."
+  />
+  <LinkCard
+    title="Create install media (USB key)"
+    href="/create-install-media-usb-key/"
+    description="The ways to write the ISO to a USB key on Linux, and which one to reach for."
+  />
+  <LinkCard
+    title="Live ISO Installation Info Tricks & Tips"
+    href="/live-iso-tricks-tips/"
+    description="What the installation medium already handles, and the hardware peculiarities it does not."
+  />
+  <LinkCard
+    title="Nvidia intro"
+    href="/nvidia-intro/"
+    description="Newer cards take the latest driver and older ones no longer do. Where yours falls."
+  />
+  <LinkCard
+    title="Arch-chroot"
+    href="/arch-chroot/"
+    description="When a bootloader or update leaves the machine unbootable: change root and repair it."
+  />
+  <LinkCard
+    title="Update troubles? Meet Timeshift"
+    href="/update-troubles-meet-timeshift/"
+    description="A rolling release updates constantly. Snapshots are how you get back when one breaks."
+  />
+</CardGrid>
 
 <CardGrid>
   <Card title="What this is" icon="information">
@@ -28,15 +67,14 @@ import { Card, CardGrid } from '@astrojs/starlight/components';
     the WordPress export, images included — nothing loads from the old site.
   </Card>
   <Card title="Why this engine" icon="rocket">
-    Discovery is **1,708 code blocks** across 101 articles. Syntax highlighting,
+    Discovery is **261 fenced code blocks** across 101 articles. Syntax highlighting,
     copy buttons, full-text search and the sidebar all come as standard, so
     there is nothing for us to build or keep running.
   </Card>
   <Card title="Where I need your input" icon="warning">
-    The sidebar is the WordPress categories, straight across: **25 flat groups**,
-    no hierarchy. Turning that into something people can navigate — which groups,
-    in what order, what gets promoted — needs people who know the content. Tell
-    me what you'd change.
+    The sidebar is settled — it is Joe's menu plan, nine sections. What is still
+    open is the content: stub articles, images with no alt text, and the
+    43-image run in Live ISO Tricks & Tips. Tell me what you'd change.
   </Card>
   <Card title="Try the search" icon="magnifier">
     Press <kbd>/</kbd> and search for `swapfile` or `vulkan`. It's built when the
