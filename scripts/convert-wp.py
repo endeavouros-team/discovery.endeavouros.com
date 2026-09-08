@@ -56,6 +56,11 @@ NS = {
     "content": "http://purl.org/rss/1.0/modules/content/",
 }
 
+# The Gutenberg block delimiters, for CUT: an opener, a closer, or a
+# self-closing block, told apart by the two groups.
+BLOCK_COMMENT = re.compile(r"<!--\s*(/?)wp:(.*?)-->", re.S)
+BLOCK_CLOSE = re.compile(r"<!--\s*/wp:.*?-->", re.S)
+
 HOST = "discovery.endeavouros.com"
 # The `id_` suffix asks the Wayback Machine for the file as archived, without
 # its own banner and rewritten links.
@@ -89,6 +94,23 @@ ICONS = {
 # write straight back.
 SKIP = {
     "firewall": "ufw, superseded by firewalld; Joe meant to make it private",
+}
+
+# Text an article kept about something that is not on the wiki. Two verbatim
+# substrings of the source bracket the removal; the span grows outward to the
+# Gutenberg block comments around them, because half a block is not something
+# the split can read. It is source surgery for the same reason SKIP is not a
+# deleted file: the next run would write the removed text straight back.
+CUT = {
+    "nvidia-optimus-notebooks-hybrid-graphics": [
+        ("the EnvyControl entry -- that article is private and stays so, forum 2026-09-08",
+         "<strong>EnvyControl is a CLI tool", ">Envy-Control</a>"),
+    ],
+    "new-nvidia-driver-installer-nvidia-inst": [
+        ("the Bumblebee section -- that article is private and stays so, forum 2026-09-08",
+         '<h4 class="wp-block-heading">Bumblebee (for very old machines)</h4>',
+         "<p><code>nvidia-inst -b</code></p>"),
+    ],
 }
 
 # Articles that keep their text but lose their featured image. The picture is
@@ -126,6 +148,41 @@ def meta(item: ET.Element, key: str) -> str:
     return ""
 
 
+def block_depth(span: str) -> int:
+    """Gutenberg blocks opened in a span, less the ones closed in it. A
+    self-closing block -- `<!-- wp:spacer {…} /-->` -- opens nothing."""
+    depth = 0
+    for m in BLOCK_COMMENT.finditer(span):
+        if m.group(1):
+            depth -= 1
+        elif not m.group(2).rstrip().endswith("/"):
+            depth += 1
+    return depth
+
+
+def cut(slug: str, body: str) -> str:
+    """The CUT spans, taken out of the source before anything else reads it.
+
+    Every failure here is fatal rather than a warning. An anchor that stops
+    matching means the export moved under the dict, and the article would then
+    quietly go back to carrying the text the dict exists to remove.
+    """
+    for reason, first, last in CUT.get(slug, []):
+        for anchor in (first, last):
+            if body.count(anchor) != 1:
+                raise SystemExit(
+                    f"  {slug}: {body.count(anchor)} matches for the cut anchor "
+                    f"{anchor!r} -- {reason}")
+        start = body.rfind("<!-- wp:", 0, body.index(first))
+        end = BLOCK_CLOSE.search(body, body.index(last) + len(last))
+        if start < 0 or not end:
+            raise SystemExit(f"  {slug}: the cut span reaches past the post -- {reason}")
+        if block_depth(body[start:end.end()]):
+            raise SystemExit(f"  {slug}: the cut span would leave a block open -- {reason}")
+        body = body[:start] + body[end.end():]
+    return body
+
+
 def read_wxr(path: Path) -> None:
     """Every post in the export, published or not."""
     for item in ET.parse(path).getroot().find("channel").findall("item"):
@@ -137,9 +194,14 @@ def read_wxr(path: Path) -> None:
             continue
         if kind != "post":
             continue
-        body = item.findtext("content:encoded", namespaces=NS) or ""
+        slug = item.findtext("wp:post_name", namespaces=NS)
+        # Before the anchors are read off it: a cut heading that still had an
+        # entry in the anchor map would go on answering cross-page links, and
+        # check-links cannot see an anchor that resolves to a heading nobody
+        # writes any more.
+        body = cut(slug, item.findtext("content:encoded", namespaces=NS) or "")
         rec = {
-            "slug": item.findtext("wp:post_name", namespaces=NS),
+            "slug": slug,
             "id": item.findtext("wp:post_id", namespaces=NS),
             "title": html.unescape(item.findtext("title") or ""),
             # The honest age signal. post_date is when it was first published,
@@ -618,6 +680,12 @@ def convert_wxr(args) -> int:
     if args.media:
         read_media(Path(args.media))
     uploads = zipfile.ZipFile(args.uploads)
+
+    # Both dicts exist to take something out, so an entry naming a slug the
+    # export no longer has is the one entry nobody would notice going quiet.
+    for slug in sorted(set(SKIP) | set(CUT)):
+        if slug not in posts:
+            raise SystemExit(f"  {slug!r} is named in SKIP or CUT, but not in the export")
 
     wanted = args.slugs or sorted(
         s for s, r in posts.items() if r["status"] == "publish" and s not in SKIP)
