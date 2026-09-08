@@ -200,8 +200,14 @@ def cut(slug: str, body: str) -> str:
                 raise SystemExit(
                     f"  {slug}: {body.count(anchor)} matches for the cut anchor "
                     f"{anchor!r} -- {reason}")
-        start = body.rfind("<!-- wp:", 0, body.index(first))
-        end = BLOCK_CLOSE.search(body, body.index(last) + len(last))
+        opens, closes = body.index(first), body.index(last)
+        if closes < opens:
+            # Left to run backwards, the span is an empty slice, which balances
+            # like any other; the removal would then write the text between the
+            # two anchors into the article a second time.
+            raise SystemExit(f"  {slug}: the cut anchors are the wrong way round -- {reason}")
+        start = body.rfind("<!-- wp:", 0, opens)
+        end = BLOCK_CLOSE.search(body, closes + len(last))
         if start < 0 or not end:
             raise SystemExit(f"  {slug}: the cut span reaches past the post -- {reason}")
         if block_depth(body[start:end.end()]):
