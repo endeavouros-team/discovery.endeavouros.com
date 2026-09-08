@@ -119,6 +119,15 @@ NO_COVER = {
     "pacman-basic-commands": "watermarked stock image",
 }
 
+# Images that are still published, at a different address. A prefix rewrite
+# rather than a per-URL map, because what moved was a directory: the Welcome
+# app left the PKGBUILDS monorepo for its own repository and took its
+# wiki-pictures with it. manuel named the new home on the forum, 2026-09-08.
+MOVED = {
+    "https://raw.githubusercontent.com/endeavouros-team/PKGBUILDS/master/welcome/wiki-pictures/":
+        "https://raw.githubusercontent.com/endeavouros-team/welcome/main/wiki-pictures/",
+}
+
 # A thumbnail is never drawn wider than this, so there is no reason to ship a
 # larger file: twice the 220px the CSS allows, for a 2x display.
 COVER_MAX = 440
@@ -378,6 +387,16 @@ def unjetpack(url: str) -> str:
     return urllib.parse.urlunsplit((u.scheme, u.netloc, u.path, "", ""))
 
 
+def moved(url: str) -> str:
+    """A MOVED prefix applied. Takes an already-unwrapped URL: two of the three
+    Welcome screenshots reach the export through Jetpack's CDN, so the prefix
+    to match is only there once unjetpack() has run."""
+    for old, new in MOVED.items():
+        if url.startswith(old):
+            return new + url[len(old):]
+    return url
+
+
 def get(url: str) -> bytes | None:
     """One file, retried: the Wayback Machine answers a burst of requests with
     429s and short-lived 5xxs, and taking those for "not archived" would drop
@@ -418,7 +437,7 @@ def from_zip(path: str) -> bytes | None:
 
 
 def image(src: str, alt: str, stats: dict) -> str | None:
-    url = unjetpack(src)
+    url = moved(unjetpack(src))
     u = urllib.parse.urlsplit(url)
 
     if u.netloc == "img.shields.io":
