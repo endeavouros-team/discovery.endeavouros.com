@@ -298,3 +298,8 @@ builds and link-checks the result on their behalf.
   them. The export's `link` field gives the complete map, so the nginx `map` block is a
   generation step rather than a research problem — except for the nine slugs under "What is
   not here", which have no destination on this site and need an editorial decision instead.
+- **The verify link on the main site's download page.** On go-live day, and deliberately
+  not before, `VerifyInstructions.astro` in the site repository gains a link to
+  `/how-to-check-and-trust-key-and-signature-for-the-endeavouros-iso/` here — agreed on
+  the forum, 2026-09-08. Added any earlier it would point at the WordPress install this
+  wiki replaces, which answers with a 503.
