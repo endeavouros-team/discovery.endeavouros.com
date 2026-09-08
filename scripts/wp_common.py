@@ -23,7 +23,8 @@ What differs between the two properties is what an embed, an image and a link
 should become -- Starlight wants a <YouTube> component, assets in the wiki's
 own tree and cross-references rewritten to the new URLs, the news importer
 wants downloaded assets -- so those three are callbacks, not policy baked in
-here.
+here. A fourth, on_gallery, is opt-in: unset, a gallery stays the run of images
+it has always been, which is all a Markdown news post can render anyway.
 """
 
 import html
@@ -57,6 +58,12 @@ BLOCKS = re.compile(
     r"|<hr[^>]*>)",
     re.S | re.I,
 )
+
+# A gallery, whole. Grouping cannot be left to the <figure> branch of the
+# split: a gallery with nested images is a <figure> of <figure>s and the
+# non-greedy pattern closes on the first inner </figure>. The Gutenberg comment
+# pair is the only boundary that is actually the gallery's.
+GALLERY = re.compile(r"<!--\s*wp:(gallery|jetpack/slideshow)\b.*?<!--\s*/wp:\1\s*-->", re.S)
 
 IMG = re.compile(r"<img\b[^>]*>", re.I)
 LIST_TAG = re.compile(r"</?[ou]l\b[^>]*>", re.I)
@@ -173,6 +180,23 @@ def top_level_lists(content: str) -> list[tuple[int, int]]:
     return spans
 
 
+def regions(content: str, galleries: bool) -> list[tuple[int, int, bool]]:
+    """The spans the block split must not be handed, in source order.
+
+    Top-level lists always, for the reason BLOCKS gives; galleries too when the
+    caller asked for them, each flagged so convert() can tell the two apart. A
+    Jetpack slideshow is a <ul> inside its own gallery comments, so its list
+    span is dropped in favour of the gallery around it -- kept, the same images
+    would be emitted twice.
+    """
+    spans = [(a, b, False) for a, b in top_level_lists(content)]
+    if not galleries:
+        return spans
+    found = [(m.start(), m.end(), True) for m in GALLERY.finditer(content)]
+    return sorted(found + [(a, b, k) for a, b, k in spans
+                           if not any(g <= a and b <= h for g, h, _ in found)])
+
+
 def list_items(block: str) -> list[str]:
     """The immediate <li> children of a list, nested lists left inside them."""
     items, depth, start = [], 0, 0
@@ -287,8 +311,10 @@ def unwrap_html_blocks(content: str) -> str:
     return re.sub(r"<!--\s*wp:html\s*-->(.*?)<!--\s*/wp:html\s*-->", rewrite, content, flags=re.S)
 
 
-def convert(content: str, on_embed=default_embed, on_image=default_image, on_link=None) -> tuple[str, dict]:
-    stats = {"code": 0, "lang": 0, "embed": 0, "img": 0, "multiline": 0, "xref": 0, "table": 0}
+def convert(content: str, on_embed=default_embed, on_image=default_image, on_link=None,
+            on_gallery=None) -> tuple[str, dict]:
+    stats = {"code": 0, "lang": 0, "embed": 0, "gallery": 0, "img": 0, "multiline": 0,
+             "xref": 0, "table": 0}
     out: list[str] = []
 
     content = unwrap_html_blocks(content)
@@ -353,10 +379,18 @@ def convert(content: str, on_embed=default_embed, on_image=default_image, on_lin
                 out.extend(re.sub(r"\A#", r"\\#", x) for x in pieces(b, on_image, on_link, stats))
 
     last = 0
-    for a, b in top_level_lists(content):
+    for a, b, gallery in regions(content, on_gallery is not None):
         emit(content[last:a])
         region = content[a:b]
-        if "jetpack-slideshow" in region:
+        if gallery:
+            # The whole region through pieces(), which is also what recovers a
+            # gallery's <figcaption>: it is neither an <img> nor a block the
+            # split keeps, so until now it was dropped without a trace.
+            stats["gallery"] += 1
+            piece = on_gallery(pieces(region, on_image, on_link, stats), stats)
+            if piece:
+                out.append(piece)
+        elif "jetpack-slideshow" in region:
             # A slideshow is a <ul> of slides, each holding an image and
             # nothing else. There is no carousel on the wiki, so it becomes
             # what it always was underneath: a run of images.

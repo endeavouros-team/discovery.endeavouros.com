@@ -567,6 +567,23 @@ def on_embed(block: str, stats: dict) -> str | None:
     return wp.default_embed(block, stats)
 
 
+def on_gallery(parts: list[str], stats: dict) -> str | None:
+    """A WordPress gallery as a grid, laid out by .gallery in brand.css.
+
+    The blank lines inside the <div> are load-bearing: MDX reads a tag's
+    children as markdown only when they are separated from it by one, and
+    without them the images ship as literal `![…]()` text. Whatever the region
+    holds besides images -- a gallery's caption -- follows the grid as prose
+    rather than becoming a cell in it.
+    """
+    images = [p for p in parts if p.startswith("![")]
+    rest = [p for p in parts if not p.startswith("![")]
+    if not images:
+        return "\n\n".join(rest) or None
+    return "\n\n".join(
+        ['<div class="gallery">\n\n' + "\n\n".join(images) + "\n\n</div>"] + rest)
+
+
 def icons(body: str) -> str:
     """The [icon] shortcode, the block, and the inline SVG the rich-text plugin
     left behind are all one icon named one way."""
@@ -600,9 +617,14 @@ def icons(body: str) -> str:
 def mdx_safe(body: str) -> str:
     """MDX reads a bare `<` or `{` as JSX, so text WordPress escaped and the
     converter unescaped -- `<term>` in a synopsis, `{}` in a config -- is a
-    build error. Code spans and fences are literal already; the two tags this
-    script emits are real JSX and have to stay."""
-    ours = re.compile(r"</?YouTube\b[^>]*>|<br />")
+    build error. Code spans and fences are literal already; the tags this
+    script emits are real JSX and have to stay -- escape the gallery's <div>
+    and the grid ships as its own source, visible on the page.
+
+    `</div>` is unescaped wherever it appears, which is safe only because no
+    article's prose contains one; if one ever does, MDX fails the build loudly
+    rather than rendering something wrong."""
+    ours = re.compile(r"</?YouTube\b[^>]*>|<br />|<div class=\"gallery\">|</div>")
     parts = re.split(r"(```.*?```|`[^`\n]*`)", body, flags=re.S)
     for i, part in enumerate(parts):
         if i % 2:                                   # inside a code span or fence
@@ -722,7 +744,8 @@ def convert_wxr(args) -> int:
             print(f"  {slug}: skipped -- {SKIP[slug]}")
             continue
         here = slug
-        body, st = wp.convert(icons(rec["body"]), on_embed=on_embed, on_image=image, on_link=target)
+        body, st = wp.convert(icons(rec["body"]), on_embed=on_embed, on_image=image,
+                              on_link=target, on_gallery=on_gallery)
         cover = cover_image(rec)
         write(slug, rec["title"], body, rec["modified"], cover)
         written.append(slug)
@@ -733,7 +756,7 @@ def convert_wxr(args) -> int:
             f"  {slug}.mdx  {st['code']} code blocks "
             f"({st['lang']} typed, {st['multiline']} multi-line), "
             f"{st['embed']} video embeds, {st['xref']} cross-refs, "
-            f"{st['img']} images, {st['table']} tables"
+            f"{st['img']} images ({st['gallery']} galleries), {st['table']} tables"
         )
 
     here = ""
