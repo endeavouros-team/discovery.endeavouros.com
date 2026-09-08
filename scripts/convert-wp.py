@@ -94,6 +94,18 @@ ICONS = {
 # write straight back.
 SKIP = {
     "firewall": "ufw, superseded by firewalld; Joe meant to make it private",
+    # The Video Tutorials group: eight pages of embedded videos, most of them
+    # years out of date. Bryanpwo asked whether they should come across at all
+    # and joekamprad agreed they should not, forum 2026-09-08. The nine other
+    # articles that embed a video inline keep it, so <YouTube> stays.
+    "back-up": "video tutorials retired, forum decision 2026-09-08",
+    "fix-arch-linux-boot-with-arch-chroot": "video tutorials retired, forum decision 2026-09-08",
+    "general-linux-tutorials": "video tutorials retired, forum decision 2026-09-08",
+    "gui-applications": "video tutorials retired, forum decision 2026-09-08",
+    "install-endeavouros": "video tutorials retired, forum decision 2026-09-08",
+    "joekamprad-video-tutorials": "video tutorials retired, forum decision 2026-09-08",
+    "maintenance": "video tutorials retired, forum decision 2026-09-08",
+    "pacman-aur-tutorials": "video tutorials retired, forum decision 2026-09-08",
 }
 
 # Text an article kept about something that is not on the wiki. Two verbatim
@@ -110,6 +122,12 @@ CUT = {
         ("the Bumblebee section -- that article is private and stays so, forum 2026-09-08",
          '<h4 class="wp-block-heading">Bumblebee (for very old machines)</h4>',
          "<p><code>nvidia-inst -b</code></p>"),
+    ],
+    "arch-chroot": [
+        ("the video tutorial bullet -- its link text is the dead URL itself, so "
+         "dissolving the link would leave the URL standing there as prose",
+         "<li>Video tutorial about arch-chroot:",
+         "fix-arch-linux-boot-with-arch-chroot/2021/12/</a></li>"),
     ],
 }
 
@@ -362,6 +380,12 @@ def target(href: str) -> str | None:
 
 
 def internal(rec: dict, frag: str, href: str) -> str | None:
+    if rec["slug"] in SKIP:
+        # A SKIPped article is as absent as an unpublished one. Reading only
+        # the status let a link to one survive the move and go dead on a wiki
+        # that no longer has the page.
+        warn("skipped", f"{href}  -> {rec['slug']}")
+        return None
     if rec["status"] != "publish":
         warn(rec["status"], f"{href}  -> {rec['slug']}")
         return None

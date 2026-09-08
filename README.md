@@ -6,8 +6,8 @@ database, no admin panel, nothing writable in the webroot.
 
 **This has not launched.** The live wiki is still the WordPress install at
 discovery.endeavouros.com. What exists here is a preview at
-`https://eos-wiki.sradjoker.cc` — unlisted, serving `noindex` — holding 101 of Discovery's
-102 published articles; the one left out is named in `SKIP` in the importer, with why.
+`https://eos-wiki.sradjoker.cc` — unlisted, serving `noindex` — holding 93 of Discovery's
+102 published articles; "What is not here" below names the nine that were left out and why.
 "What launch still needs" at the end is the honest list of what stands between the two.
 
 Three tasks cover most of what people come here for:
@@ -64,21 +64,16 @@ email addresses. The only part of it that is committed is the images the importe
 under `astro/src/assets/articles/<slug>/`, which is why nothing on these pages hotlinks the
 WordPress install any more.
 
-One published post is deliberately not converted. `SKIP` near the top of
-`scripts/convert-wp.py` names it and says why: `firewall`, the ufw article, which Joe had
-meant to make private once FirewallD became the default and which the export caught before
-he did. It has to live there rather than as a deleted `.mdx`, because the next `make
-convert` would write a deleted file straight back — and `SKIP` is also what keeps the
-sidebar check from asking where it went.
-
 Three shapes of Gutenberg code block become fenced blocks, with `bash` or `ini` inferred
 from the first token. Headings are shifted so the shallowest becomes `h2`, because articles
 disagree about whether they open at `h2` or `h4` and a page that starts at `h4` produces a
 table of contents with no top level. Tables become Markdown tables, lists keep their
-nesting, galleries and the one slideshow become a run of images, and the `[icon name=…]`
-shortcodes the Font Awesome plugin used to render become the glyph they meant. YouTube
-embeds become the `<YouTube>` component — a lazy `youtube-nocookie` iframe, no plugin and no
-tracking script — and embeds of other Discovery articles flatten to plain links.
+nesting, the eight galleries and the one 26-slide Jetpack slideshow become a `<div
+class="gallery">` that `astro/src/styles/brand.css` lays out as a grid of auto-fitting
+columns, and the `[icon name=…]` shortcodes the Font Awesome plugin used to render become
+the glyph they meant. YouTube embeds become the `<YouTube>` component — a lazy
+`youtube-nocookie` iframe, no plugin and no tracking script — and embeds of other Discovery
+articles flatten to plain links.
 
 Links are rewritten rather than carried over. A dated WordPress URL becomes `/<slug>/`; a
 `wp-admin/post.php?…` edit URL published inside article text becomes the article it meant;
@@ -97,7 +92,7 @@ width, capped at 440 for a 2x display. It is a post thumbnail, not a hero — 60
 under 800px wide and one is 149px — so nothing is ever drawn larger than its source. Its
 `alt` is empty on purpose: it is decoration and the heading beside it names the page.
 
-98 of the 101 articles have one. Two authors never set a featured image, which is not a
+90 of the 93 articles have one. Two authors never set a featured image, which is not a
 warning; `pacman-basic-commands` had one and is in `NO_COVER` in the importer, because the
 picture carries a stock-library watermark across it.
 
@@ -110,15 +105,61 @@ was last touched by the import on the same afternoon.
 
 Known gaps, from the last full run:
 
-- Four images no longer exist anywhere — three `raw.githubusercontent.com` screenshots the
-  Welcome app's repository deleted, and one `wiki.lxde.org` URL that was never an image. The
-  Wayback Machine has neither. Everything else is in the repository, including the 29
-  images the main site once served and now 404s, recovered from the Wayback Machine.
-- 34 icons — 29 `[icon name=…]` shortcodes and 5 the rich-text plugin left as inline SVG —
-  name something with no glyph in the map in `convert-wp.py` (`info` 10, `lightbulb` 8,
-  `mouse` 6, and eight others once or twice); they are dropped and listed by name.
-- `wp:separator` and `wp:spacer` blocks are dropped.
+- One image cannot be found — a `wiki.lxde.org` URL that was never an image, and which the
+  Wayback Machine does not have either. Everything else is in the repository, including the
+  29 images the main site once served and now 404s, recovered from the Wayback Machine, and
+  the Welcome app's three screenshots, which had moved rather than gone: `MOVED` in the
+  importer rewrites the `PKGBUILDS` prefix to the `welcome` repository they live in now.
+- One `[icon name="frog"]` shortcode names something with no glyph in the map in
+  `convert-wp.py`; it is dropped and listed by name. Every other icon in the export now has
+  one.
+- `wp:spacer` blocks are dropped. `wp:separator` is not: the 41 of them become thematic
+  breaks, because authors used the separator to divide sections that have no heading.
 - Four anchors in the source point at headings that do not exist in the source either.
+
+### What is not here
+
+Nine of the export's 102 published articles are deliberately not converted, and two more
+that were never public left text behind in articles that are. Removing an article is
+`SKIP` in `scripts/convert-wp.py`, never a deleted `.mdx`: the next `make convert` would
+write a deleted file straight back, and `SKIP` is also what keeps the sidebar check from
+asking where the page went. Removing text an article kept about a page that is not here is
+`CUT` beside it, two verbatim substrings of the export bracketing the span.
+
+| Slug | Title | Why |
+|---|---|---|
+| `firewall` | Firewall | ufw, superseded by FirewallD as the default; Joe had meant to make it private and the export caught it first |
+| `back-up` | Back up | Video Tutorials group, retired |
+| `fix-arch-linux-boot-with-arch-chroot` | Fix Arch Linux Boot with arch-chroot | Video Tutorials group, retired |
+| `general-linux-tutorials` | General Linux tutorials | Video Tutorials group, retired |
+| `gui-applications` | GUI applications | Video Tutorials group, retired |
+| `install-endeavouros` | Install EndeavourOS | Video Tutorials group, retired |
+| `joekamprad-video-tutorials` | joekamprad video tutorials | Video Tutorials group, retired |
+| `maintenance` | Maintenance | Video Tutorials group, retired |
+| `pacman-aur-tutorials` | Pacman & AUR tutorials | Video Tutorials group, retired |
+
+The eight Video Tutorials pages went on the forum thread of 8 September 2026: Bryanpwo
+asked whether a group of years-old embedded videos should come across at all and joekamprad
+agreed it should not. Videos embedded inside an ordinary article are untouched — nine
+articles still have one — so the `<YouTube>` component and the `frame-src` entry for
+`youtube-nocookie.com` in the CSP both stay.
+
+Two articles were private in WordPress and were therefore never imported, but articles that
+are here still carried text about them. The same forum thread settled that they stay
+private, so `CUT` removes the remnants:
+
+| Slug | Title | What was cut |
+|---|---|---|
+| `envy-control` | Envy Control | the EnvyControl entry in `nvidia-optimus-notebooks-hybrid-graphics` — a bold sentence introducing the tool and a bare label under it, which is what the dissolved link had become |
+| `bumblebee-for-nvidia-optimus-older-systems` | Bumblebee for NVIDIA Optimus (older systems) | the closing Bumblebee section of `new-nvidia-driver-installer-nvidia-inst`, whose only instruction was to read that page |
+
+`arch-chroot` is cut for a related reason: its "Useful links" list opened with a bullet
+whose link text was the retired video tutorial's own URL, so dissolving the link would have
+left the dead URL standing there as prose.
+
+None of the nine retired slugs needs an entry in the redirect map from the old WordPress
+URLs, because there is nothing on this site to send a reader to. What those URLs should
+answer with instead is an editorial decision rather than a generation step.
 
 ## The sidebar
 
@@ -255,4 +296,5 @@ builds and link-checks the result on their behalf.
   `/articles/pacman-actions-explained/2019/12/` — and this build serves
   `/pacman-actions-explained/`, so every existing link and search result breaks without
   them. The export's `link` field gives the complete map, so the nginx `map` block is a
-  generation step rather than a research problem.
+  generation step rather than a research problem — except for the nine slugs under "What is
+  not here", which have no destination on this site and need an editorial decision instead.

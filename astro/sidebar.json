@@ -24,36 +24,6 @@
         ]
       },
       {
-        "label": "Video Tutorials",
-        "collapsed": true,
-        "items": [
-          {
-            "slug": "back-up"
-          },
-          {
-            "slug": "fix-arch-linux-boot-with-arch-chroot"
-          },
-          {
-            "slug": "general-linux-tutorials"
-          },
-          {
-            "slug": "gui-applications"
-          },
-          {
-            "slug": "install-endeavouros"
-          },
-          {
-            "slug": "joekamprad-video-tutorials"
-          },
-          {
-            "slug": "maintenance"
-          },
-          {
-            "slug": "pacman-aur-tutorials"
-          }
-        ]
-      },
-      {
         "label": "EndeavourOS Tools",
         "collapsed": true,
         "items": [
