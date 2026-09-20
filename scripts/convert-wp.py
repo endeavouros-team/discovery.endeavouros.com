@@ -85,7 +85,10 @@ ICONS = {
     "share": "↗",
     "plus": "+",
     "times": "×",
-    "asterisk": "*",
+    # Escaped: the one of these sits at the start of the RTD3 note in
+    # nvidia-intro, where a bare asterisk and a space is a list marker and
+    # renders the note as a one-item bullet list it was never meant to be.
+    "asterisk": "\\*",
 }
 
 # Published in the export, but not on the wiki. The export is a snapshot of a
