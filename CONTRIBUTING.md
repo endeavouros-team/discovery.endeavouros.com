@@ -40,7 +40,9 @@ run. That check is the only thing standing between a new article and silence.
 ## Before you commit
 
 - `make verify` before anything that changes build output. It builds, then fails
-  if `deploy/nginx-csp.conf` no longer matches what the build produced.
+  if `deploy/nginx-csp.conf` no longer matches what the build produced, and
+  again if `deploy/nginx-redirects.conf` names an article that is not there or
+  has been regenerated without being committed.
 - `make links` after `make verify`. It checks every internal link and same-page
   anchor in the build, which is the one error that is invisible in review: the
   markup looks right, the build succeeds, and the 404 shows up when a reader
