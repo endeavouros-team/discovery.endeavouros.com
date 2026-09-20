@@ -5,8 +5,12 @@ lastUpdated: 2026-02-06
 ---
 
 import YouTube from "../../components/YouTube.astro";
+import Gallery from "../../components/Gallery.astro";
 import { Image } from "astro:assets";
 import cover from "../../assets/articles/firewalld/firewall.webp";
+import pic1 from "../../assets/articles/firewalld/firewalld-tray-info.png";
+import pic2 from "../../assets/articles/firewalld/firewalld-tray-info-hover.png";
+import pic3 from "../../assets/articles/firewalld/firewalld-tray-menu.png";
 
 <Image src={cover} alt="" class="cover" loading="eager" width={660} />
 
@@ -68,15 +72,7 @@ Other things like network connections for Qemu (VirtManager) will get enabled au
 
 Aside from the GUI FirewallD also enables a tray icon with some info and menu to reach settings:
 
-<div class="gallery">
-
-![](../../assets/articles/firewalld/firewalld-tray-info.png)
-
-![](../../assets/articles/firewalld/firewalld-tray-info-hover.png)
-
-![](../../assets/articles/firewalld/firewalld-tray-menu.png)
-
-</div>
+<Gallery images={[pic1, pic2, pic3]} />
 
 ## Remove/Replace FirewallD
 

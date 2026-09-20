@@ -1,0 +1,37 @@
+---
+// A WordPress gallery: the pictures as a grid, each one a link to itself.
+//
+// A grid cell is a few hundred pixels wide and about 358 on a phone, which for
+// screenshots is unreadable -- the text inside them is the content, and the 26
+// installer slides in live-iso-tricks-tips are nothing else. There is no
+// lightbox on this site, so the full-size view is the picture's own file and
+// the anchor is what gets a reader there, in the same tab.
+//
+// getImage() rather than the import's .src, which would ship the 51 .png and
+// .jpg originals beside the optimised build. Asked for the picture with no
+// options it returns the asset the grid is already showing, at its natural
+// size: one file, linked and drawn.
+import { getImage } from "astro:assets";
+
+interface Props { images: ImageMetadata[] }
+const { images } = Astro.props;
+
+const pictures = await Promise.all(images.map((image) => getImage({ src: image })));
+---
+
+<div class="gallery">
+  {images.map((image, i) => (
+    <a
+      href={pictures[i].src}
+      aria-label={`Open picture ${i + 1} of ${images.length} at full size`}
+    >
+      <img
+        src={pictures[i].src}
+        width={image.width}
+        height={image.height}
+        alt=""
+        loading="lazy"
+      />
+    </a>
+  ))}
+</div>

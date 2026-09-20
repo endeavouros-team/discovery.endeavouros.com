@@ -5,8 +5,18 @@ lastUpdated: 2026-08-23
 ---
 
 import YouTube from "../../components/YouTube.astro";
+import Gallery from "../../components/Gallery.astro";
 import { Image } from "astro:assets";
 import cover from "../../assets/articles/printers/printer-22040.png";
+import pic1 from "../../assets/articles/printers/2023-08-13_21-38.png";
+import pic2 from "../../assets/articles/printers/2023-08-13_21-38_1.png";
+import pic3 from "../../assets/articles/printers/2023-08-13_21-39.png";
+import pic4 from "../../assets/articles/printers/printer-setup1.png";
+import pic5 from "../../assets/articles/printers/printer-setup2.png";
+import pic6 from "../../assets/articles/printers/printer-setup3-2.png";
+import pic7 from "../../assets/articles/printers/printer-setup5.png";
+import pic8 from "../../assets/articles/printers/printer-setup6.png";
+import pic9 from "../../assets/articles/printers/printer-setup4-1.png";
 
 <Image src={cover} alt="" class="cover" loading="eager" width={512} />
 
@@ -142,15 +152,7 @@ To make use of local hostname resolution (mdns) you need to change firewalld fro
 
 Assigning a Zone to a device will also be remembered on network changes, so if you leave home network and per example connect to a Wi-Fi network outside it will always use the default set public zone as long as you do not change that manually.
 
-<div class="gallery">
-
-![](../../assets/articles/printers/2023-08-13_21-38.png)
-
-![](../../assets/articles/printers/2023-08-13_21-38_1.png)
-
-![](../../assets/articles/printers/2023-08-13_21-39.png)
-
-</div>
+<Gallery images={[pic1, pic2, pic3]} />
 
 To make these permanent you need to set Configuration to **Permanent** and run the change to home zone, if **Runtime** is used it will get reset after logout. Now you should see network printers in printer setup tools showing up.
 
@@ -241,18 +243,4 @@ Some may use [hpoj](https://aur.archlinux.org/packages/hpoj) ([https://hpoj.sour
 
 Use the system-config-printer tool to find and set up your printer:
 
-<div class="gallery">
-
-![](../../assets/articles/printers/printer-setup1.png)
-
-![](../../assets/articles/printers/printer-setup2.png)
-
-![](../../assets/articles/printers/printer-setup3-2.png)
-
-![](../../assets/articles/printers/printer-setup5.png)
-
-![](../../assets/articles/printers/printer-setup6.png)
-
-![](../../assets/articles/printers/printer-setup4-1.png)
-
-</div>
+<Gallery images={[pic4, pic5, pic6, pic7, pic8, pic9]} />

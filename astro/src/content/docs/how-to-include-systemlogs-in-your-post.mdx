@@ -4,8 +4,13 @@ description: "In the majority of cases, simply describing your issue will not pr
 lastUpdated: 2025-11-08
 ---
 
+import Gallery from "../../components/Gallery.astro";
 import { Image } from "astro:assets";
 import cover from "../../assets/articles/how-to-include-systemlogs-in-your-post/logs-logs-logs.png";
+import pic1 from "../../assets/articles/how-to-include-systemlogs-in-your-post/2022-01-05_12-54.png";
+import pic2 from "../../assets/articles/how-to-include-systemlogs-in-your-post/2022-01-05_12-54_1.png";
+import pic3 from "../../assets/articles/how-to-include-systemlogs-in-your-post/2022-01-05_12-56.png";
+import pic4 from "../../assets/articles/how-to-include-systemlogs-in-your-post/2022-01-05_12-56_1.png";
 
 <Image src={cover} alt="" class="cover" loading="eager" width={800} />
 
@@ -258,14 +263,4 @@ And better to use an external Pastebin if the output is very large because it is
 
 At the Forum, you can use also the summary option to hide the text/log itself and instead show an arrow to open it:
 
-<div class="gallery">
-
-![](../../assets/articles/how-to-include-systemlogs-in-your-post/2022-01-05_12-54.png)
-
-![](../../assets/articles/how-to-include-systemlogs-in-your-post/2022-01-05_12-54_1.png)
-
-![](../../assets/articles/how-to-include-systemlogs-in-your-post/2022-01-05_12-56.png)
-
-![](../../assets/articles/how-to-include-systemlogs-in-your-post/2022-01-05_12-56_1.png)
-
-</div>
+<Gallery images={[pic1, pic2, pic3, pic4]} />

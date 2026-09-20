@@ -4,8 +4,14 @@ description: "It is easy to add backup snapshots with Timeshift and make them av
 lastUpdated: 2025-02-18
 ---
 
+import Gallery from "../../components/Gallery.astro";
 import { Image } from "astro:assets";
 import cover from "../../assets/articles/btrfs-with-timeshift-snapshots-on-the-grub-menu/btrfs-snapdhots-grub.png";
+import pic1 from "../../assets/articles/btrfs-with-timeshift-snapshots-on-the-grub-menu/snap5.png";
+import pic2 from "../../assets/articles/btrfs-with-timeshift-snapshots-on-the-grub-menu/snap4.png";
+import pic3 from "../../assets/articles/btrfs-with-timeshift-snapshots-on-the-grub-menu/snap3.png";
+import pic4 from "../../assets/articles/btrfs-with-timeshift-snapshots-on-the-grub-menu/snap2.png";
+import pic5 from "../../assets/articles/btrfs-with-timeshift-snapshots-on-the-grub-menu/snap1.png";
 
 <Image src={cover} alt="" class="cover" loading="eager" width={1024} />
 
@@ -28,19 +34,7 @@ It is easy to add backup snapshots with Timeshift and make them available in Gru
 
 4. Launch Timeshift and set it up to use BTRFS. Optionally enable automated snapshots at the intervals provided and choose if you would like your home folder included in snapshots (home folders are often not backed up using snapshots). Then create the first snapshot by clicking the “Create“ button in the top left corner of the window.
 
-<div class="gallery">
-
-![](../../assets/articles/btrfs-with-timeshift-snapshots-on-the-grub-menu/snap5.png)
-
-![](../../assets/articles/btrfs-with-timeshift-snapshots-on-the-grub-menu/snap4.png)
-
-![](../../assets/articles/btrfs-with-timeshift-snapshots-on-the-grub-menu/snap3.png)
-
-![](../../assets/articles/btrfs-with-timeshift-snapshots-on-the-grub-menu/snap2.png)
-
-![](../../assets/articles/btrfs-with-timeshift-snapshots-on-the-grub-menu/snap1.png)
-
-</div>
+<Gallery images={[pic1, pic2, pic3, pic4, pic5]} />
 
 5. timeshift-autosnap provides a script which creates a snapshot before each package/system update using a Pacman hook. The default number of snapshots kept is three. Older snapshots are then deleted to make room for newer ones.
 

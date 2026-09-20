@@ -175,6 +175,7 @@ attachments: dict[str, str] = {}  # attachment slug -> file URL
 att_urls: dict[str, str] = {}     # attachment post id -> file URL, for _thumbnail_id
 uploads: zipfile.ZipFile | None = None
 assets: dict[tuple[str, str], str] = {}
+gallery_imports: list[tuple[str, str]] = []   # name, path: one article's gallery images
 here = ""                         # the article being converted, for warnings
 warnings: list[str] = []
 
@@ -649,20 +650,31 @@ def on_embed(block: str, stats: dict) -> str | None:
 
 
 def on_gallery(parts: list[str], stats: dict) -> str | None:
-    """A WordPress gallery as a grid, laid out by .gallery in brand.css.
+    """A WordPress gallery as a <Gallery>, which lays the pictures out as a grid
+    and links each one to itself at full size.
 
-    The blank lines inside the <div> are load-bearing: MDX reads a tag's
-    children as markdown only when they are separated from it by one, and
-    without them the images ship as literal `![…]()` text. Whatever the region
-    holds besides images -- a gallery's caption -- follows the grid as prose
-    rather than becoming a cell in it.
+    The component takes the images as imports rather than as Markdown, because
+    a link to the picture needs the built asset's URL and only Astro knows it.
+    So the images are collected here and write() declares them. Whatever the
+    region holds besides images -- a gallery's caption -- follows the grid as
+    prose rather than becoming a cell in it.
     """
-    images = [p for p in parts if p.startswith("![")]
-    rest = [p for p in parts if not p.startswith("![")]
-    if not images:
+    names, rest = [], []
+    for part in parts:
+        m = re.fullmatch(r"!\[(.*)\]\((.+)\)", part, re.S)
+        if not m:
+            rest.append(part)
+            continue
+        if m.group(1):
+            # The grid's pictures are decoration around the prose that explains
+            # them, and <Gallery> says so with alt="". An author who wrote alt
+            # text for one meant it to be read.
+            warn("gallery", f"alt text dropped: {m.group(1)!r}")
+        names.append(f"pic{len(gallery_imports) + 1}")
+        gallery_imports.append((names[-1], m.group(2)))
+    if not names:
         return "\n\n".join(rest) or None
-    return "\n\n".join(
-        ['<div class="gallery">\n\n' + "\n\n".join(images) + "\n\n</div>"] + rest)
+    return "\n\n".join([f"<Gallery images={{[{', '.join(names)}]}} />"] + rest)
 
 
 def icons(body: str) -> str:
@@ -699,13 +711,10 @@ def mdx_safe(body: str) -> str:
     """MDX reads a bare `<` or `{` as JSX, so text WordPress escaped and the
     converter unescaped -- `<term>` in a synopsis, `{}` in a config -- is a
     build error. Code spans and fences are literal already; the tags this
-    script emits are real JSX and have to stay -- escape the gallery's <div>
-    and the grid ships as its own source, visible on the page.
-
-    `</div>` is unescaped wherever it appears, which is safe only because no
-    article's prose contains one; if one ever does, MDX fails the build loudly
-    rather than rendering something wrong."""
-    ours = re.compile(r"</?YouTube\b[^>]*>|<br />|<div class=\"gallery\">|</div>")
+    script emits are real JSX and have to stay, braces and all -- escape
+    <Gallery images={[…]} /> and the grid ships as its own source, visible on
+    the page."""
+    ours = re.compile(r"</?YouTube\b[^>]*>|<Gallery\b[^>]*/>|<br />")
     parts = re.split(r"(```.*?```|`[^`\n]*`)", body, flags=re.S)
     for i, part in enumerate(parts):
         if i % 2:                                   # inside a code span or fence
@@ -740,9 +749,13 @@ def write(slug: str, title: str, body: str, modified: str = "",
     imports = []
     if "<YouTube" in body:
         imports.append('import YouTube from "../../components/YouTube.astro";')
+    if gallery_imports:
+        imports.append('import Gallery from "../../components/Gallery.astro";')
     if cover:
         imports.append('import { Image } from "astro:assets";')
         imports.append(f'import cover from "{cover[0]}";')
+    imports += [f'import {name} from "{path}";' for name, path in gallery_imports]
+    gallery_imports.clear()
     if imports:
         fm += [""] + imports
     # alt="" on purpose: the h1 above it already names the page, and every one

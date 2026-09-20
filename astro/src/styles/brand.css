@@ -76,10 +76,9 @@
   border-radius: 0.5rem;
 }
 
-/* A WordPress gallery, which the importer writes as a <div class="gallery">
-   with one image per line inside it. Markdown gives each of those its own <p>,
-   so the paragraphs are the grid items and their default margins would show up
-   as uneven gaps. auto-fit rather than a fixed column count, because the eight
+/* A WordPress gallery, which the importer writes as a <Gallery>: a
+   <div class="gallery"> of links, one per picture, and the links are the grid
+   items. auto-fit rather than a fixed column count, because the eight
    galleries hold between two and twenty-six pictures and a two-image one
    should fill its row rather than leave half of it empty. Nothing is cropped
    and no row height is imposed: these are screenshots, and a uniform tile
@@ -92,7 +91,9 @@
   margin: 1rem 0;
 }
 
-.sl-markdown-content .gallery > p { margin: 0; }
+/* The link is the cell, so it has to fill it; the cursor is what says the
+   picture opens rather than navigates. */
+.sl-markdown-content .gallery > a { display: block; cursor: zoom-in; }
 
 .sl-markdown-content .gallery img {
   width: 100%;

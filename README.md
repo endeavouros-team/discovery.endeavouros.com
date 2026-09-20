@@ -68,9 +68,11 @@ Three shapes of Gutenberg code block become fenced blocks, with `bash` or `ini` 
 from the first token. Headings are shifted so the shallowest becomes `h2`, because articles
 disagree about whether they open at `h2` or `h4` and a page that starts at `h4` produces a
 table of contents with no top level. Tables become Markdown tables, lists keep their
-nesting, the eight galleries and the one 26-slide Jetpack slideshow become a `<div
-class="gallery">` that `astro/src/styles/brand.css` lays out as a grid of auto-fitting
-columns, and the `[icon name=…]` shortcodes the Font Awesome plugin used to render become
+nesting, the eight galleries and the one 26-slide Jetpack slideshow become a `<Gallery>` —
+a grid of auto-fitting columns laid out by `astro/src/styles/brand.css`, in which every
+picture is a link to itself at full size, because a screenshot in a 358px cell on a phone
+is unreadable and there is no lightbox to open — and the `[icon name=…]` shortcodes the
+Font Awesome plugin used to render become
 the glyph they meant. YouTube embeds become the `<YouTube>` component — a lazy
 `youtube-nocookie` iframe, no plugin and no tracking script — and embeds of other Discovery
 articles flatten to plain links.

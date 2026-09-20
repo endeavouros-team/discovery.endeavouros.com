@@ -4,8 +4,11 @@ description: "Up from the 4th release in 2021 called Atlantis new installs will 
 lastUpdated: 2025-05-12
 ---
 
+import Gallery from "../../components/Gallery.astro";
 import { Image } from "astro:assets";
 import cover from "../../assets/articles/pipewire/pipewire-logo.png";
+import pic1 from "../../assets/articles/pipewire/headphone-mode.png";
+import pic2 from "../../assets/articles/pipewire/headset-mode.png";
 
 <Image src={cover} alt="" class="cover" loading="eager" width={745} />
 
@@ -142,13 +145,7 @@ save the file .. restart system or services:
 
 Working exactly as it says... if you start recording it enables Headset profile and seamlessly turns it back of, when you are stop recording…
 
-<div class="gallery">
-
-![](../../assets/articles/pipewire/headphone-mode.png)
-
-![](../../assets/articles/pipewire/headset-mode.png)
-
-</div>
+<Gallery images={[pic1, pic2]} />
 
 Headphone mode when not recording // Headsetmode when recording
 
