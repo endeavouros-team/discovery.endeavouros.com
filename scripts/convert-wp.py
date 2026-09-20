@@ -187,6 +187,7 @@ MOVED = {
 COVER_MAX = 1440
 
 posts: dict[str, dict] = {}       # slug -> record, whatever its status
+old_slugs: dict[str, dict] = {}   # a slug WordPress renamed -> the post that carries it now
 by_id: dict[str, dict] = {}
 attachments: dict[str, str] = {}  # attachment slug -> file URL
 att_urls: dict[str, str] = {}     # attachment post id -> file URL, for _thumbnail_id
@@ -338,6 +339,23 @@ def read_wxr(path: Path) -> None:
         }
         posts[rec["slug"]] = rec
         by_id[rec["id"]] = rec
+        # Every slug this article has been filed under before. WordPress writes
+        # one `_wp_old_slug` row per rename and went on serving the old
+        # permalink with a redirect of its own, so a link naming one reached
+        # this article for as long as the wiki was up. meta() would read the
+        # first row only.
+        for m in item.findall("wp:postmeta", namespaces=NS):
+            if m.findtext("wp:meta_key", namespaces=NS) == "_wp_old_slug":
+                old_slugs[m.findtext("wp:meta_value", namespaces=NS) or ""] = rec
+
+    # A renamed slug that another post has since taken as its own would make a
+    # link naming it ambiguous, and WordPress would have answered it with the
+    # live post. Fatal rather than guessed at: the export has none of these.
+    for old, rec in old_slugs.items():
+        if old in posts and posts[old] is not rec:
+            raise SystemExit(
+                f"  {old!r} is both {rec['slug']}'s old slug and {posts[old]['slug']}'s "
+                "live one, so a link naming it could mean either")
 
 
 def read_media(path: Path) -> None:
@@ -475,7 +493,10 @@ def target(href: str) -> str | None:
         return None
 
     for seg in u.path.strip("/").split("/"):
-        rec = posts.get(seg.lower())
+        # A slug WordPress renamed is tried after the live ones: it is what the
+        # reader actually got, because WordPress redirected the old permalink
+        # itself rather than 404ing it.
+        rec = posts.get(seg.lower()) or old_slugs.get(seg.lower())
         if rec:
             return internal(rec, u.fragment, href)
     warn("unknown", href)
