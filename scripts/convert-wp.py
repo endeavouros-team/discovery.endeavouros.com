@@ -131,6 +131,20 @@ CUT = {
     ],
 }
 
+# Markup an author left broken, repaired in the source before anything reads
+# it. Unlike CUT, which removes text about a page that is not here, this is for
+# a link or a tag that never worked on WordPress either -- so the repair is what
+# the author meant, not an editorial change. Verbatim substrings, replaced once.
+PATCH = {
+    "nvidia-intro": [
+        ("the N of \"No RTD3\" was a second link of its own, to an anchor that "
+         "has never existed, so the phrase read \"o RTD3\" with the N dangling "
+         "outside it -- dalto on the forum, 2026-09-20",
+         '<a href="#no_RTD3_issue">N</a><a href="#no_rtd3" data-type="internal" data-id="#no_rtd3">o RTD3',
+         '<a href="#no_rtd3" data-type="internal" data-id="#no_rtd3">No RTD3'),
+    ],
+}
+
 # Articles the export escaped twice. The editor stores a <pre> escaped once,
 # and these went through that a second time, so `&&` sits in the XML as
 # `&amp;amp;&amp;amp;` and the converter's single, correct unescape leaves
@@ -236,6 +250,24 @@ def cut(slug: str, body: str) -> str:
     return body
 
 
+def patch(slug: str, body: str) -> str:
+    """The PATCH replacements, made in the source before anything reads it.
+
+    Fatal when an entry stops matching, for the reason cut() is fatal: an
+    anchor that no longer occurs means the export moved under the dict, and
+    the article would quietly go back to carrying the markup being repaired.
+    Unique rather than first-match, so a second occurrence is a question for a
+    person rather than a silent half-repair.
+    """
+    for reason, old, new in PATCH.get(slug, []):
+        if body.count(old) != 1:
+            raise SystemExit(
+                f"  {slug}: {body.count(old)} matches for the patch anchor "
+                f"{old!r} -- {reason}")
+        body = body.replace(old, new)
+    return body
+
+
 def unescape_twice(slug: str, body: str) -> str:
     """The extra escape taken off a DOUBLE_ESCAPED article's <pre> blocks.
 
@@ -284,7 +316,8 @@ def read_wxr(path: Path) -> None:
         # entry in the anchor map would go on answering cross-page links, and
         # check-links cannot see an anchor that resolves to a heading nobody
         # writes any more.
-        body = unescape_twice(slug, cut(slug, item.findtext("content:encoded", namespaces=NS) or ""))
+        body = unescape_twice(
+            slug, patch(slug, cut(slug, item.findtext("content:encoded", namespaces=NS) or "")))
         rec = {
             "slug": slug,
             "id": item.findtext("wp:post_id", namespaces=NS),
@@ -827,10 +860,10 @@ def convert_wxr(args) -> int:
 
     # Each dict exists to change the source, so an entry naming a slug the
     # export no longer has is the one entry nobody would notice going quiet.
-    for slug in sorted(set(SKIP) | set(CUT) | set(DOUBLE_ESCAPED)):
+    for slug in sorted(set(SKIP) | set(CUT) | set(DOUBLE_ESCAPED) | set(PATCH)):
         if slug not in posts:
-            raise SystemExit(f"  {slug!r} is named in SKIP, CUT or DOUBLE_ESCAPED, "
-                             "but not in the export")
+            raise SystemExit(f"  {slug!r} is named in SKIP, CUT, DOUBLE_ESCAPED or "
+                             "PATCH, but not in the export")
 
     wanted = args.slugs or sorted(
         s for s, r in posts.items() if r["status"] == "publish" and s not in SKIP)
