@@ -1,0 +1,151 @@
+# Build the wiki and attach the result to a Release.
+#
+# This exists because nothing in the deploy path can build the wiki. The
+# production host is the box the WordPress install ran on, and the whole premise
+# of the replacement is that nothing runs there any more -- no interpreter, no
+# toolchain, nothing writable in the webroot. So the build happens here and the
+# output is unpacked.
+#
+# It also pins PUBLIC_INDEXABLE. Without that flag every page ships
+# `<meta name="robots" content="noindex, nofollow">` and robots.txt refuses
+# every crawler: a wiki that looks perfect and is invisible in search, which is
+# the one failure the cutover cannot afford. It belongs in a file, not in
+# someone's memory at cutover.
+#
+# The actions are pinned to full commit SHAs rather than tags, as in check.yml:
+# a tag can be repointed by whoever controls it. The release is cut with the gh
+# CLI, which is preinstalled on the runner, so no third-party action is trusted
+# at all.
+
+name: Build wiki
+
+on:
+  push:
+    tags: ["v*"]
+  workflow_dispatch:
+    inputs:
+      tag:
+        description: "Tag to create the release against, e.g. v2026.09.20"
+        required: true
+
+permissions:
+  contents: write   # needed only to create the release
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+
+    steps:
+      - name: Check out
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          # A manual dispatch names the tag to build; without this it would
+          # check out whatever ref the dispatch was started from instead.
+          ref: ${{ inputs.tag || github.ref }}
+
+      - name: Set up Node
+        uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020 # v7.0.0
+        with:
+          node-version-file: astro/.nvmrc
+          cache: npm
+          cache-dependency-path: astro/package-lock.json
+
+      # npm ci, not npm install: the lockfile stays authoritative. The build
+      # script runs audit-lock.mjs before any dependency code executes, then
+      # gen-csp.mjs over the output. Both fail the build rather than warn.
+      - name: Install dependencies
+        working-directory: astro
+        run: npm ci
+
+      - name: Build
+        working-directory: astro
+        env:
+          PUBLIC_INDEXABLE: "true"
+        run: npm run build
+
+      # The same gates check.yml runs on an ordinary push, in the same order.
+      # A release is not the moment to find out one of them was only ever run
+      # against main.
+      - name: Check internal links
+        run: make links
+
+      - name: Type-check the Astro sources
+        run: make check
+
+      - name: Check the CSP snippet is current
+        run: git diff --exit-code deploy/nginx-csp.conf
+
+      # Both halves of it, as in check.yml. The export is not on this runner
+      # either, so nothing regenerates the map here and the diff on its own
+      # would always pass -- a release would ship a map whose targets nobody
+      # had checked against the articles.
+      - name: Check the redirect map is current
+        run: |
+          python3 scripts/gen-redirects.py --check
+          git diff --exit-code deploy/nginx-redirects.conf
+
+      # Lands with the converter's emphasis fix on main. Called unconditionally
+      # on purpose: a guard that skips a missing gate would turn the release
+      # build quiet rather than red, which is the failure this file exists to
+      # prevent.
+      - name: Check for literal emphasis markers
+        run: python3 scripts/check-emphasis.py
+
+      # The build is worthless if it ships noindex, and that failure is
+      # invisible in the output. Assert it rather than trust it.
+      - name: Assert the build is indexable
+        run: |
+          grep -q '^Allow: /' astro/dist/robots.txt \
+            || { echo "robots.txt does not allow indexing"; exit 1; }
+          grep -q '^Sitemap: ' astro/dist/robots.txt \
+            || { echo "robots.txt names no sitemap"; exit 1; }
+          if grep -rl 'noindex' astro/dist --include='*.html' | grep .; then
+            echo "pages above still carry noindex"; exit 1
+          fi
+          echo "indexable: robots.txt allows, sitemap named, no page carries noindex"
+
+      - name: Package
+        id: package
+        run: |
+          tag="${{ github.event.inputs.tag || github.ref_name }}"
+          name="eos-wiki-${tag}-$(git rev-parse --short HEAD).tar.gz"
+          tar -czf "$name" -C astro/dist .
+          echo "name=$name" >> "$GITHUB_OUTPUT"
+          echo "tag=$tag"    >> "$GITHUB_OUTPUT"
+          # The commit actually built, which on a manual dispatch is the tag's
+          # and not the ref the run was started from.
+          echo "sha=$(git rev-parse HEAD)" >> "$GITHUB_OUTPUT"
+          sha256sum "$name"
+
+      # gh is preinstalled on the runner, so the release is cut without
+      # trusting a marketplace action. --clobber lets a tag be rebuilt.
+      - name: Publish the release
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          tag="${{ steps.package.outputs.tag }}"
+          name="${{ steps.package.outputs.name }}"
+          # Written to a file rather than passed inline: a multi-line
+          # double-quoted YAML scalar folds to a single line, which buries the
+          # extract command mid-paragraph on the release page.
+          cat > notes.md <<'EOF'
+          Static build of `${{ steps.package.outputs.sha }}`, built with
+          `PUBLIC_INDEXABLE=true`; the lockfile audit, the link check, the Astro
+          type check, the CSP snippet and the redirect map all passed.
+
+          ```
+          tar -xzf ${{ steps.package.outputs.name }} -C /var/www/discovery.endeavouros.com/
+          sudo nginx -t && sudo systemctl reload nginx
+          ```
+
+          The webroot must hold only this site — if you rsync an extracted copy
+          instead, use `--delete`. See the README.
+          EOF
+          if gh release view "$tag" >/dev/null 2>&1; then
+            gh release upload "$tag" "$name" --clobber
+          else
+            gh release create "$tag" "$name" \
+              --title "$tag" \
+              --notes-file notes.md
+          fi
