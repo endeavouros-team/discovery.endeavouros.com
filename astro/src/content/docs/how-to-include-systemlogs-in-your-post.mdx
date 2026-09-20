@@ -202,7 +202,7 @@ This will give out a link (like this:[http://lpaste.net/7802695579456241664](ht
 
 ### The dmesg command:
 
-An alternative to the above command (or if your system is not using **systemd**) is the good old [*dmesg*](https://en.wikipedia.org/wiki/Dmesg) command. This is potentially less informative than **journalctl **above, but not if you have filtered it as I advised you to. So they are essentially equivalent.
+An alternative to the above command (or if your system is not using **systemd**) is the good old [*dmesg*](https://en.wikipedia.org/wiki/Dmesg) command. This is potentially less informative than **journalctl** above, but not if you have filtered it as I advised you to. So they are essentially equivalent.
 
 `sudo dmesg`
 
@@ -234,7 +234,7 @@ Or to auto-pastebin it and get a **URL** to post:
 
 using the "z" option filters out most of the privacy related stuff like IP serial numbers e.t.c : `-z, --filter Adds security filters for IP/MAC addresses, serial numbers, location (-w), user home directory name, host name. Default on for IRC clients. `
 
-So also if you use **inxi **for showing only parts of the info like `inxi -Aa` to show audio hardware details you should always add `-z` to the used command if you want to share the output:
+So also if you use **inxi** for showing only parts of the info like `inxi -Aa` to show audio hardware details you should always add `-z` to the used command if you want to share the output:
 
 `inxi -Aaz`
 

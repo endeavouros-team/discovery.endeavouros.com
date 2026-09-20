@@ -26,9 +26,9 @@ Some USB Writing utilities alter the labels of the partitions included in the IS
 
 There are many methods of creating Live USB images using Linux. This article lists only some options. Recommendation is always to use copy as it is methods like dd. But Suse image writer and also rufus or ventoy are widely used for the EndeavourOS ISO.
 
-**The one and most done error is to not wait for the USB flash drive to get fully syncing the ISO file data in the process, this can in worse case take up to 10 minutes! **
+**The one and most done error is to not wait for the USB flash drive to get fully syncing the ISO file data in the process, this can in worse case take up to 10 minutes!**
 
-A common issue is with the legacy options on modern EFI systems being enabled. Make sure to set USB boot option to **no**t be set to** CSM / legacy Bios.** Make sure you are booted ISO **in EFI mode** if your system is EFI and not over 10y old legacy Bios device!
+A common issue is with the legacy options on modern EFI systems being enabled. Make sure to set USB boot option to **no**t be set to **CSM / legacy Bios.** Make sure you are booted ISO **in EFI mode** if your system is EFI and not over 10y old legacy Bios device!
 
 On the Live Session check from terminal:
 
@@ -137,7 +137,7 @@ Ventoy is an open source tool to create bootable USB drive for ISO/WIM/IMG/VHD(x
 With ventoy, you don't need to format the disk over and over, you just need to copy the ISO/WIM/IMG/VHD(x)/EFI files to the USB drive and boot them directly. 
 You can copy many files at a time and ventoy will give you a boot menu to select them.
 
-⚠ currently **(in some cases) **ventoy fails to boot EndeavourOS ISO (up from January 2023) possible to boot only if you use grub2 mode from Ventoy when selected the ISO.
+⚠ currently **(in some cases)** ventoy fails to boot EndeavourOS ISO (up from January 2023) possible to boot only if you use grub2 mode from Ventoy when selected the ISO.
 
 And make sure you are using the latest ventoy on the stick!
 
@@ -177,7 +177,7 @@ ventoy folder on the stick
 
 #### **Etcher** [(https://www.balena.io/etcher/)](https://www.balena.io/etcher/)
 
-**⚠ **
+**⚠**
 
 **Warning!**
 
@@ -215,7 +215,7 @@ USBWriter is the easiest solution to burn ISO images to USB on Windows, it has n
 
 Rufus has a lot of options to create bootable USB-Sticks for different situations, our ISO does not need any modifications and should be "burned" as it is a so-called hybrid ISO ready to boot in all cases, from Stick or burned DVD-Rom.
 
-Leave all settings from Rufus window as they are and click **Start, **this will pop up a question window that asks to burn hybrid ISO in ISO-mode or DD-mode, choose DD-mode to be sure it will not be modified at all.
+Leave all settings from Rufus window as they are and click **Start,** this will pop up a question window that asks to burn hybrid ISO in ISO-mode or DD-mode, choose DD-mode to be sure it will not be modified at all.
 
 ![](../../assets/articles/create-install-media-usb-key/2023-06-01_12-50.png)
 

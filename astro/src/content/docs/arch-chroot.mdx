@@ -37,9 +37,9 @@ To uncover that information, open the terminal, and type:
 
 Depending on the way you installed the OS you will have different scenarios.
 
-It can be **ext4**, **BTRFS, **or **xfs **formatted and you may set up encryption.
+It can be **ext4**, **BTRFS,** or **xfs** formatted and you may set up encryption.
 
-On most modern systems, and if you do not set legacy Bios Mode on the Firmware, you will run in EFI mode, and in this case, you will have a fat32 partition (**ESP** = EFI-System-Partition) and your system partition if using **ext4 **or **xfs**. If you are using **BTRFS** you have a subvolume scheme running.
+On most modern systems, and if you do not set legacy Bios Mode on the Firmware, you will run in EFI mode, and in this case, you will have a fat32 partition (**ESP** = EFI-System-Partition) and your system partition if using **ext4** or **xfs**. If you are using **BTRFS** you have a subvolume scheme running.
 
 ---
 
@@ -57,7 +57,7 @@ In this example, we use a default ext4 setup with the **ESP** mounted under **/e
 
 lsblk -f
 
-So we need to mount /dev/sda2 and the ESP (/dev/sda1) make sure to know your ESP mount point on your installed system can be **/efi** or **/boot/efi **(older installs, or if you are using grub instead of systemd-boot).
+So we need to mount /dev/sda2 and the ESP (/dev/sda1) make sure to know your ESP mount point on your installed system can be **/efi** or **/boot/efi** (older installs, or if you are using grub instead of systemd-boot).
 
 You will see in the **/etc/fstab** file of the installed system if you cannot remember.
 
@@ -129,7 +129,7 @@ And your ESP needs to get mounted also .. as it is not inside your BTRFS scheme 
 
 `sudo mount /dev/sdXn /mnt/efi`
 
-**where in all cases /dev/sdXn needs to be changed** according to what is used on your install as partition/device path and the mount path for the **ESP** needs to get changed according to your installed system in case. If it is **/efi **you need to mount on **/mnt/efi **if it is **/boot/efi **it would be **/mnt/boot/efi** ...
+**where in all cases /dev/sdXn needs to be changed** according to what is used on your install as partition/device path and the mount path for the **ESP** needs to get changed according to your installed system in case. If it is **/efi** you need to mount on **/mnt/efi** if it is **/boot/efi** it would be **/mnt/boot/efi** ...
 
 Now you will be able to arch-chroot into your **BTRFS** system, as you can see above under **Run arch-chroot to login to the installed system**.
 
@@ -149,7 +149,7 @@ Followed by mounting the ESP (EFI-System-Partition) into the already mounted sys
 
 `sudo mount /dev/sdXn /mnt/efi`
 
-**where in all cases /dev/sdXn needs to be changed** according to what is used on your install as partition/device path and the mount path for the **ESP** needs to get changed according to your installed system in case. If it is **/efi **you need to mount on **/mnt/efi **if it is **/boot/efi **it would be **/mnt/boot/efi** ...
+**where in all cases /dev/sdXn needs to be changed** according to what is used on your install as partition/device path and the mount path for the **ESP** needs to get changed according to your installed system in case. If it is **/efi** you need to mount on **/mnt/efi** if it is **/boot/efi** it would be **/mnt/boot/efi** ...
 
 You can also use Gparted to open encryption...
 

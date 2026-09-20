@@ -74,6 +74,16 @@ LI_TAG = re.compile(r"</?li\b[^>]*>", re.I)
 CODE_EL = re.compile(r"<code[^>]*>(.*?)</code>", re.S | re.I)
 BR = re.compile(r"<br\s*/?>", re.I)
 
+# Emphasis is marked with sentinels while the conversion runs and resolved at
+# the end, by close_emphasis(). \x02-\x05 are open and close for strong and em;
+# the export contains none of them, as text or as an entity.
+SENTINELS = {0x02: None, 0x03: None, 0x04: None, 0x05: None}
+PAIRED = ((re.compile("\x02([^\x02-\x05]*)\x03"), "**"),
+          (re.compile("\x04([^\x02-\x05]*)\x05"), "*"))
+# What may not sit between a marker and the text it emphasises. &nbsp; is in
+# here because unescaping has already run by then and it is a space to a reader.
+EDGE = " \t\n\r\f\v\xa0"
+
 
 def fetch(api: str, slug: str, fields: str) -> dict:
     """One post by slug from a WordPress REST API."""
@@ -136,6 +146,45 @@ def code_span(inner: str, stats: dict | None) -> str:
     return "`" + re.sub(r"<[^>]+>", "", inner) + "`"
 
 
+def emphasis(body: str, marker: str) -> str:
+    """One strong or em element as Markdown, with the whitespace at its edges
+    left outside the markers.
+
+    CommonMark will not open emphasis on a space or close on one, so `**text **`
+    is not bold: it renders as the four asterisks, in the reader's face. The
+    editor's toolbar puts the space inside the element whenever the author
+    selected one along with the word, which happened 59 times across 26 of these
+    articles, so this is the rule rather than a repair for one page.
+    """
+    core = body.strip(EDGE)
+    if not core:
+        # Emphasised whitespace is whitespace; emphasised nothing is nothing.
+        return " " if body else ""
+    lead, trail = body[:len(body) - len(body.lstrip(EDGE))], body[len(body.rstrip(EDGE)):]
+    return f"{lead}{marker}{core}{marker}{trail}"
+
+
+def close_emphasis(t: str) -> str:
+    """The emphasis sentinels turned into markers, innermost element first.
+
+    Innermost first because an outer element's edge is whatever the inner one
+    left there: <strong><em>text </em></strong> has to move the space out
+    through both, and only the inner pass can see it. The sentinels survive
+    the tag strip and the unescaping on purpose -- an element's real edges
+    cannot be read while <sub> or &nbsp; is still standing at them.
+    """
+    while True:
+        done = t
+        for pattern, marker in PAIRED:
+            done = pattern.sub(lambda m: emphasis(m.group(1), marker), done)
+        if done == t:
+            # What is left is an element whose partner is in another fragment:
+            # pieces() splits a paragraph at every image. Half an element is no
+            # emphasis at all.
+            return t.translate(SENTINELS)
+        t = done
+
+
 def inline(t: str, on_link=None, stats: dict | None = None) -> str:
     """Inline HTML -> Markdown. Order matters: code first, so its content is
     not then treated as markup."""
@@ -145,11 +194,11 @@ def inline(t: str, on_link=None, stats: dict | None = None) -> str:
         lambda m: link(m.group(1), m.group(2), on_link),
         t, flags=re.S | re.I,
     )
-    t = re.sub(r"<(strong|b)>(.*?)</\1>", r"**\2**", t, flags=re.S | re.I)
-    t = re.sub(r"<(em|i)>(.*?)</\1>", r"*\2*", t, flags=re.S | re.I)
+    t = re.sub(r"<(strong|b)>(.*?)</\1>", "\x02\\2\x03", t, flags=re.S | re.I)
+    t = re.sub(r"<(em|i)>(.*?)</\1>", "\x04\\2\x05", t, flags=re.S | re.I)
     t = re.sub(r"<br\s*/?>", "  \n", t, flags=re.I)
     t = re.sub(r"<[^>]+>", "", t)
-    t = html.unescape(t)
+    t = close_emphasis(html.unescape(t))
     return re.sub(r"[ \t]+", " ", t).strip()
 
 
