@@ -354,9 +354,10 @@ Then the usual:
 
 `.github/workflows/check.yml` runs on every push to `main` and every pull request: `npm ci`,
 `npm run build`, `make links`, `make check`, then `git diff --exit-code
-deploy/nginx-csp.conf` and the same check over `deploy/nginx-redirects.conf`. It publishes
-nothing. `.github/workflows/build.yml` is the one that publishes, and only a `v*` tag starts
-it — see "Deploying to production".
+deploy/nginx-csp.conf` and the same check over `deploy/nginx-redirects.conf`, and
+`make emphasis` over the built pages. It publishes nothing.
+`.github/workflows/build.yml` is the one that publishes, and only a `v*` tag starts it —
+see "Deploying to production".
 
 It is also what makes the wiki editable by people who do not run the toolchain. An article
 is a Markdown file that can be edited in the GitHub web UI, and that only holds if something

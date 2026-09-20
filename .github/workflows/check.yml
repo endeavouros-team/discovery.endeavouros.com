@@ -72,3 +72,10 @@ jobs:
         run: |
           python3 scripts/gen-redirects.py --check
           git diff --exit-code deploy/nginx-redirects.conf
+
+      # `**text **` is four asterisks on the page and bold in the .mdx, so
+      # review cannot catch it and the build will not: only the rendered page
+      # says which it was. Same shape as the link check, and it reads the same
+      # dist/.
+      - name: Check for literal emphasis markers
+        run: make emphasis

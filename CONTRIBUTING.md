@@ -57,8 +57,11 @@ run. That check is the only thing standing between a new article and silence.
 
 Every push to `main` and every pull request runs `.github/workflows/check.yml`:
 `npm ci`, `npm run build` — the lockfile audit, the Astro build, then the CSP
-generation — `make links`, `make check`, and a diff check on
-`deploy/nginx-csp.conf`. It publishes nothing.
+generation — `make links`, `make check`, a diff check on
+`deploy/nginx-csp.conf`, the redirect map's two halves, and `make emphasis`.
+Everything in "Before you commit" is run here too, so a gate you skipped
+locally fails on the pull request rather than after it lands. It publishes
+nothing; only a `v*` tag does, through `.github/workflows/build.yml`.
 
 ## Commit messages
 

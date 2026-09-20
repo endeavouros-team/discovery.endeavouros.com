@@ -85,12 +85,10 @@ jobs:
           python3 scripts/gen-redirects.py --check
           git diff --exit-code deploy/nginx-redirects.conf
 
-      # Lands with the converter's emphasis fix on main. Called unconditionally
-      # on purpose: a guard that skips a missing gate would turn the release
-      # build quiet rather than red, which is the failure this file exists to
-      # prevent.
+      # As in check.yml. A literal `**` in the prose is visible on the rendered
+      # page and nowhere else, so nothing earlier in this job would catch one.
       - name: Check for literal emphasis markers
-        run: python3 scripts/check-emphasis.py
+        run: make emphasis
 
       # The build is worthless if it ships noindex, and that failure is
       # invisible in the output. Assert it rather than trust it.
