@@ -278,6 +278,76 @@ The public hostname is served through a Cloudflare Tunnel already running on tha
 other services. Its route is managed in the dashboard and is not scriptable from here, so if
 the URL 404s or hangs after a deploy, that is where to look.
 
+## Deploying to production
+
+The build does not happen on the server, and the server needs no toolchain — no runtime, no
+interpreter, no build step, which is the whole point of replacing the WordPress install
+rather than repairing it. CI builds the wiki and attaches a tarball to a GitHub Release; the
+deploy is downloading that and unpacking it into the webroot.
+
+### 1. Cut a release
+
+Tags are `vYYYY.MM.DD`, the day of the release, with `.1`, `.2` and so on appended for a
+further release on the same day:
+
+    git tag -a v2026.09.20 -m "launch"
+    git push origin v2026.09.20
+
+Pushing a `v*` tag is what triggers a build. **Pushing to `main` does not** — ordinary
+commits are checked by `.github/workflows/check.yml` and publish nothing, so an article edit
+or a converter fix never produces a release.
+
+The release job (`.github/workflows/build.yml`) audits the lockfile, builds with
+`PUBLIC_INDEXABLE=true`, then runs the same gates as an ordinary push — the link check, the
+Astro type check, the CSP snippet, the redirect map, the emphasis check — and finally asserts
+the result is actually indexable: `robots.txt` allows crawling and names the sitemap, and no
+page carries `noindex`. A build with that flag missing fails here rather than being
+published.
+
+    gh run watch --repo endeavouros-team/discovery.endeavouros.com
+
+To rebuild a tag that already exists — a CI fix, or a run that failed halfway — start the
+*Build wiki* workflow by hand (Actions → Build wiki → Run workflow) and give it the tag name.
+It checks that tag out, builds it, and replaces the asset on that release.
+
+### 2. Get the tarball
+
+    gh release download v2026.09.20 --repo endeavouros-team/discovery.endeavouros.com
+
+Or from the Releases page. The filename carries the tag and the short commit it was built
+from — `eos-wiki-<tag>-<short sha>.tar.gz`.
+
+### 3. Put it on the server
+
+    tar -xzf eos-wiki-v2026.09.20-*.tar.gz -C /var/www/discovery.endeavouros.com/
+
+If you would rather rsync an extracted copy, use `--delete`. It is load-bearing: it is what
+keeps the webroot holding this wiki and nothing else, and anything left beside it stays
+reachable — which for this host means the WordPress tree the rebuild exists to retire. The
+target must therefore hold **only** this site; check before running it.
+
+### 4. Install the nginx config
+
+`deploy/nginx-production.conf`, plus the two generated files it includes —
+`deploy/nginx-csp.conf` and `deploy/nginx-redirects.conf` — which go beside it in the
+directory the `include` lines name.
+
+The lines marked `CONFIRM` are what has to be checked against the box: the `server_name`, the
+webroot, the TLS certificate paths and whether the certificate covers
+`discovery.endeavouros.com` at all, and the include paths. There is no `www` for this host
+and none is claimed.
+
+The last check is the one that cannot be done from here: **the WordPress vhost answering for
+`discovery.endeavouros.com` has to be disabled as this config loads.** Two server blocks
+claiming one name is resolved by include order rather than by intent, and the loser fails
+silently, so a half-done cutover looks like nothing happened. The old install is also what
+serves the dated permalinks today, and `nginx-redirects.conf` takes that job over; both
+cannot be live at once.
+
+Then the usual:
+
+    sudo nginx -t && sudo systemctl reload nginx
+
 ## What CI does
 
 `.github/workflows/check.yml` runs on every push to `main` and every pull request: `npm ci`,
