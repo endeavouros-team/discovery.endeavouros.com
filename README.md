@@ -125,7 +125,16 @@ Known gaps, from the last full run:
   one.
 - `wp:spacer` blocks are dropped. `wp:separator` is not: the 41 of them become thematic
   breaks, because authors used the separator to divide sections that have no heading.
-- Four anchors in the source point at headings that do not exist in the source either.
+- Two anchors in the source point at headings that do not exist in the source either. Both
+  are a heading linking to itself — in `create-install-media-usb-key` and in `firewalld` —
+  and dalto's answer on the forum, 2026-09-20, was that the links should go, which the
+  conversion had already done by dissolving them into the plain headings. Two more anchors
+  are gone rather than accepted: the id an author put on the RTD3 note in `nvidia-intro`
+  now survives into the page, and the "N" in front of it was a dead link of its own.
+- One link now finds an article that WordPress had renamed under it: `installation-intro`
+  is the slug `live-iso-tricks-tips` used to have, and `_wp_old_slug` in the export says so.
+  A paragraph's id and a renamed slug are the two things a WordPress export knows that the
+  first pass through it did not read.
 
 ### What is not here
 
@@ -167,11 +176,12 @@ private, so `CUT` removes the remnants:
 whose link text was the retired video tutorial's own URL, so dissolving the link would have
 left the dead URL standing there as prose.
 
-None of the eight retired Video Tutorials slugs needs an entry in the redirect map from the
-old WordPress URLs, because there is nothing on this site to send a reader to. What those
-URLs should answer with instead is an editorial decision rather than a generation step.
-`firewall` is the exception: FirewallD superseded it, so its old URL redirects to
-`/firewalld/`.
+The eight retired Video Tutorials slugs redirect to `/article-removed/`, a hand-written
+page that says the article was removed, names all eight, and points at the front page and
+the forum. dalto settled that on the forum, 2026-09-20: one page for every removed article,
+rather than a `410 Gone` or a silent drop onto the front page that leaves a reader
+wondering what became of the article they clicked. `firewall` is the exception it always
+was — FirewallD superseded it, so its old URL rides to `/firewalld/` instead.
 
 ## The sidebar
 
@@ -373,18 +383,11 @@ Most of it is now in the repository: `astro/src/pages/robots.txt.ts` writes a `r
 that names Starlight's `sitemap-index.xml` once `PUBLIC_INDEXABLE` is set,
 `.github/workflows/build.yml` sets that flag and refuses to publish a build that does not
 honour it, `deploy/nginx-production.conf` is the live config — without the preview's
-`X-Robots-Tag` — and `deploy/nginx-redirects.conf` maps 94 old WordPress permalinks onto
+`X-Robots-Tag` — and `deploy/nginx-redirects.conf` maps 104 old WordPress permalinks onto
 their articles here. See "Deploying to production".
 
 What is left is not code:
 
-- **The nine retired slugs.** Eight of them — the Video Tutorials group under "What is not
-  here" — are in `deploy/nginx-redirects.conf` as a commented block, because nothing on this
-  site replaces them and where their URLs should land is an editorial decision: the wiki
-  front page, the forum, or `410 Gone`. That question is on the forum. Uncommenting the block
-  with a target, or answering it with `return 410`, is what closes this. The ninth,
-  `firewall`, needed no decision — FirewallD superseded it, so its old URL already redirects
-  to `/firewalld/`.
 - **The `CONFIRM` lines in `deploy/nginx-production.conf`.** The `server_name`, the webroot,
   the certificate paths and whether the certificate covers `discovery.endeavouros.com`, the
   include paths, and the WordPress vhost being disabled as the config loads. Every one of

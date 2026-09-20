@@ -19,6 +19,10 @@ repository and its location is the `EXPORT` variable in the Makefile. A run ends
 with a list of what it could not do, and that list is the part to read; the
 README covers what it rewrites and what it drops.
 
+Two pages are written by hand and no run touches them: `index.mdx`, the landing
+page, and `article-removed.mdx`, which the retired WordPress URLs redirect to.
+Edit those like any other file.
+
 ## Adding an article
 
 Nothing is derived from the file tree, so an article missing from the sidebar is

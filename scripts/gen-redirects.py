@@ -26,9 +26,12 @@ what these keys are.
 Nine published slugs have no article here; they are listed in the README under
 "What is not here". One of them, `firewall`, does have somewhere to go: it was
 superseded by FirewallD, so its old URL is redirected by hand below. The other
-eight were the Video Tutorials group, and where their URLs should land is an
-editorial decision nobody has made yet, so they are emitted commented out with
-the question attached rather than guessed at.
+eight were the Video Tutorials group, and they go to `/article-removed/`, a
+page that says so and names them -- dalto's call on the forum, 2026-09-20.
+
+A post WordPress renamed is here too, under the slug it used to have: those
+permalinks were live URLs, because WordPress answered them with a redirect of
+its own for as long as the wiki was up.
 """
 
 import argparse
@@ -53,12 +56,11 @@ RIDERS = {
     "/network/firewall/2021/03/": "firewalld",
 }
 
-# The Video Tutorials group, retired on the forum thread of 8 September 2026.
-# Nothing on this site replaces them, so these are written out commented and
-# left for the team to answer.
-OPEN_QUESTION = (
-    "send them to the wiki front page, to the forum, or serve 410 Gone?"
-)
+# Where a retired slug goes when nothing here replaces it. dalto's call on the
+# forum, 2026-09-20: one page that says the article was removed, and every
+# removed article redirected to it, rather than a 410 or a silent drop onto the
+# front page that leaves the reader wondering what happened to the article.
+RETIRED = "article-removed"
 
 
 def old_slugs(item: ET.Element) -> list[str]:
@@ -163,14 +165,18 @@ def main() -> int:
     renamed = sum(1 for slug, path in posts if path.split("/")[2] != slug)
 
     rows: list[tuple[str, str]] = []      # old path -> /slug/
-    retired: list[tuple[str, str]] = []   # old path -> the slug that is gone
+    retired = 0                           # slugs with no article, sent to RETIRED
     for slug, path in posts:
         if slug in have:
             rows.append((path, f"/{slug}/"))
         elif path in RIDERS:
             rows.append((path, f"/{RIDERS[path]}/"))
         else:
-            retired.append((path, slug))
+            # A retired slug is an ordinary row, validated like the rest: the
+            # page it lands on is an article in this tree, so the --check half
+            # of the gate sees it too.
+            rows.append((path, f"/{RETIRED}/"))
+            retired += 1
 
     # Every target has to be a page that exists. A slug that changed in the
     # converter and not here would otherwise redirect the whole of the old site
@@ -183,7 +189,6 @@ def main() -> int:
         return 1
 
     rows.sort()
-    retired.sort()
 
     # Both forms: WordPress advertised the trailing slash, but the bare path is
     # what people paste, and nginx would answer it with its own 301 to the
@@ -216,22 +221,11 @@ def main() -> int:
         "",
     ]
     out += [f"    {k.ljust(width)}  {t};" for k, t in keys]
-    out += [
-        "",
-        "    # The eight Video Tutorials pages are retired and nothing here replaces",
-        f"    # them. Open question for the team: {OPEN_QUESTION}",
-        "    # Uncomment with the answer filled in -- a target below, or drop these",
-        "    # and add `location = <path> { return 410; }` to the production config.",
-        "    #",
-    ]
-    for path, slug in retired:
-        for k in (path, path.rstrip("/")):
-            out.append(f"    # {k.ljust(width)}  /;   # was {slug}")
     out += ["}", ""]
 
     args.out.write_text("\n".join(out), encoding="utf-8")
-    print(f"  {args.out}: {len(rows)} redirects ({renamed} from renamed slugs), "
-          f"{len(retired)} left open")
+    print(f"  {args.out}: {len(rows)} redirects ({renamed} from renamed slugs, "
+          f"{retired} to /{RETIRED}/)")
     return 0
 
 
