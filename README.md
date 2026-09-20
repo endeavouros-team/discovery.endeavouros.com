@@ -166,9 +166,11 @@ private, so `CUT` removes the remnants:
 whose link text was the retired video tutorial's own URL, so dissolving the link would have
 left the dead URL standing there as prose.
 
-None of the nine retired slugs needs an entry in the redirect map from the old WordPress
-URLs, because there is nothing on this site to send a reader to. What those URLs should
-answer with instead is an editorial decision rather than a generation step.
+None of the eight retired Video Tutorials slugs needs an entry in the redirect map from the
+old WordPress URLs, because there is nothing on this site to send a reader to. What those
+URLs should answer with instead is an editorial decision rather than a generation step.
+`firewall` is the exception: FirewallD superseded it, so its old URL redirects to
+`/firewalld/`.
 
 ## The sidebar
 
@@ -352,8 +354,9 @@ Then the usual:
 
 `.github/workflows/check.yml` runs on every push to `main` and every pull request: `npm ci`,
 `npm run build`, `make links`, `make check`, then `git diff --exit-code
-deploy/nginx-csp.conf`. It publishes nothing, and there is no build workflow to publish
-with.
+deploy/nginx-csp.conf` and the same check over `deploy/nginx-redirects.conf`. It publishes
+nothing. `.github/workflows/build.yml` is the one that publishes, and only a `v*` tag starts
+it — see "Deploying to production".
 
 It is also what makes the wiki editable by people who do not run the toolchain. An article
 is a Markdown file that can be edited in the GitHub web UI, and that only holds if something
@@ -361,22 +364,26 @@ builds and link-checks the result on their behalf.
 
 ## What launch still needs
 
-- **`PUBLIC_INDEXABLE=true` at build time.** Without it every page ships
-  `<meta name="robots" content="noindex, nofollow">` — see `astro/astro.config.mjs`. The
-  flag is unset by default so that no preview build can compete with the live wiki in
-  search, which means it can be forgotten but never set by accident. The build writes a
-  sitemap (`sitemap-index.xml`, from Starlight) but there is no `robots.txt` at all, unlike
-  the main site, so nothing names that sitemap to a crawler; one is needed before launch.
-- **The `X-Robots-Tag: noindex, nofollow` line in
-  `deploy/preview/nginx-preview.conf`** has to come out on the way to production. Either
-  that header or the missing flag is enough on its own to keep the wiki invisible.
-- **A production nginx config.** `deploy/` has only the preview's.
-- **Redirects from the old WordPress URLs.** Discovery's are dated —
-  `/articles/pacman-actions-explained/2019/12/` — and this build serves
-  `/pacman-actions-explained/`, so every existing link and search result breaks without
-  them. The export's `link` field gives the complete map, so the nginx `map` block is a
-  generation step rather than a research problem — except for the nine slugs under "What is
-  not here", which have no destination on this site and need an editorial decision instead.
+Most of it is now in the repository: `astro/src/pages/robots.txt.ts` writes a `robots.txt`
+that names Starlight's `sitemap-index.xml` once `PUBLIC_INDEXABLE` is set,
+`.github/workflows/build.yml` sets that flag and refuses to publish a build that does not
+honour it, `deploy/nginx-production.conf` is the live config — without the preview's
+`X-Robots-Tag` — and `deploy/nginx-redirects.conf` maps 94 old WordPress permalinks onto
+their articles here. See "Deploying to production".
+
+What is left is not code:
+
+- **The nine retired slugs.** Eight of them — the Video Tutorials group under "What is not
+  here" — are in `deploy/nginx-redirects.conf` as a commented block, because nothing on this
+  site replaces them and where their URLs should land is an editorial decision: the wiki
+  front page, the forum, or `410 Gone`. That question is on the forum. Uncommenting the block
+  with a target, or answering it with `return 410`, is what closes this. The ninth,
+  `firewall`, needed no decision — FirewallD superseded it, so its old URL already redirects
+  to `/firewalld/`.
+- **The `CONFIRM` lines in `deploy/nginx-production.conf`.** The `server_name`, the webroot,
+  the certificate paths and whether the certificate covers `discovery.endeavouros.com`, the
+  include paths, and the WordPress vhost being disabled as the config loads. Every one of
+  them is about the box rather than about this repository, so none can be settled from here.
 - **The verify link on the main site's download page.** On go-live day, and deliberately
   not before, `VerifyInstructions.astro` in the site repository gains a link to
   `/how-to-check-and-trust-key-and-signature-for-the-endeavouros-iso/` here — agreed on

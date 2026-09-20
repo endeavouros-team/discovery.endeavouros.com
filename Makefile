@@ -2,7 +2,7 @@
 # articles out of the WordPress install, and the nginx config the preview host
 # serves the build with. The main site lives in its own repository.
 
-.PHONY: check links emphasis dev-astro build-astro build verify serve deploy-preview clean convert
+.PHONY: check links emphasis dev-astro build-astro build verify serve deploy-preview clean convert redirects
 
 # astro check over the components and the content collections.
 check:
@@ -30,8 +30,16 @@ build: build-astro
 # The build regenerates deploy/nginx-csp.conf from the real dist/. This is the
 # drift gate CI runs: a diff here means the committed snippet no longer matches
 # the pages, and the fix is to commit the regenerated one.
+#
+# The redirect map is gated the same way, with one difference: it is generated
+# from the export, which is not in the repository and is not on the CI runner,
+# so nothing regenerates it here. --check is the half of the gate that works
+# without the export -- every target in the committed map must still be an
+# article that exists -- and the diff catches a map generated but not committed.
 verify: build
 	@git diff --exit-code deploy/nginx-csp.conf
+	@python3 scripts/gen-redirects.py --check
+	@git diff --exit-code deploy/nginx-redirects.conf
 
 # Preview the build on the LAN/tailnet for team review.
 serve:
@@ -57,3 +65,9 @@ UPLOADS ?= $(EXPORT)/backup_2026-09-06-1841_Discovery_66fa0c6f4f7d-uploads.zip
 
 convert:
 	@python3 scripts/convert-wp.py --wxr "$(WXR)" --uploads "$(UPLOADS)" $(SLUGS)
+
+# Regenerate deploy/nginx-redirects.conf from the same export. Needs the export
+# for the permalinks; commit the result, which is what `make verify` and CI
+# check against.
+redirects:
+	@python3 scripts/gen-redirects.py --wxr "$(WXR)"

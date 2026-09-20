@@ -62,3 +62,13 @@ jobs:
       # stale script hashes to the preview host.
       - name: Check the CSP snippet is current
         run: git diff --exit-code deploy/nginx-csp.conf
+
+      # The redirect map is generated from the WordPress export, which is not
+      # in the repository and is not on this runner, so nothing regenerates it
+      # here and the diff alone would always pass. --check is the half that
+      # works without the export: every target in the committed map must still
+      # be an article that exists, which is what goes stale when a slug changes.
+      - name: Check the redirect map is current
+        run: |
+          python3 scripts/gen-redirects.py --check
+          git diff --exit-code deploy/nginx-redirects.conf
