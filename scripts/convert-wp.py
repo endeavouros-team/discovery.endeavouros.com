@@ -162,9 +162,12 @@ MOVED = {
         "https://raw.githubusercontent.com/endeavouros-team/welcome/main/wiki-pictures/",
 }
 
-# A thumbnail is never drawn wider than this, so there is no reason to ship a
-# larger file: twice the 220px the CSS allows, for a 2x display.
-COVER_MAX = 440
+# The width <Image> is asked to render, not the width of the file: store()
+# commits the original bytes whatever their size. Twice the 720px content
+# column, for a 2x display. A cover narrower than this is asked for its own
+# width instead, because asking for more makes Astro write attributes for an
+# upscale it does not perform.
+COVER_MAX = 1440
 
 posts: dict[str, dict] = {}       # slug -> record, whatever its status
 by_id: dict[str, dict] = {}
@@ -742,14 +745,14 @@ def write(slug: str, title: str, body: str, modified: str = "",
         imports.append(f'import cover from "{cover[0]}";')
     if imports:
         fm += [""] + imports
-    # alt="" on purpose: the h1 beside it already names the page, and every one
-    # of these is decoration the theme chose. The width asked for is the file's
-    # own, capped: 60 of these are under 800px, and asking for more would have
-    # Astro write attributes for an upscale it does not perform.
+    # alt="" on purpose: the h1 above it already names the page, and every one
+    # of these is decoration the theme chose. Eagerly, because as a banner it is
+    # the first thing under the title and the page's largest image: lazy would
+    # mean the reader watching the article's opening move down the screen.
     banner = ""
     if cover:
         w = f" width={{{cover[1]}}}" if cover[1] else ""
-        banner = f'<Image src={{cover}} alt="" class="cover"{w} />\n\n'
+        banner = f'<Image src={{cover}} alt="" class="cover" loading="eager"{w} />\n\n'
     OUT.mkdir(parents=True, exist_ok=True)
     (OUT / f"{slug}.mdx").write_text("\n".join(fm) + "\n\n" + banner + mdx_safe(body))
 

@@ -59,38 +59,21 @@
    matters most. Give it a little more room to breathe than the default. */
 .expressive-code .frame pre { padding-block: 0.9rem; }
 
-/* The WordPress featured image, beside the opening paragraphs. A post
-   thumbnail is what it was and what most of them still are -- 60 of the 99 are
-   under 800px wide, several are square logos and one is 149px -- so a
-   full-width strip would upscale and crop the majority of them. max-width with
-   auto dimensions means the box shrinks to the picture; nothing is ever drawn
-   larger than its source. */
+/* The WordPress featured image, as a banner under the title.
+   It is centred at its natural size rather than stretched across the column:
+   the committed file is the original the author uploaded, and 30 of the 90
+   covers are narrower than the 45rem column, several of them square logos and
+   one 149px. max-width keeps the wide ones inside the text, max-height binds
+   only on the square ones -- 30rem is a 3:2 photo at full column width -- and
+   between them nothing is ever upscaled or cropped. */
 .sl-markdown-content img.cover {
-  float: right;
-  max-width: 220px;
-  max-height: 220px;
+  display: block;
   width: auto;
   height: auto;
-  margin: 0.25rem 0 1rem 1.5rem;
+  max-width: 100%;
+  max-height: 30rem;
+  margin: 0 auto 1.5rem;
   border-radius: 0.5rem;
-}
-
-/* A float is out of flow, so on an article shorter than the picture it would
-   hang past the end of the content and over whatever follows. r8168-workaround
-   is 62 words and qtile 55. */
-.sl-markdown-content::after {
-  content: "";
-  display: table;
-  clear: both;
-}
-
-/* Narrow enough that 220px beside the text leaves neither column readable. */
-@media (max-width: 50rem) {
-  .sl-markdown-content img.cover {
-    float: none;
-    display: block;
-    margin: 0 auto 1rem;
-  }
 }
 
 /* A WordPress gallery, which the importer writes as a <div class="gallery">

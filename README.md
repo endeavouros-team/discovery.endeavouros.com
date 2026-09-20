@@ -84,13 +84,15 @@ plain text and the run prints why. That warning list at the end of a run is the 
 read: it names every image that could not be found, every dropped icon and every link that
 lost its destination.
 
-The article's WordPress featured image comes across as a thumbnail, floated beside the
-opening paragraphs and never wider than 220px. The export keeps it as a `_thumbnail_id`
-pointing at an attachment, which resolves to a file in the uploads backup; it is stored
-beside that article's body images and rendered with `<Image>` asked for the file's own
-width, capped at 440 for a 2x display. It is a post thumbnail, not a hero — 60 of them are
-under 800px wide and one is 149px — so nothing is ever drawn larger than its source. Its
-`alt` is empty on purpose: it is decoration and the heading beside it names the page.
+The article's WordPress featured image comes across as a banner under the title, centred
+and drawn at its own size. The export keeps it as a `_thumbnail_id` pointing at an
+attachment, which resolves to a file in the uploads backup; it is stored beside that
+article's body images and rendered with `<Image>` asked for the file's own width, capped at
+1440 — twice the 720px content column, for a 2x display. Nothing is ever upscaled: 30 of
+the 90 are narrower than the column and simply sit in the middle of it, and the only limit
+the CSS imposes is a 30rem `max-height`, which binds on the square covers and crops
+nothing. It loads eagerly, being the first thing under the title, and its `alt` is empty on
+purpose: it is decoration and the heading above it names the page.
 
 90 of the 93 articles have one. Two authors never set a featured image, which is not a
 warning; `pacman-basic-commands` had one and is in `NO_COVER` in the importer, because the
