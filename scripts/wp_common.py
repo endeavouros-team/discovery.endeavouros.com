@@ -73,6 +73,11 @@ LIST_TAG = re.compile(r"</?[ou]l\b[^>]*>", re.I)
 LI_TAG = re.compile(r"</?li\b[^>]*>", re.I)
 CODE_EL = re.compile(r"<code[^>]*>(.*?)</code>", re.S | re.I)
 BR = re.compile(r"<br\s*/?>", re.I)
+# An anchor with no href: not a link, but a place in the page an author wrote
+# to be linked to. The export holds none of these as written -- convert() makes
+# them out of the ids authors put on paragraphs -- so this only ever matches
+# what was hoisted a few lines earlier.
+ANCHOR = re.compile(r'<a\s+(?:id|name)="([^"]+)"\s*>\s*</a>', re.I)
 
 # Emphasis is marked with sentinels while the conversion runs and resolved at
 # the end, by close_emphasis(). \x02-\x05 are open and close for strong and em;
@@ -197,9 +202,14 @@ def inline(t: str, on_link=None, stats: dict | None = None) -> str:
     t = re.sub(r"<(strong|b)>(.*?)</\1>", "\x02\\2\x03", t, flags=re.S | re.I)
     t = re.sub(r"<(em|i)>(.*?)</\1>", "\x04\\2\x05", t, flags=re.S | re.I)
     t = BR.sub("\x06", t)
+    # An href-less anchor is a target, not a link, and the tag strip below
+    # would take it out with the markup. It travels as a sentinel, like the
+    # break above, and is written back once the collapse has run.
+    t = ANCHOR.sub("\x07\\1\x07", t)
     t = re.sub(r"<[^>]+>", "", t)
     t = close_emphasis(html.unescape(t))
     t = re.sub(r"[ \t]+", " ", t)
+    t = re.sub("\x07([^\x07]*)\x07", lambda m: f'<a id="{m.group(1)}"></a>', t)
     # A hard break is two spaces and a newline, and the collapse above reads
     # those two spaces as ordinary whitespace and eats one. So the break
     # travels through as a sentinel and is written last, taking the whitespace
@@ -491,6 +501,16 @@ def convert(content: str, on_embed=default_embed, on_image=default_image, on_lin
                 out.append("---")
 
             else:
+                # An id an author put on a paragraph is a place in the page
+                # something links to -- the Nvidia table links the RTD3 note
+                # under it that way. The <p> itself does not survive the
+                # conversion, so the id is hoisted into the text as an anchor
+                # of its own and lands at the start of the paragraph. The
+                # block- ids are Gutenberg's own uuids, which name nothing.
+                opening = re.match(r'<p[^>]*\sid="([^"]+)"[^>]*>', b, re.I)
+                if opening and not opening.group(1).startswith("block-"):
+                    b = (b[:opening.end()] + f'<a id="{opening.group(1)}"></a>'
+                         + b[opening.end():])
                 out.extend(blocks(b, on_image, on_link, stats))
 
     last = 0

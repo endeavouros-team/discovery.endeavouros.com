@@ -335,6 +335,10 @@ def anchor_map(body: str) -> tuple[dict[str, str], set[str]]:
     prefixed with `heading--` by a plugin at render time, while Starlight
     derives them from the heading text. `#heading--requirements` and
     `#--sample-rate` are both dead links after the move.
+
+    An id on a paragraph is the exception, and maps to itself: the converter
+    hoists it into the text as an <a id>, which reaches the page as written,
+    so nothing regenerates it the way Starlight regenerates a heading's.
     """
     ids: dict[str, str] = {}
     slugs: set[str] = set()
@@ -349,6 +353,11 @@ def anchor_map(body: str) -> tuple[dict[str, str], set[str]]:
         # others; either way it is what the old links point at.
         for raw in re.findall(r'id="([^"]+)"', m.group(1) + m.group(2)):
             ids.setdefault(raw, slug)
+    # The authored paragraph ids, verbatim. `block-<uuid>` is Gutenberg's own
+    # and names nothing a link could have meant.
+    for raw in re.findall(r'<p[^>]*\sid="([^"]+)"', body, re.I):
+        if not raw.startswith("block-"):
+            ids.setdefault(raw, raw)
     return ids, slugs
 
 
@@ -714,7 +723,7 @@ def mdx_safe(body: str) -> str:
     script emits are real JSX and have to stay, braces and all -- escape
     <Gallery images={[…]} /> and the grid ships as its own source, visible on
     the page."""
-    ours = re.compile(r"</?YouTube\b[^>]*>|<Gallery\b[^>]*/>|<br />")
+    ours = re.compile(r"</?YouTube\b[^>]*>|<Gallery\b[^>]*/>|<br />|<a id=\"[^\"]+\"></a>")
     parts = re.split(r"(```.*?```|`[^`\n]*`)", body, flags=re.S)
     for i, part in enumerate(parts):
         if i % 2:                                   # inside a code span or fence
