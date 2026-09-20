@@ -776,6 +776,11 @@ def convert_wxr(args) -> int:
         here = slug
         body, st = wp.convert(icons(rec["body"]), on_embed=on_embed, on_image=image,
                               on_link=target, on_gallery=on_gallery)
+        if st["fused"]:
+            # What the converter cannot lift out of the prose by itself: a
+            # <code> whose lines were typed as newlines rather than <br>, which
+            # reads the same as a wrapped sentence. Editing the .mdx is the fix.
+            warn("fused", f"{st['fused']} multi-line code spans, flattened onto one line")
         cover = cover_image(rec)
         write(slug, rec["title"], body, rec["modified"], cover)
         written.append(slug)

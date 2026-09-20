@@ -103,7 +103,17 @@ you need to know your subvol names and their associated mount points inside the 
 
 Per default EndeavourOS uses this scheme:
 
-`btrfsSubvolumes:- mountPoint: /subvolume: /@- mountPoint: /homesubvolume: /@home- mountPoint: /var/cachesubvolume: /@cache- mountPoint: /var/logsubvolume: /@log`
+```
+btrfsSubvolumes:
+- mountPoint: /
+subvolume: /@
+- mountPoint: /home
+subvolume: /@home
+- mountPoint: /var/cache
+subvolume: /@cache
+- mountPoint: /var/log
+subvolume: /@log
+```
 
 *Not all subvolumes need to get mounted to use arch-chroot it needs mainly the / (@) if you only want to repair grub per example*
 

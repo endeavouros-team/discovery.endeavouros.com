@@ -60,7 +60,10 @@ Changing sample rates or formats might help reduce latency with some DACs.
 
 Using matching rules using *[wireplumber](https://archlinux.org/packages/extra/x86_64/wireplumber/)* (package) we can set properties for devices.
 
-`mkdir -p ~/.config/wireplumber/main.lua.dcp /usr/share/wireplumber/main.lua.d/50-alsa-config.lua ~/.config/wireplumber/main.lua.d/50-alsa-config.lua`
+```bash
+mkdir -p ~/.config/wireplumber/main.lua.d
+cp /usr/share/wireplumber/main.lua.d/50-alsa-config.lua ~/.config/wireplumber/main.lua.d/50-alsa-config.lua
+```
 
 And edit the file accordingly to your needs.
 

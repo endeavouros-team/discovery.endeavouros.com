@@ -80,7 +80,10 @@ Make sure **avahi-daemon** is running:
 
 If not install and enable it:
 
-`sudo pacman -Syu avahi --neededsudo systemctl enable --now avahi-daemon`
+```bash
+sudo pacman -Syu avahi --needed
+sudo systemctl enable --now avahi-daemon
+```
 
 In case, you do not have local hostname resolution enabled (EndeavourOS has enabled this by default.)
 

@@ -94,7 +94,10 @@ To *manually* configure the systemd timer that sets the checking schedule, you n
 The manual configuration provides more detailed configuration possibilities. Note that in the current implementation it is a *user-specific* systemd service. To get the modifications in effect, the service daemon should be reloaded (or alternatively simply reboot). 
 The commands could be something like this:
 
-`cd ~/.config/systemd/usernano eos-update-notifier.timer # modify settings with any editor, here with 'nano'`
+```bash
+cd ~/.config/systemd/user
+nano eos-update-notifier.timer # modify settings with any editor, here with 'nano'
+```
 
 ```ini
 [Unit]
@@ -118,7 +121,10 @@ To modify the values with the editor, please check the manual page first:
 
 For example, there can be lines that specify *when* the notifier is called:
 
-`OnStartupSec=30secOnCalendar=0/2:25:00`
+```ini
+OnStartupSec=30sec
+OnCalendar=0/2:25:00
+```
 
 The first one tells when the first check is started after login. 
 The second line tells the schedule of future checks. The format is
@@ -148,7 +154,14 @@ The configuration file currently includes these (bash) variables:
 
 The default values (note the bash syntax: no spaces around the “=” mark!) in this file are:
 
-`CheckAurUpdates=yesAdditionalEosUpdater=""CheckArchNewsForYou=yesArchNewsProg=eos-arch-newsShowHowAboutUpdates=notifyShowWhatAboutUpdates=number`
+```ini
+CheckAurUpdates=yes
+AdditionalEosUpdater=""
+CheckArchNewsForYou=yes
+ArchNewsProg=eos-arch-news
+ShowHowAboutUpdates=notify
+ShowWhatAboutUpdates=number
+```
 
 If CheckAurUpdates is `yes`, then also AUR updates are checked, otherwise, they are not checked.
 

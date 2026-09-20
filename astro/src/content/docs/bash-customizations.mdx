@@ -29,7 +29,10 @@ Most requested is the history search function added on top of up/down keys showi
 
 Add these two lines to users `.bashrc`:
 
-`bind '"\e[A":history-search-backward' # history with arrow up keybind '"\e[B":history-search-forward' # history with arrow down key`
+```
+bind '"\e[A":history-search-backward'      # history with arrow up key
+bind '"\e[B":history-search-forward'       # history with arrow down key
+```
 
 With this you can start typing per example sudo and with up and down keys it will show all commands used starting with sudo...
 

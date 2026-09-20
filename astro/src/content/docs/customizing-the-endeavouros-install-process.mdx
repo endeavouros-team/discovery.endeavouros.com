@@ -97,8 +97,13 @@ Note that templates of both files exist on the *liveuser*. They include more det
 - symlink `~/user-commands-before.bash` to `~/user_commands.bash` 
 provided the parameter handling is fixed to comply with the explanation above.
 
-For example: 
-`cd $HOMErm user-commands-before.bashln -s user_commands.bash user-commands-before.bash`
+For example:
+
+```bash
+cd $HOME
+rm user-commands-before.bash
+ln -s user_commands.bash user-commands-before.bash
+```
 
 #### [](https://forum.endeavouros.com/t/how-to-customize-your-endeavouros-install-process/25482#limitations-for-the-commands-3)Limitations for the commands
 

@@ -15,7 +15,9 @@ written twice:
          <pre class="wp-block-preformatted">no code element at all<br></pre>
          <pre><code><code>nested</code><br><code>code elements</code></code></pre>
   2. Multi-line commands are joined with <br>, not newlines. Convert naively and
-     every multi-line shell snippet collapses onto one line.
+     every multi-line shell snippet collapses onto one line -- and they are not
+     only in <pre>: a paragraph's <code> carries them too, where the line break
+     is all that separates one command from the next.
   3. Nothing carries a language, so code blocks would render unhighlighted.
      Languages are inferred from the first token.
 
@@ -41,6 +43,7 @@ SHELL = {
     "wget", "git", "df", "du", "free", "swapon", "swapoff", "mkswap", "btrfs",
     "lsblk", "mount", "umount", "journalctl", "dmesg", "modprobe", "lspci",
     "lsusb", "reboot", "eos-", "mkinitcpio", "grub-mkconfig", "gpg", "sha512sum",
+    "firewall-cmd",
 }
 
 # Top-level blocks, kept rather than discarded by the split. Lists are not in
@@ -68,6 +71,8 @@ GALLERY = re.compile(r"<!--\s*wp:(gallery|jetpack/slideshow)\b.*?<!--\s*/wp:\1\s
 IMG = re.compile(r"<img\b[^>]*>", re.I)
 LIST_TAG = re.compile(r"</?[ou]l\b[^>]*>", re.I)
 LI_TAG = re.compile(r"</?li\b[^>]*>", re.I)
+CODE_EL = re.compile(r"<code[^>]*>(.*?)</code>", re.S | re.I)
+BR = re.compile(r"<br\s*/?>", re.I)
 
 
 def fetch(api: str, slug: str, fields: str) -> dict:
@@ -97,22 +102,44 @@ def code_language(body: str) -> str:
     return ""
 
 
+def code_text(fragment: str) -> str:
+    """The real text of code markup, whatever it is wrapped in."""
+    # <br> is a line break here, not whitespace. This is the whole problem.
+    fragment = BR.sub("\n", fragment)
+    # </code><code> across a line boundary is also a break.
+    fragment = re.sub(r"</code>\s*<code[^>]*>", "\n", fragment, flags=re.I)
+    fragment = re.sub(r"</?code[^>]*>", "", fragment, flags=re.I)
+    fragment = re.sub(r"<[^>]+>", "", fragment)
+    return html.unescape(fragment).strip("\n").rstrip()
+
+
 def unwrap_pre(block: str) -> str:
     """Recover the real text of a <pre>, whatever shape it arrived in."""
-    inner = re.sub(r"^<pre[^>]*>|</pre>$", "", block.strip())
-    # <br> is a line break here, not whitespace. This is the whole problem.
-    inner = re.sub(r"<br\s*/?>", "\n", inner, flags=re.I)
-    # </code><code> across a line boundary is also a break.
-    inner = re.sub(r"</code>\s*<code[^>]*>", "\n", inner, flags=re.I)
-    inner = re.sub(r"</?code[^>]*>", "", inner, flags=re.I)
-    inner = re.sub(r"<[^>]+>", "", inner)
-    return html.unescape(inner).strip("\n").rstrip()
+    return code_text(re.sub(r"^<pre[^>]*>|</pre>$", "", block.strip()))
 
 
-def inline(t: str, on_link=None) -> str:
+def code_block(inner: str) -> str:
+    """The text of a <code> that holds two or more lines, empty for the code
+    spans that are one line and belong inline."""
+    body = code_text(inner)
+    return body if len([x for x in body.split("\n") if x.strip()]) > 1 else ""
+
+
+def code_span(inner: str, stats: dict | None) -> str:
+    """One <code> as a span. A span is one line by definition, so a break
+    inside it is lost here rather than rendered: count it. blocks() has
+    already lifted out the ones written with <br>, so what reaches this is a
+    span whose lines were typed as newlines -- which is indistinguishable
+    from a sentence the editor wrapped, and is a caller's decision."""
+    if stats is not None and code_block(inner):
+        stats["fused"] += 1
+    return "`" + re.sub(r"<[^>]+>", "", inner) + "`"
+
+
+def inline(t: str, on_link=None, stats: dict | None = None) -> str:
     """Inline HTML -> Markdown. Order matters: code first, so its content is
     not then treated as markup."""
-    t = re.sub(r"<code[^>]*>(.*?)</code>", lambda m: "`" + re.sub(r"<[^>]+>", "", m.group(1)) + "`", t, flags=re.S | re.I)
+    t = CODE_EL.sub(lambda m: code_span(m.group(1), stats), t)
     t = re.sub(
         r"<a [^>]*href=\"([^\"]+)\"[^>]*>(.*?)</a>",
         lambda m: link(m.group(1), m.group(2), on_link),
@@ -240,7 +267,7 @@ def pieces(fragment: str, on_image, on_link, stats: dict) -> list[str]:
     """
     found, last = [], 0
     for m in IMG.finditer(fragment):
-        text = inline(fragment[last:m.start()], on_link)
+        text = inline(fragment[last:m.start()], on_link, stats)
         if text:
             found.append(text)
         src = re.search(r'\ssrc="([^"]+)"', m.group(0), re.I)
@@ -250,13 +277,49 @@ def pieces(fragment: str, on_image, on_link, stats: dict) -> list[str]:
             if piece:
                 found.append(piece)
         last = m.end()
-    text = inline(fragment[last:], on_link)
+    text = inline(fragment[last:], on_link, stats)
     if text:
         found.append(text)
     return found
 
 
-def markdown_table(block: str, on_link) -> str:
+def blocks(fragment: str, on_image, on_link, stats: dict) -> list[str]:
+    """One paragraph, with any code element that spans lines lifted out of it
+    as a fenced block.
+
+    Gutenberg has no block-level code inside a paragraph, so an author with
+    three commands to give typed them into one <code> and separated them with
+    <br>. A code span cannot hold a line break, so flattening one of these
+    joins the commands into a single line that runs something else -- the
+    samba article fused six of them, and a reader copies what is on the page.
+    """
+
+    def prose(part: str) -> list[str]:
+        # A paragraph opening with a root prompt would be read as a heading.
+        # WordPress rendered it as the prose it is.
+        return [re.sub(r"\A#", r"\\#", x) for x in pieces(part, on_image, on_link, stats)]
+
+    out, last = [], 0
+    for m in CODE_EL.finditer(fragment):
+        # <br> only: a newline inside a <code> is as often the editor wrapping
+        # a long line as it is the author ending one.
+        if not BR.search(m.group(1)):
+            continue
+        body = code_block(m.group(1))
+        if not body:
+            continue
+        out += prose(fragment[last:m.start()])
+        lang = code_language(body)
+        stats["code"] += 1
+        stats["multiline"] += 1
+        if lang:
+            stats["lang"] += 1
+        out.append(f"```{lang}\n{body}\n```")
+        last = m.end()
+    return out + prose(fragment[last:])
+
+
+def markdown_table(block: str, on_link, stats: dict) -> str:
     """<figure class="wp-block-table"> -> a Markdown table.
 
     Nine articles carry 26 of these and every one was dropped before, because
@@ -268,7 +331,7 @@ def markdown_table(block: str, on_link) -> str:
     """
     rows = []
     for tr in re.findall(r"<tr[^>]*>(.*?)</tr>", block, re.S | re.I):
-        rows.append([cell(c, on_link) for c in re.findall(r"<t[dh][^>]*>(.*?)</t[dh]>", tr, re.S | re.I)])
+        rows.append([cell(c, on_link, stats) for c in re.findall(r"<t[dh][^>]*>(.*?)</t[dh]>", tr, re.S | re.I)])
     rows = [r for r in rows if any(c.strip() for c in r)]
     if not rows:
         return ""
@@ -289,11 +352,11 @@ def markdown_table(block: str, on_link) -> str:
     )
 
 
-def cell(text: str, on_link) -> str:
+def cell(text: str, on_link, stats: dict) -> str:
     """One table cell. A line break has to stay HTML -- a newline would end the
     row -- and a pipe has to be escaped or it would start a column."""
-    text = re.sub(r"<br\s*/?>", "\x00", text, flags=re.I)
-    return inline(text, on_link).replace("|", r"\|").replace("\x00", "<br />")
+    text = BR.sub("\x00", text)
+    return inline(text, on_link, stats).replace("|", r"\|").replace("\x00", "<br />")
 
 
 def unwrap_html_blocks(content: str) -> str:
@@ -313,8 +376,8 @@ def unwrap_html_blocks(content: str) -> str:
 
 def convert(content: str, on_embed=default_embed, on_image=default_image, on_link=None,
             on_gallery=None) -> tuple[str, dict]:
-    stats = {"code": 0, "lang": 0, "embed": 0, "gallery": 0, "img": 0, "multiline": 0,
-             "xref": 0, "table": 0}
+    stats = {"code": 0, "lang": 0, "embed": 0, "fused": 0, "gallery": 0, "img": 0,
+             "multiline": 0, "xref": 0, "table": 0}
     out: list[str] = []
 
     content = unwrap_html_blocks(content)
@@ -343,7 +406,7 @@ def convert(content: str, on_embed=default_embed, on_image=default_image, on_lin
                 out.append(f"```{lang}\n{body}\n```")
 
             elif re.match(r"<h([1-6])", b, re.I):
-                text = inline(b, on_link)
+                text = inline(b, on_link, stats)
                 if not text:
                     continue          # an empty heading is a Gutenberg spacer
                 lvl = int(re.match(r"<h([1-6])", b, re.I).group(1)) - shift
@@ -356,7 +419,7 @@ def convert(content: str, on_embed=default_embed, on_image=default_image, on_lin
 
             elif re.match(r"<figure", b, re.I):
                 if "wp-block-table" in b:
-                    table = markdown_table(b, on_link)
+                    table = markdown_table(b, on_link, stats)
                     if table:
                         stats["table"] += 1
                         out.append(table)
@@ -366,7 +429,7 @@ def convert(content: str, on_embed=default_embed, on_image=default_image, on_lin
                     out.extend(pieces(b, on_image, on_link, stats))
 
             elif re.match(r"<blockquote", b, re.I):
-                out.append("> " + inline(b, on_link))
+                out.append("> " + inline(b, on_link, stats))
 
             elif re.match(r"<hr", b, re.I):
                 # Authors used the separator block to divide sections that
@@ -374,9 +437,7 @@ def convert(content: str, on_embed=default_embed, on_image=default_image, on_lin
                 out.append("---")
 
             else:
-                # A paragraph opening with a root prompt would be read as a
-                # heading. WordPress rendered it as the prose it is.
-                out.extend(re.sub(r"\A#", r"\\#", x) for x in pieces(b, on_image, on_link, stats))
+                out.extend(blocks(b, on_image, on_link, stats))
 
     last = 0
     for a, b, gallery in regions(content, on_gallery is not None):

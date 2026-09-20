@@ -43,19 +43,36 @@ All directories specified must exist on the enosServer Data drive. Adjust the pa
 
 Save and close minidlna.conf
 
-`# systemctl enable --now minidlna.service# systemctl status minidlna.service` (ensure minidlna is active, running, and no errors) 
+```
+# systemctl enable --now minidlna.service
+# systemctl status minidlna.service
+```
+
+(ensure minidlna is active, running, and no errors) 
  
 Add required groups
 
-`# gpasswd -a minidlna pshare# gpasswd -a minidlna users# groups minidlna` 
- minidlna users pshare (should see these results)
+```
+# gpasswd -a minidlna pshare
+# gpasswd -a minidlna users
+# groups minidlna
+```
+
+minidlna users pshare (should see these results)
 
 Setup the server firewall. 
 When the Client computer issues a request, it does so on port 8200 with TCP protocol. 
 The Server computer responds on port 1900 with UDP protocol. 
-We need to open port 8200 on the enosServer firewall 
- 
-`firewall-cmd --reloadfirewall-cmd --permanent --zone=public --add-service=minidlnafirewall-cmd --reloadsystemctl reboot ` (don't skip this server reboot)
+We need to open port 8200 on the enosServer firewall
+
+```bash
+firewall-cmd --reload
+firewall-cmd --permanent --zone=public --add-service=minidlna
+firewall-cmd --reload
+systemctl reboot
+```
+
+(don't skip this server reboot)
 
 In your Linux Client computer, open port 1900 UPD to let in your server's communications. 
 In a Client Linux computer terminal window: 
@@ -63,9 +80,13 @@ In a Client Linux computer terminal window:
 `sudo firewall-cmd --zone=public --list-services` 
  dhcpv6-client ssh upnp-client 
  
-If upnp-client is listed, your are good to go. If not: 
- 
-`sudo firewall-cmd --reloadsudo firewall-cmd --permanent --zone=public --add-service=upnp-clientsudo systemctl restart firewalld.service`
+If upnp-client is listed, your are good to go. If not:
+
+```bash
+sudo firewall-cmd --reload
+sudo firewall-cmd --permanent --zone=public --add-service=upnp-client
+sudo systemctl restart firewalld.service
+```
 
 Using a Smart TV, Windows MediaPlayer, VLC, or other DLNA enabled device on your LAN, see if it will recognize the EndeavourOS DLNA Server. To use Rhythmbox, ensure grilo-plugins and dleyna-server are installed. Then enable grilo plugins in Rhythmbox's Options --> Plugins tab.
 
