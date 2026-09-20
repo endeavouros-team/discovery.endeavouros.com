@@ -131,6 +131,22 @@ CUT = {
     ],
 }
 
+# Articles the export escaped twice. The editor stores a <pre> escaped once,
+# and these went through that a second time, so `&&` sits in the XML as
+# `&amp;amp;&amp;amp;` and the converter's single, correct unescape leaves
+# `&amp;&amp;` standing in the fence. A reader copying that script runs nothing.
+# Per article rather than site-wide: one unescape too many on an article that
+# was only escaped once would eat text the author typed.
+DOUBLE_ESCAPED = {
+    "steam-lutris-wine": "the two bash scripts, which carry &amp;amp; for && and &amp;gt; for >",
+}
+
+# The entities the export uses, as a lookahead for the extra escape in front of
+# one and as the class gate on what comes out.
+ENTITIES = r"(?:amp|lt|gt|quot|apos|nbsp|#\d+|#x[0-9a-fA-F]+);"
+ENTITY = re.compile("&" + ENTITIES)
+DOUBLED = re.compile("&amp;(?=" + ENTITIES + ")")
+
 # Articles that keep their text but lose their featured image. The picture is
 # the problem, not the article, so this is separate from SKIP.
 NO_COVER = {
@@ -216,6 +232,38 @@ def cut(slug: str, body: str) -> str:
     return body
 
 
+def unescape_twice(slug: str, body: str) -> str:
+    """The extra escape taken off a DOUBLE_ESCAPED article's <pre> blocks.
+
+    Only inside a <pre>: everywhere else the export is escaped once, and prose
+    that reads `&amp;` means an ampersand. Fatal when it changes nothing, for
+    the reason CUT is fatal -- an entry that has stopped matching would let the
+    article go quietly back to shipping a script nobody can run.
+    """
+    if slug not in DOUBLE_ESCAPED:
+        return body
+    fixed = re.sub(r"<pre[^>]*>.*?</pre>", lambda m: DOUBLED.sub("&", m.group(0)),
+                   body, flags=re.S | re.I)
+    if fixed == body:
+        raise SystemExit(
+            f"  {slug}: nothing in its code blocks is escaped twice -- {DOUBLE_ESCAPED[slug]}")
+    return fixed
+
+
+def check_entities(body: str) -> None:
+    """An entity left in a fenced block is escaping that reached the page.
+
+    The converter unescapes once, which is right for an export escaped once, so
+    anything still spelled `&gt;` in a code block came in escaped twice and is
+    a DOUBLE_ESCAPED entry waiting to be written. One warning per block: the
+    two scripts in steam-lutris-wine held six between them.
+    """
+    for fence in re.findall(r"```.*?```", body, re.S):
+        hit = ENTITY.search(fence)
+        if hit:
+            warn("entity", f"{hit.group(0)} in a code block -- escaped twice in the export?")
+
+
 def read_wxr(path: Path) -> None:
     """Every post in the export, published or not."""
     for item in ET.parse(path).getroot().find("channel").findall("item"):
@@ -232,7 +280,7 @@ def read_wxr(path: Path) -> None:
         # entry in the anchor map would go on answering cross-page links, and
         # check-links cannot see an anchor that resolves to a heading nobody
         # writes any more.
-        body = cut(slug, item.findtext("content:encoded", namespaces=NS) or "")
+        body = unescape_twice(slug, cut(slug, item.findtext("content:encoded", namespaces=NS) or ""))
         rec = {
             "slug": slug,
             "id": item.findtext("wp:post_id", namespaces=NS),
@@ -752,11 +800,12 @@ def convert_wxr(args) -> int:
         read_media(Path(args.media))
     uploads = zipfile.ZipFile(args.uploads)
 
-    # Both dicts exist to take something out, so an entry naming a slug the
+    # Each dict exists to change the source, so an entry naming a slug the
     # export no longer has is the one entry nobody would notice going quiet.
-    for slug in sorted(set(SKIP) | set(CUT)):
+    for slug in sorted(set(SKIP) | set(CUT) | set(DOUBLE_ESCAPED)):
         if slug not in posts:
-            raise SystemExit(f"  {slug!r} is named in SKIP or CUT, but not in the export")
+            raise SystemExit(f"  {slug!r} is named in SKIP, CUT or DOUBLE_ESCAPED, "
+                             "but not in the export")
 
     wanted = args.slugs or sorted(
         s for s, r in posts.items() if r["status"] == "publish" and s not in SKIP)
@@ -783,6 +832,7 @@ def convert_wxr(args) -> int:
             warn("fused", f"{st['fused']} multi-line code spans, flattened onto one line")
         cover = cover_image(rec)
         write(slug, rec["title"], body, rec["modified"], cover)
+        check_entities(body)
         written.append(slug)
         covers += bool(cover)
         for k, v in st.items():

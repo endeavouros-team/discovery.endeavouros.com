@@ -312,7 +312,7 @@ create_structure() {
         if [ ! -e "$path" ];
         then
             mkdir -p "$path" \
-            &amp;&amp; echo "${c2}[+]${c0} ${path}" \
+            && echo "${c2}[+]${c0} ${path}" \
             || echo "${c1}[${b1} ${b0}]${c0} ${path}"
         else
             echo "${c2}[x]${c0} ${path}"
@@ -371,7 +371,7 @@ create_prefix() {
     echo "   ----------------   Create prefix   -----------------   "
     echo
 
-    ARCH=$([ "$ARCH" == "amd64" ] &amp;&amp; echo "win64" || echo "win32")
+    ARCH=$([ "$ARCH" == "amd64" ] && echo "win64" || echo "win32")
 
     env WINEARCH="$ARCH" WINEPREFIX="$PREFIX" WINELOADER="$LOADER" WINESERVER="$SERVER" WINEDEBUG="-all" wineboot
     env WINEPREFIX="$PREFIX" WINE="$LOADER" WINESERVER="$SERVER" winetricks isolate_home mimeassoc=off
@@ -434,10 +434,10 @@ run() {
 
     if echo "$file" | grep -iq '.msi';
     then
-        echo "${c2}[&gt;] run .msi ${c0} $file"
+        echo "${c2}[>] run .msi ${c0} $file"
         env WINEPREFIX="$PREFIX" WINELOADER="$LOADER" WINESERVER="$SERVER" WINEDEBUG="-all" WINEDLLOVERRIDES="winemenubuilder.exe=d" msiexec /i "$file"
     else
-        echo "${c2}[&gt;] run .exe ${c0} $file"
+        echo "${c2}[>] run .exe ${c0} $file"
         env WINEPREFIX="$PREFIX" WINELOADER="$LOADER" WINESERVER="$SERVER" WINEDEBUG="-all" WINEDLLOVERRIDES="winemenubuilder.exe=d" "$LOADER" "$file"
     fi
 
