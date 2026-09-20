@@ -45,6 +45,11 @@ run. That check is the only thing standing between a new article and silence.
   anchor in the build, which is the one error that is invisible in review: the
   markup looks right, the build succeeds, and the 404 shows up when a reader
   clicks. CI runs it too.
+- `make emphasis` after the build too, if you edited prose or re-imported an
+  article. It reads the built pages for a literal `**`, which is what
+  `**text **` renders as — CommonMark will not close emphasis on a space, so
+  the asterisks are there for the reader while the Markdown still looks like
+  bold. Two articles print `**` on purpose and are named in the script.
 - `make check` if you touched a component or the content config. It is
   `astro check` over the Astro sources and the content collections.
 

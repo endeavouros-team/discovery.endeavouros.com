@@ -2,7 +2,7 @@
 # articles out of the WordPress install, and the nginx config the preview host
 # serves the build with. The main site lives in its own repository.
 
-.PHONY: check links dev-astro build-astro build verify serve deploy-preview clean convert
+.PHONY: check links emphasis dev-astro build-astro build verify serve deploy-preview clean convert
 
 # astro check over the components and the content collections.
 check:
@@ -12,6 +12,12 @@ check:
 # when someone clicks. Needs a build in astro/dist to check against.
 links:
 	@python3 scripts/check-links.py
+
+# `**text **` is not bold, it is four asterisks on the page, and the .mdx of one
+# reads exactly like emphasis that works. Needs a build, for the same reason
+# links does: only the rendered page says which it was.
+emphasis:
+	@python3 scripts/check-emphasis.py
 
 dev-astro:
 	@cd astro && npm run dev
