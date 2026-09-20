@@ -12,8 +12,8 @@ import pic2 from "../../assets/articles/welcome/2024-09-15_00-47-1024x619.png";
 
 <Image src={cover} alt="" class="cover" loading="eager" width={1440} />
 
-By: @manuel 
-Created: 2019-Jul 
+By: @manuel  
+Created: 2019-Jul  
 Updates of this document: go to the end of this doc.
 
 The EndeavourOS Welcome app is one of the first apps to encounter, both while installing EndeavourOS, and when starting the installed system.
@@ -29,7 +29,7 @@ Note that the Welcome app is under constant development, and will include more f
 
 To have Welcome app started when you log in, make sure
 
-- Welcome app is selected in the Autostart feature of the DE 
+- Welcome app is selected in the Autostart feature of the DE  
 or
 - `Hidden=false` is set in file `/etc/xdg/autostart/welcome.desktop`
 
@@ -54,7 +54,7 @@ This window is what you’ll see when starting to install EndeavourOS:
 
 ![](../../assets/articles/welcome/install.png)
 
-This is the contents of the INSTALL tab. The tab is available only in the install phase. 
+This is the contents of the INSTALL tab. The tab is available only in the install phase.  
 Note: some buttons may not show as above, depending on the installed software or new/changed features of Welcome.
 
 To start the install process, simply click the **Start the Installer** button. This will allow selecting from a few popular desktop environments, or even no desktop at all. In addition to the installer window, it starts a terminal window that shows plenty of detail of the install process.
@@ -63,7 +63,7 @@ Another installer button **Install community editions** allows installing editio
 
 Button **Update Mirrors (toolname)** starts program `reflector-simple` or `rate-mirrors` which helps you select the **Arch** mirrors to use. This is very useful for the ***online*** install mode (that you may choose a bit later during the install) as it can speed up the install process quite dramatically. Another button can update the **EndeavourOS** mirrors.
 
-The **Change Display Resolution** button (added in Welcome version 3.4.7) helps you to change display resolution. Note that, by default, this button is active only in a virtual machine (supports VirtualBox, VMware, and QEMU). This may be useful if you want to change the VM window size and your display is large enough. It is also useful in the live session if you have a high resolution monitor, and text and other things look too small to work with. 
+The **Change Display Resolution** button (added in Welcome version 3.4.7) helps you to change display resolution. Note that, by default, this button is active only in a virtual machine (supports VirtualBox, VMware, and QEMU). This may be useful if you want to change the VM window size and your display is large enough. It is also useful in the live session if you have a high resolution monitor, and text and other things look too small to work with.  
 The above feature is implemented on top of the `xrandr` command, so package `xorg-xrandr` must be installed.
 
 If certain disk management functions like special partitioning or partition formatting is needed, button **Partition manager** may help you.
@@ -76,7 +76,7 @@ Button **Fetch your install customization file (advanced)** is meant for power u
 
 The bottom line buttons are:
 
-- **Software News** button shows important "last minute" information about the EndeavourOS software and its changes. Be sure to click this! The button goes [here](https://gitlab.com/endeavouros-filemirror/Important-news/blob/main/README.md). 
+- **Software News** button shows important "last minute" information about the EndeavourOS software and its changes. Be sure to click this! The button goes [here](https://gitlab.com/endeavouros-filemirror/Important-news/blob/main/README.md).  
 Note that it will be available also in the installed system.
 - **Changelog** button provides a view to version history of the Welcome app.
 - **Help** button shows the discovery article about Welcome.
@@ -109,12 +109,12 @@ This tab (and the last tab) are meant to be used (mainly) in the installed syste
 
 On the picture you can see text above the tabs. This is an embedded ***notification*** area in Welcome, and is meant for informing users about important events or matters. To see the contents of the notification, simply click the **Software News** button. Note that the notification are can be empty too, but the Software News button is still available.
 
-The **Update Mirrors (repo, tool)** button may be good to click as the first thing after logging in the first time, especially if software updates seems (see the **Update System** button below) very slow, or even break. It creates a list of "good" mirrors for your system. And you’ll use precisely those mirrors when updating the system, or installing new packages to it. Note that you may use this button also at a later time, for example if any of the listed mirrors is no more available, or should you have other problems with mirrors. 
+The **Update Mirrors (repo, tool)** button may be good to click as the first thing after logging in the first time, especially if software updates seems (see the **Update System** button below) very slow, or even break. It creates a list of "good" mirrors for your system. And you’ll use precisely those mirrors when updating the system, or installing new packages to it. Note that you may use this button also at a later time, for example if any of the listed mirrors is no more available, or should you have other problems with mirrors.  
 These buttons run commands `reflector-simple`, `rate-mirrors`, and `eos-rankmirrors` respectively. You can run them from the terminal as well.
 
 The next buttons, **Update System (command)**, are important buttons. Click any of them right after booting to the installed system (maybe after “Update Mirrors” operation has finished), and your system will be up-to-date (and may need to be rebooted). These buttons can be used later as well, always when a system update is needed.
 
-Tip for **NVIDIA** graphics hardware users: the **eos-update** command can check on kernel (with option `--nvidia`) updates (`linux` and `linux-lts`) that the required NVIDIA driver (`nvidia` or `nvidia-lts`) will also be updated! This helps preventing problems when a kernel is updated but the required NVIDIA driver is not. 
+Tip for **NVIDIA** graphics hardware users: the **eos-update** command can check on kernel (with option `--nvidia`) updates (`linux` and `linux-lts`) that the required NVIDIA driver (`nvidia` or `nvidia-lts`) will also be updated! This helps preventing problems when a kernel is updated but the required NVIDIA driver is not.  
 In addition, **eos-update** will take care of updating Arch and EndeavourOS *keyrings* before updating other packages. This should help handling the situation when either of the keyring packages are updated.
 
 Tip: it is recommended to update system software at least about once a week. Note that new package updates will be available very frequently, often many times a day. Systems that haven't been updated for a very long time (like months or even years) usually *can* be updated, but may require extra work. The EndeavourOS forum will help you in case of any trouble.
@@ -145,7 +145,7 @@ This tab consists of a collection of most useful buttons. Some buttons have alre
 
 ![](../../assets/articles/welcome/assistant.png)
 
-The **Pacdiff & &lt;diff-app>** button is meant for managing certain configuration files (e.g. *.pacnew) and their changes. Pacdiff is a program that walks through the *changed* configuration files one by one, and lets you view the changes with the &lt;diff-app> to possibly merge the changes you'd like to include. The &lt;diff-app> is typically `meld` but can be changed to e.g. `kdiff3` or another suitable for you. 
+The **Pacdiff & &lt;diff-app>** button is meant for managing certain configuration files (e.g. *.pacnew) and their changes. Pacdiff is a program that walks through the *changed* configuration files one by one, and lets you view the changes with the &lt;diff-app> to possibly merge the changes you'd like to include. The &lt;diff-app> is typically `meld` but can be changed to e.g. `kdiff3` or another suitable for you.  
 Related configuration: EOS_WELCOME_PACDIFFERS, see more about this later in this document.
 
 The following picture shows `pacdiff` in action:
@@ -168,7 +168,7 @@ Buttons under this tab include more links to information about either useful or 
 
 The **EndeavourOS & ARM** button shows information about the ARM software provided by EndeavourOS.
 
-Then there’s information about *personalizing* the Welcome app. 
+Then there’s information about *personalizing* the Welcome app.  
 Button **Tutorial: Personal Commands** explains how you can easily create new command buttons into Welcome. They will appear on a new tab *Personal Commands*. Button **Personal Commands drag&drop** shows a small window where user can drop items that will appear under the Personal commands tab.
 
 More about the ***Personal Commands*** is explained below under *Personalizing Welcome*.
@@ -179,7 +179,7 @@ The last *default* tab includes buttons for installing some popular applications
 
 ![](../../assets/articles/welcome/add-more-apps.png)
 
-Button **Choose popular apps to install** opens an app that helps you to install apps from a curated list. Other buttons should be familiar from the **Assistant** tab explanation above. 
+Button **Choose popular apps to install** opens an app that helps you to install apps from a curated list. Other buttons should be familiar from the **Assistant** tab explanation above.  
 Even though the apps in the curated list are popular and useful, we’ve chosen not to install them by default. This gives users a better opportunity to “tailor” their system, but still, have an easy way to install these apps.
 
 By the way, do you remember that the previous tab included a button **AUR & yay!**? As you (should!) know by now, **pacman** is the main package manager in EndeavourOS. It manages packages that are available from the Arch Linux repositories. But there is a huge amount of more apps available in the *AUR* (Arch User Repository). AUR is *not* managed by pacman. That’s why EndeavourOS provides another package manager, **yay**. It is like pacman, but supports AUR applications in addition to Arch Linux repositories.
@@ -299,9 +299,9 @@ Please look at file `/etc/eos-script-lib-yad.conf` for the latest settings and u
 
 The Welcome app has already been translated to many languages. If you (yes, you!) feel like translating Welcome to your language, this is the way to proceed:
 
-- Take the latest English translation file [https://raw.githubusercontent.com/endeavouros-team/PKGBUILDS/master/eos-translations/translation-en.bash](https://raw.githubusercontent.com/endeavouros-team/PKGBUILDS/master/eos-translations/translation-en.bash) 
-as the base for your translation. 
-Or, if you have a **github** account, clone the PKGBUILDS repo: 
+- Take the latest English translation file [https://raw.githubusercontent.com/endeavouros-team/PKGBUILDS/master/eos-translations/translation-en.bash](https://raw.githubusercontent.com/endeavouros-team/PKGBUILDS/master/eos-translations/translation-en.bash)  
+as the base for your translation.  
+Or, if you have a **github** account, clone the PKGBUILDS repo:  
 `git clone https://github.com/endeavouros-team/PKGBUILDS.git`.
 - In the beginning of this file, change the *language id* (e.g. `en`) of the variable `_tr_lang` to your language (for example `pt_BR` or `de`). You can get the value with command: `echo $LANG`. Note that the language id is two letters for some languages, but more letters for some other languages.
 - If you need certain special characters (to show them properly in Welcome), look how variables `_exclamation`, `_and` and `_question` are defined (search the internet for the value codes). You can create new such variables if needed.
@@ -324,8 +324,8 @@ When your new translation file is ready for publishing, you have many options ho
 
 - If you have a **github** account (or want to create one), simply make a pull request. This assumes you have cloned the EndeavourOS PKGBUILDS repo, and make all your translation work in this context.
 - Create an account into the EndeavourOS forum: **https://forum.endeavouros.com**, and send the translation as a public forum message (or a private message to @manuel).
-- You can also use command: 
-`cat "translation-xx.bash" | eos-sendlog` 
+- You can also use command:  
+`cat "translation-xx.bash" | eos-sendlog`  
 and send the returned URL in the EndeavourOS forum like above.
 
 Please note that not *everything* is translated in Welcome or in Welcome’s helper programs. We are working on it, but obviously it takes time.
@@ -335,7 +335,7 @@ Please note that not *everything* is translated in Welcome or in Welcome’s hel
 There are some symptoms to notice when there are more stuff to be translated:
 
 - The contents of the English translation file (mentioned above) has changed.
-- When you start Welcome at the terminal (command: `eos-welcome`), you’ll see a “warning” like this: 
+- When you start Welcome at the terminal (command: `eos-welcome`), you’ll see a “warning” like this:  
 `Info: translation issues detected, see file '/tmp/translations-X3yzK.errlog'`.
 
 Note that the warnings in the log file only indicate that some text translations are missing. By default, English translations are provided for those texts.
@@ -346,24 +346,24 @@ See here: [https://github.com/endeavouros-team/PKGBUILDS/blob/master/eos-transla
 
 ## Conclusions
 
-The Welcome app will become more powerful over time. 
+The Welcome app will become more powerful over time.  
 The purpose of Welcome is not to give all possible help in all possible situations, but simply help to go in the right direction without a great hassle. And Welcome should provide more useful features in the future, so it is not a helper only in the beginning, but a truly useful app to have and keep using.
 
 So, enjoy!
 
 ## Document updates
 
-Update: 2020-Jul-15: added info about personalizing Welcome 
-Update: 2020-Jul-25: new pictures and more info 
-Update: 2020-Aug-11: added info for the translators 
-Update: 2020-Sep-04: text fixes, new button: Change Display Resolution 
-Update: 2020-Dec-11: added info about the Pacdiff button 
-Update: 2020-Dec-12: minor change to Pacdiff support 
-Update: 2020-Dec-15: updated file paths at **Note for translators** 
-Update: 2021-Apr-12: bring this document up to date 
-Update: 2021-Apr-14: clarified translation instructions 
-Update: 2021-Sep-30: added a tip for NVIDIA users on kernel updates; updated docs in general 
-Update: 2021-Nov-12: added yad/wayland known issue 
-Update: 2021-Dec-21: added a link to list of changed translations 
-Update: 2023-Feb-02: minor doc additions update Update: 2023-Mar-16: added enabling and disabling Welcome 
+Update: 2020-Jul-15: added info about personalizing Welcome  
+Update: 2020-Jul-25: new pictures and more info  
+Update: 2020-Aug-11: added info for the translators  
+Update: 2020-Sep-04: text fixes, new button: Change Display Resolution  
+Update: 2020-Dec-11: added info about the Pacdiff button  
+Update: 2020-Dec-12: minor change to Pacdiff support  
+Update: 2020-Dec-15: updated file paths at **Note for translators**  
+Update: 2021-Apr-12: bring this document up to date  
+Update: 2021-Apr-14: clarified translation instructions  
+Update: 2021-Sep-30: added a tip for NVIDIA users on kernel updates; updated docs in general  
+Update: 2021-Nov-12: added yad/wayland known issue  
+Update: 2021-Dec-21: added a link to list of changed translations  
+Update: 2023-Feb-02: minor doc additions update Update: 2023-Mar-16: added enabling and disabling Welcome  
 Update: 2023-May-30: updated explanations of apps in the Welcome tabs

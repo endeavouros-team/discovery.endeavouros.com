@@ -77,6 +77,11 @@ the glyph they meant. YouTube embeds become the `<YouTube>` component — a lazy
 `youtube-nocookie` iframe, no plugin and no tracking script — and embeds of other Discovery
 articles flatten to plain links.
 
+A line break the author typed inside a paragraph stays a line break. 52 of the 93 articles
+have one, and they are rarely decorative: a command under the sentence that introduces it,
+one step per line, a prompt and its answer. They come across as Markdown hard breaks —
+except inside a table cell, where a newline would end the row and the break stays `<br />`.
+
 Links are rewritten rather than carried over. A dated WordPress URL becomes `/<slug>/`; a
 `wp-admin/post.php?…` edit URL published inside article text becomes the article it meant;
 and every `#heading--…` anchor is remapped to the id Starlight actually generates, which

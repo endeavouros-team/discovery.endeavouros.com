@@ -49,15 +49,15 @@ That makes it needed to build manually with makepkg or have an AUR-Helper that c
 
 If choosing to manually build:
 
-`git clone https://aur.archlinux.org/optimus-manager-qt-git` 
+`git clone https://aur.archlinux.org/optimus-manager-qt-git`  
 then open the folder **optimus-manager-qt-git** with filebrowser open the file PKGBUILD with Texteditor and change false to true here:
 
 `# Use KDE API features (recommended for Plasma users) `
 
 `_with_plasma=true `
 
-save the file. 
-open a terminal inside the same folder (optimus-manager-qt-git) and run makepkg: 
+save the file.  
+open a terminal inside the same folder (optimus-manager-qt-git) and run makepkg:  
 `makepkg -si`
 
 This is the manual way to build and install packages from [AUR](https://wiki.archlinux.org/index.php/Arch_User_Repository).
@@ -85,11 +85,11 @@ You can also use it without tray icon:
 
 Run from terminal:
 
-`optimus-manager --switch nvidia` 
-to switch to the Nvidia GPU 
-`optimus-manager --switch integrated` 
-to switch to the integrated GPU and power the Nvidia GPU off 
-`optimus-manager --switch hybrid` 
+`optimus-manager --switch nvidia`  
+to switch to the Nvidia GPU  
+`optimus-manager --switch integrated`  
+to switch to the integrated GPU and power the Nvidia GPU off  
+`optimus-manager --switch hybrid`  
 to switch to the iGPU but leave the Nvidia GPU available for on-demand offloading, similar to how Optimus works on Windows.
 
 See the [Wiki 1](https://github.com/Askannz/optimus-manager/wiki/Nvidia-GPU-offloading-for-%22hybrid%22-mode) at the source of it at GitHub for more details.
@@ -98,7 +98,7 @@ See the [Wiki 1](https://github.com/Askannz/optimus-manager/wiki/Nvidia-GPU-offl
 
 ## **Warning:**
 
-- be careful with the packages “[acpi_call](https://github.com/mkottman/acpi_call)” and “[bbswitch](https://github.com/Bumblebee-Project/bbswitch)“. 
+- be careful with the packages “[acpi_call](https://github.com/mkottman/acpi_call)” and “[bbswitch](https://github.com/Bumblebee-Project/bbswitch)“.  
 they will make the system unstable or it will not boot anymore.
 
 - optimus-manager will only work on Xorg (X11) session not on Wayland.

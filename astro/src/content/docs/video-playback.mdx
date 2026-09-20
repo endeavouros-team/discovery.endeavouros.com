@@ -24,8 +24,8 @@ This article provides some background on video playback in Arch Linux.
 
 ## Introduction
 
-Hardware video acceleration makes it possible for the video card to decode/encode video, thus offloading the CPU and saving power. 
- 
+Hardware video acceleration makes it possible for the video card to decode/encode video, thus offloading the CPU and saving power.  
+  
 There are several ways to achieve this on Linux:
 
 - [**VA-API**](https://www.freedesktop.org/wiki/Software/vaapi/) - is a specification and open source library to provide both hardware accelerated video encoding and decoding, developed by Intel.
@@ -55,8 +55,8 @@ Verify the settings for VA-API by running `vainfo`, which is provided by [**libv
 vainfo
 ```
 
-`VAEntrypointVLD` means that your card is capable to decode this format, `VAEntrypointEncSlice` means that you can encode to this format. 
- 
+`VAEntrypointVLD` means that your card is capable to decode this format, `VAEntrypointEncSlice` means that you can encode to this format.  
+  
 In this example the `i965` driver is used, as you can see in this line:
 
 ```
@@ -82,7 +82,7 @@ vdpauinfo
 
 ## Configuring mpv
 
-Example configuration file: 
+Example configuration file:  
 `~/.config/mpv/mpv.conf`
 
 ```
@@ -132,7 +132,7 @@ https://addons.mozilla.org/en-US/firefox/addon/enhanced-h264ify/
 https://chrome.google.com/webstore/detail/enhanced-h264ify/omkfmpieigblcllmkgbflkikinpkodlk
 ```
 
-[**youtube-dl-git**](http://ytdl-org.github.io/youtube-dl/): A small command-line program to download videos from YouTube and a few more sites. 
+[**youtube-dl-git**](http://ytdl-org.github.io/youtube-dl/): A small command-line program to download videos from YouTube and a few more sites.  
 **[yt-dlp](https://github.com/yt-dlp/yt-dlp)**: A youtube-dl fork with additional features and fixes.
 
 ```bash
@@ -143,5 +143,5 @@ yay -S youtube-dl-git
 yay -S yt-dlp-drop-in
 ```
 
-**Sources / Further reading:** 
+**Sources / Further reading:**  
 [**https://wiki.archlinux.org/title/Hardware_video_acceleration**](https://wiki.archlinux.org/title/Hardware_video_acceleration)

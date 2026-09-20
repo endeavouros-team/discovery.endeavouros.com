@@ -196,10 +196,15 @@ def inline(t: str, on_link=None, stats: dict | None = None) -> str:
     )
     t = re.sub(r"<(strong|b)>(.*?)</\1>", "\x02\\2\x03", t, flags=re.S | re.I)
     t = re.sub(r"<(em|i)>(.*?)</\1>", "\x04\\2\x05", t, flags=re.S | re.I)
-    t = re.sub(r"<br\s*/?>", "  \n", t, flags=re.I)
+    t = BR.sub("\x06", t)
     t = re.sub(r"<[^>]+>", "", t)
     t = close_emphasis(html.unescape(t))
-    return re.sub(r"[ \t]+", " ", t).strip()
+    t = re.sub(r"[ \t]+", " ", t)
+    # A hard break is two spaces and a newline, and the collapse above reads
+    # those two spaces as ordinary whitespace and eats one. So the break
+    # travels through as a sentinel and is written last, taking the whitespace
+    # the editor left around it with it.
+    return re.sub(r"\s*\x06\s*", "  \n", t).strip()
 
 
 def link(href: str, label: str, on_link) -> str:

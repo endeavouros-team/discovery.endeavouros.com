@@ -30,9 +30,9 @@ Give your root password to enter the system.
 If you are using [grub](https://wiki.archlinux.org/index.php/GRUB) and the graphical interface won't boot up, just restart your machine and follow the next steps:
 
 - Press **e** when the grub-boot menu appears.
-- Use the arrow keys to find the line that looks like this: 
+- Use the arrow keys to find the line that looks like this:  
 `linux /vmlinuz=linux root=UUID=...... rw quiet resume=....` (… = long snake of numbers)
-- put **systemd.unit=multi-user.target** right after **rw** like this: 
+- put **systemd.unit=multi-user.target** right after **rw** like this:  
 `rw systemd.unit=multi-user.target resume=....`
 - I recommend removing **quiet** to get more informational output on boot (leave the rest untouched!!!)
 - Press **Ctrl+X** to boot with this parameter.

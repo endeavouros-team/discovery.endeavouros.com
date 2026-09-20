@@ -24,10 +24,10 @@ This article covers configuring audio for optimal playback quality in Arch Linux
 
 ## Changing sample rate
 
-By default PipeWire sets a global sample rate of 48kHz. If you need to change it (e.g. you own a DAC supporting a higher value) you can do it by editing the line `default.clock.rate = 48000` in the configuration file `~/.config/pipewire/pipewire.conf`. For example, if you want 192kHz, uncomment and change value `48000` to `default.clock.rate = 192000`. 
- 
-PipeWire can also change output sample rates supported by your DAC. To configure, uncomment and set the line `default.clock.allowed-rates = [ 48000 ]`, for example, `[ 44100 48000 88200 96000 ]`. The sample rate follows the sample rate of the audio stream being played when the card is idle. 
- 
+By default PipeWire sets a global sample rate of 48kHz. If you need to change it (e.g. you own a DAC supporting a higher value) you can do it by editing the line `default.clock.rate = 48000` in the configuration file `~/.config/pipewire/pipewire.conf`. For example, if you want 192kHz, uncomment and change value `48000` to `default.clock.rate = 192000`.  
+  
+PipeWire can also change output sample rates supported by your DAC. To configure, uncomment and set the line `default.clock.allowed-rates = [ 48000 ]`, for example, `[ 44100 48000 88200 96000 ]`. The sample rate follows the sample rate of the audio stream being played when the card is idle.  
+  
 To check out which output sample rate and sample format are the data sent to DAC (probably you need to change digits):
 
 `cat /proc/asound/card0/pcm0p/sub0/hw_params`
@@ -38,10 +38,10 @@ To check out which input sample rate is used, change `pcm0p` to `pcm0c` (`c` is 
 
 ## Resampling quality
 
-If you used PulseAudio with `resample-method = speex-float-10` or `soxr-vhq`, then you might consider uncommenting and changing `resample.quality = 4` to `10` or the maximum `15` in `stream.properties` block in both `~/.config/pipewire`/client.conf and `~/.config/pipewire`/pipewire-pulse.conf (copy them from `/usr/share/pipewire/` if they do not exist). Do not forget to restart PipeWire (without sudo): `systemctl --user restart pipewire.service pipewire-pulse.socket` (never forget `pipewire-pulse.socket` if you want your config changes to be applied). 
- 
-There is a very little quality difference between `10` and `15`, but the CPU load difference is 2-3x. And the latency difference between `4`, `10`, `15` is yet to be investigated by anybody. `resample.quality = 15` on 44100→48000 Hz on Ryzen 2600 causes `pipewire` or `pipewire-pulse` processes to cause 4.0% one CPU core load. 
- 
+If you used PulseAudio with `resample-method = speex-float-10` or `soxr-vhq`, then you might consider uncommenting and changing `resample.quality = 4` to `10` or the maximum `15` in `stream.properties` block in both `~/.config/pipewire`/client.conf and `~/.config/pipewire`/pipewire-pulse.conf (copy them from `/usr/share/pipewire/` if they do not exist). Do not forget to restart PipeWire (without sudo): `systemctl --user restart pipewire.service pipewire-pulse.socket` (never forget `pipewire-pulse.socket` if you want your config changes to be applied).  
+  
+There is a very little quality difference between `10` and `15`, but the CPU load difference is 2-3x. And the latency difference between `4`, `10`, `15` is yet to be investigated by anybody. `resample.quality = 15` on 44100→48000 Hz on Ryzen 2600 causes `pipewire` or `pipewire-pulse` processes to cause 4.0% one CPU core load.  
+  
 PipeWire uses its own resampling algorithm called Spa. Like with SoX's `sox`, Speex's `speexenc`, PipeWire includes its standalone version: `spa-resample`. Usage:
 
 `spa-resample -q 15 -f s24 -r 48000 input16bit44100orAnythingElse.wav output24bit48000hz.wav`
@@ -76,10 +76,10 @@ And edit the file accordingly to your needs.
 
 **pipewire-media-session**:
 
-Using matching rules using *[pipewire-](https://archlinux.org/packages/extra/x86_64/pipewire-media-session/)[media](https://archlinux.org/packages/extra/x86_64/pipewire-media-session/)[-session](https://archlinux.org/packages/extra/x86_64/pipewire-media-session/)* (package) we can set properties for devices. 
- 
-Copy the default configuration of `alsa-monitor.conf` for *pipewire-media-session* into `~/.config/pipewire/media-session.d`. Then append a new rule-block similar to the following one: 
- 
+Using matching rules using *[pipewire-](https://archlinux.org/packages/extra/x86_64/pipewire-media-session/)[media](https://archlinux.org/packages/extra/x86_64/pipewire-media-session/)[-session](https://archlinux.org/packages/extra/x86_64/pipewire-media-session/)* (package) we can set properties for devices.  
+  
+Copy the default configuration of `alsa-monitor.conf` for *pipewire-media-session* into `~/.config/pipewire/media-session.d`. Then append a new rule-block similar to the following one:  
+  
 `~/.config/pipewire/media-session.d/alsa-monitor.conf`
 
 ```
@@ -104,10 +104,10 @@ api.alsa.period-size = 128
 }
 ```
 
-`alsa_output.<name of node>` node can be obtained using `pw-top`. 
- 
-Your DAC might support a different format or sample rate. You can check what your DAC supports by querying [ALSA](https://wiki.archlinux.org/title/ALSA): 
- 
+`alsa_output.<name of node>` node can be obtained using `pw-top`.  
+  
+Your DAC might support a different format or sample rate. You can check what your DAC supports by querying [ALSA](https://wiki.archlinux.org/title/ALSA):  
+  
 First get the card number of your DAC:
 
 `aplay -l`

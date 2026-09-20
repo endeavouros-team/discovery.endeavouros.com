@@ -78,11 +78,11 @@ Open the Settings and click on shared Folders.
 
 Add a share [1] and give the needed path to the host folder [2] finally mark it to automount [3]
 
-**On the booted guest (inside the VM):** 
-`sudo pacman -S virtualbox-guest-utils` 
-`sudo systemctl enable vboxservice.service` 
-→ reboot vm 
-`sudo modprobe vboxsf` 
+**On the booted guest (inside the VM):**  
+`sudo pacman -S virtualbox-guest-utils`  
+`sudo systemctl enable vboxservice.service`  
+→ reboot vm  
+`sudo modprobe vboxsf`  
 `sudo usermod -aG vboxsf $USER`
 
 After a reboot of the VM you should be able to access the shared folder as the normal user inside the VM.

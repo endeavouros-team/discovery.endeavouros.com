@@ -48,7 +48,7 @@ On many processors (such as Tiger Lake, Alder Lake, and Raptor Lake) and discret
 
 If auto-detection falls back to `i915` or you want to explicitly force the `xe` driver on supported hardware, you can prevent `i915` from probing your device and instruct `xe` to take over using kernel parameters.
 
-1. First, find your GPU’s PCI device ID using `lspci`:`lspci -nn | grep -i vga `Or for discrete graphics / Arc cards:`lspci -nn | grep -i display `Example output: `00:02.0 VGA compatible controller [0300]: Intel Corporation Raptor Lake-S GT1 [UHD Graphics 770] [8086:a780] (rev 04)` 
+1. First, find your GPU’s PCI device ID using `lspci`:`lspci -nn | grep -i vga `Or for discrete graphics / Arc cards:`lspci -nn | grep -i display `Example output: `00:02.0 VGA compatible controller [0300]: Intel Corporation Raptor Lake-S GT1 [UHD Graphics 770] [8086:a780] (rev 04)`  
 In this example, the PCI ID is `a780`.
 2. Add the force-probe kernel parameters (detailed below in the bootloader section):`i915.force_probe=!a780 xe.force_probe=a780`
 

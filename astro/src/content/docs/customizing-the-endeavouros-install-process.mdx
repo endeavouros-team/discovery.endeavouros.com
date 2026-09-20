@@ -18,12 +18,12 @@ EndeavourOS provides users a couple of ways to customize what to install. Just b
 This is the easy way to add your favorite package names to be installed. After booting up the installer USB:
 
 - open a terminal
-- run command 
-` nano ~/user_pkglist.txt` 
+- run command  
+` nano ~/user_pkglist.txt`  
 and add the names of packages you want to install to the file
 - close the Welcome window
-- start Welcome again with command 
- ` eos-welcome`
+- start Welcome again with command  
+` eos-welcome`
 
 Note that there are some rules/restrictions:
 
@@ -41,12 +41,12 @@ You will find a group added on the package screen of the installer where you can
 
 This is a much more advanced feature. Basically it provides user the opportunity to modify the installer and the installed system in various ways using bash language and usual commands (like pacman). Note that a reasonable knowledge of the bash language and typical linux commands is needed.
 
-For example, this feature makes possible to 
-- configure calamares settings 
-- add new package sources 
-- install or remove packages 
-- start or stop systemd services 
-- change settings for the user created at install 
+For example, this feature makes possible to  
+- configure calamares settings  
+- add new package sources  
+- install or remove packages  
+- start or stop systemd services  
+- change settings for the user created at install  
 and much more.
 
 Note that the usage of this feature changed slightly from Galileo neo to Gemini.
@@ -80,8 +80,8 @@ Note that file `user_commands.bash` on the *liveuser* contains more details and 
 
 ##### Gemini and later
 
-Now we have two files instead of one: 
-1) `~/user-commands-before.bash` 
+Now we have two files instead of one:  
+1) `~/user-commands-before.bash`  
 2) `~/user_commands.bash`
 
 The first file is meant for making user defined configurations to *calamares* before starting the installer. It takes one parameter, the install mode (either **online** or **offline**).
@@ -92,9 +92,9 @@ So these two files do the same things that only one file did in *Galileo neo*. T
 
 Note that templates of both files exist on the *liveuser*. They include more details and tips.
 
-**Tip**: if you already have file `user_commands.bash` for Galileo neo, you can use it as follows: 
-- remove file `~/user-commands-before.bash` on the liveuser 
-- symlink `~/user-commands-before.bash` to `~/user_commands.bash` 
+**Tip**: if you already have file `user_commands.bash` for Galileo neo, you can use it as follows:  
+- remove file `~/user-commands-before.bash` on the liveuser  
+- symlink `~/user-commands-before.bash` to `~/user_commands.bash`  
 provided the parameter handling is fixed to comply with the explanation above.
 
 For example:
@@ -123,14 +123,14 @@ Or, you can use your personal URL file which contains your commands! To use the 
 
 `eos-welcome --ni="URL"`
 
-and welcome will fetch your command file and use it as user_commands.bash. 
+and welcome will fetch your command file and use it as user_commands.bash.  
 Note that the URL must start with either `https://` or `http://` because only these protocols are supported.
 
 ## [](https://forum.endeavouros.com/t/how-to-customize-your-endeavouros-install-process/25482#conclusion-5)
 
 #### Conclusion
 
-Please look at the files mentioned above on the ISO. They contain more tips and details, which should help you use them. 
+Please look at the files mentioned above on the ISO. They contain more tips and details, which should help you use them.  
 Hope you’ll enjoy these customization possibilities!
 
 ---

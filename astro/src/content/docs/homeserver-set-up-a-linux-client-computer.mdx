@@ -11,8 +11,8 @@ import cover from "../../assets/articles/homeserver-set-up-a-linux-client-comput
 
 By Pudge
 
-On a CLIENT Linux Computer with a Desktop Environment or Window Manager, open a terminal window. Use the static IP address you established for the server and the hostname you decided on. This will establish the route to the server. For configuration files owned by root, use vi or nano to edit these files. 
- 
+On a CLIENT Linux Computer with a Desktop Environment or Window Manager, open a terminal window. Use the static IP address you established for the server and the hostname you decided on. This will establish the route to the server. For configuration files owned by root, use vi or nano to edit these files.  
+  
 Add the following line to the end of /etc/hosts Your info may be different from the example.
 
 ```
@@ -58,7 +58,7 @@ The above dialogue is a one-time thing. Type in “yes”, the connection should
 [pshare@enosServer ~]$
 ```
 
-You are now logged into enosServer as user pshare. Pay attention to the prompt, it will always let you know which computer you are in and the user name. The SSH server on enosServer was configured to NOT allow login as root. If you need to use root for administration, type in su and enter your server’s root password. Anything you type in the Terminal window will now be executed in the enosServer computer. You can execute 
+You are now logged into enosServer as user pshare. Pay attention to the prompt, it will always let you know which computer you are in and the user name. The SSH server on enosServer was configured to NOT allow login as root. If you need to use root for administration, type in su and enter your server’s root password. Anything you type in the Terminal window will now be executed in the enosServer computer. You can execute  
 pacman -Syu or perform other administrative routines. Type in
 
 ```
@@ -79,7 +79,7 @@ $ ls -l .ssh
      -rw-r--r--. 1 don don 406 Jun 8 2019 id_something.pub
 ```
 
-If the ls -l command produces the above results, you already have ssh keys. You can skip the next section. If you don’t have ssh keys, enter the following commands. For "message" you can use the computer's hostname or any message that will easily 
+If the ls -l command produces the above results, you already have ssh keys. You can skip the next section. If you don’t have ssh keys, enter the following commands. For "message" you can use the computer's hostname or any message that will easily  
 Identify your Client computer.
 
 ```
@@ -104,7 +104,7 @@ In a terminal as user
 $ ssh-copy-id -i ~/.ssh/id_ed25519.pub pshare@enosServer
 ```
 
-enter pshare’s password when requested. 
+enter pshare’s password when requested.  
 You will be returned to your client’s prompt. Now try to log into enosServer
 
 ```
@@ -119,5 +119,5 @@ You should now be logged in to enosServer as pshare without having to enter your
 
 repeat exit until back in the client computer.
 
-Go to the next tutorial in the series: 
+Go to the next tutorial in the series:  
 Homeserver 2 - Use FUSE and SSHFS to view server data in a file manager

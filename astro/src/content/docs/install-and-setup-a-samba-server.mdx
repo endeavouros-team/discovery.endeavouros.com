@@ -9,12 +9,12 @@ import cover from "../../assets/articles/install-and-setup-a-samba-server/sambah
 
 <Image src={cover} alt="" class="cover" loading="eager" width={506} />
 
-On a Linux Client computer, in a Terminal window, SSH into the headless enosServer. 
-`$ ssh pshare@enosServer` 
-`$ su` 
+On a Linux Client computer, in a Terminal window, SSH into the headless enosServer.  
+`$ ssh pshare@enosServer`  
+`$ su`  
 `# pacman -Syu samba`
 
-A smb.conf file is not supplied as part of the samba package. 
+A smb.conf file is not supplied as part of the samba package.  
 EndeavourOS includes a /etc/samba/smb.conf file during the script installation.
 
 ```bash
@@ -22,9 +22,9 @@ ls -l /etc/samba
 -rw-r- - r- - 1 root root 8105 Mar 27 03:55 smb.conf
 ```
 
-look for a smb.conf file. Check the permissions and ownership compared to above. 
-If so, all our necessary config files are in place. 
-`# vi /etc/samba/smb.conf` 
+look for a smb.conf file. Check the permissions and ownership compared to above.  
+If so, all our necessary config files are in place.  
+`# vi /etc/samba/smb.conf`  
 Find the following lines
 
 ```ini
@@ -35,13 +35,13 @@ Find the following lines
    workgroup = WORKGROUP
 ```
 
-Change 
-` workgroup = WORKGROUP` 
- to 
+Change  
+` workgroup = WORKGROUP`  
+to  
 ` workgroup = YOURWORKGROUPNAME`
 
-Still in "Global Settings" find the following line 
-`hosts allow = 127. 192.168.0.` 
+Still in "Global Settings" find the following line  
+`hosts allow = 127. 192.168.0.`  
 if necessary, adjust` 192.168.0.` to the first three triads of your router's address.
 
 Find the following lines at the very end of the the file
@@ -57,22 +57,22 @@ printable = no
 create mask = 0765
 ```
 
-If desired, change the share name `[ENOSshare]` to something else. 
-The share name ENOSshare is case sensitive. 
-Change `valid users = pshare` to your username if you chose to change it. 
-Possibly change the path name of the server's data partition in the `path =` section. 
-Don’t change anything else except the lines mentioned above. 
-Close the editor. After editing, test the changes that were made. 
-`# testparm` 
+If desired, change the share name `[ENOSshare]` to something else.  
+The share name ENOSshare is case sensitive.  
+Change `valid users = pshare` to your username if you chose to change it.  
+Possibly change the path name of the server's data partition in the `path =` section.  
+Don’t change anything else except the lines mentioned above.  
+Close the editor. After editing, test the changes that were made.  
+`# testparm`  
 Should not be any errors. If errors occur check the smb.conf file for typos or other mistakes.
 
-Set a samba password to access this share from a Windows machine. 
-`# smbpasswd -a pshare` 
-New SMB password: `EnterAPassword` 
-Retype new SMB password: `Re-enter the same password` 
+Set a samba password to access this share from a Windows machine.  
+`# smbpasswd -a pshare`  
+New SMB password: `EnterAPassword`  
+Retype new SMB password: `Re-enter the same password`  
 password can be whatever you want and does not need to be an existing password.
 
-It is assumed firewalld was installed on the headless server. 
+It is assumed firewalld was installed on the headless server.  
 Next we set up the Server's firewall for samba.
 
 ```bash
@@ -84,6 +84,6 @@ systemctl enable --now smb.service
 systemctl enable --now nmb.service
 ```
 
-The headless server is now ready to serve a Windows client. 
-Restart the enosServer computer. 
+The headless server is now ready to serve a Windows client.  
+Restart the enosServer computer.  
 `#systemctl reboot`

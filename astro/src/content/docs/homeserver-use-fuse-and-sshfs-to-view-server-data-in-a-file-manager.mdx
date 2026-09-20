@@ -11,7 +11,7 @@ import cover from "../../assets/articles/homeserver-use-fuse-and-sshfs-to-view-s
 
 By Pudge
 
-Now we will set up FUSE and sshfs to utilize a terminal window to access the files on the server. 
+Now we will set up FUSE and sshfs to utilize a terminal window to access the files on the server.  
 In the Linux CLIENT COMPUTER open a terminal window, as user install sshfs.
 
 `$ sudo pacman -S --needed sshfs`
@@ -46,7 +46,7 @@ Use the following to unmount enosServer. In the Client computer terminal type in
 
 `$ fusermount -u /home/$USER/enosServer`
 
-Direct your terminal manager to the /home/$USER/enosServer directory, and it should be empty. Because 
+Direct your terminal manager to the /home/$USER/enosServer directory, and it should be empty. Because  
 there isn’t a remote directory mounted there anymore.
 
 ## *AUTOMATE THE MOUNTING PROCESS*
@@ -68,41 +68,41 @@ Look for a directory named bin. If bin doesn’t appear, use mkdir to create one
 
 After creating bin, you may want to change the permissions for security reasons
 
-`$ chmod 700 /home/$USER/bin` 
+`$ chmod 700 /home/$USER/bin`  
 `$ cd /home/$USER/bin`
 
 Using your favorite text editor, create a file named AutoMountServer.sh and add these lines
 
-`$ vi /home/$USER/bin/AutoMountServer.sh ` 
-`#!/bin/bash` 
-`sshfs pshare@enosServer:/server /home/$USER/enosServer` 
-`exit` 
- 
- Type in exit as the last line of the file, then close the file 
- 
-`$ chmod 754 /home/$USER/bin/AutoMountServer.sh` 
-`$ ls -l` /home/$USER/bin 
-` -rwxr-xr- - don don 47 Jan 8 AutoMountServer.sh` 
+`$ vi /home/$USER/bin/AutoMountServer.sh `  
+`#!/bin/bash`  
+`sshfs pshare@enosServer:/server /home/$USER/enosServer`  
+`exit`  
+  
+Type in exit as the last line of the file, then close the file  
+  
+`$ chmod 754 /home/$USER/bin/AutoMountServer.sh`  
+`$ ls -l` /home/$USER/bin  
+` -rwxr-xr- - don don 47 Jan 8 AutoMountServer.sh`  
 `$ sudo pacman -Syu --needed alacarte`
 
-On the Desktop, click on Start button at the left of the panel. Go to` Settings – Main Menu` 
+On the Desktop, click on Start button at the left of the panel. Go to` Settings – Main Menu`  
 In the left-hand column, select `System` – then click on `+ New Item`
 
 ![](../../assets/articles/homeserver-use-fuse-and-sshfs-to-view-server-data-in-a-file-manager/enos-server-2.png)
 
-Fill in Name: with what ever you want to call this launcher 
-Fill in Command: Browse to `/home/username/bin/AutoMountServer.sh` 
-Fill in Comment: with whatever you want 
-Launch in Terminal? Leave it unchecked 
+Fill in Name: with what ever you want to call this launcher  
+Fill in Command: Browse to `/home/username/bin/AutoMountServer.sh`  
+Fill in Comment: with whatever you want  
+Launch in Terminal? Leave it unchecked  
 Click on image at the left and navigate to a desired icon
 
 + Other Locations – Computer – usr – share – icons – Adwatia – 32×32 – devices – drive-harddisk.png
 
-select the icon, back in Launcher Properties click OK 
+select the icon, back in Launcher Properties click OK  
 For convenience, highlight AutoMount Server. then click on ^Move up until it is the first entry at the top.
 
-Log off, then Log in so XFCE4 can detect the changes. 
-/home/$USER/enosServer should be empty. 
-Click on the `Start button – System – AutoMountServer` 
-The server should be mounted on the enosServer directory 
+Log off, then Log in so XFCE4 can detect the changes.  
+/home/$USER/enosServer should be empty.  
+Click on the `Start button – System – AutoMountServer`  
+The server should be mounted on the enosServer directory  
 You could right-click on the launcher and add it to the Desktop or the Panel.

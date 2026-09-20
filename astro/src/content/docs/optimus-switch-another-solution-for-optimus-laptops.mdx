@@ -123,7 +123,7 @@ sudo ./install.sh
 
 To switch modes, open a terminal and type the following:
 
-For nVidia mode – `sudo set-nvidia.sh` 
+For nVidia mode – `sudo set-nvidia.sh`  
 For Intel mode – `sudo set-intel.sh`
 
 Then restart the laptop.
@@ -139,7 +139,7 @@ Optimus Switch uses the functions in the `acpi_call` package to turn off the nVi
 3. Read through the list of options displayed looking for the line that says “works!”
 4. Highlight and copy that line.
 5. Open the file `/etc/switch/intel/no-optimus.sh` by typing `sudo nano /etc/switch/intel/no-optimus.sh`
-6. Near the end of the file, two lines are commented out (#). Remove the (#) and replace the first 
+6. Near the end of the file, two lines are commented out (#). Remove the (#) and replace the first  
 line with what you copied above.
 
 `Example:`
@@ -185,7 +185,7 @@ If you are like me, you prefer doing things with a GUI. Also, it would be nice t
 
 `sudo pacman -S libappindicator-gtk3 libappindicator-gtk2 libnotify`
 
-**Additional requirement for Gnome** – Make sure you have the *KStatusNotifierItem/AppIndicator Support* 
+**Additional requirement for Gnome** – Make sure you have the *KStatusNotifierItem/AppIndicator Support*  
 extension [link](https://extensions.gnome.org/extension/615/appindicator-support/) installed and activated. Without this extension, the icon will not display in the top bar’s system tray or in the system tray if you use the Dash to Panel extension.
 
 **Additional requirement for LXQT** – The `GTK3` package needs to be installed.

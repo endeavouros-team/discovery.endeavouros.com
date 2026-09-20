@@ -17,7 +17,7 @@ A corrupted Pacman database usually is caused by sudden power loss when the syst
 
 Automated backup In order to keep the back up up-to-date; automation of the aforementioned backup command makes sense.
 
-This can be realized with the tool [pakbak-git [AUR]](https://aur.archlinux.org/packages/pakbak-git) 
+This can be realized with the tool [pakbak-git [AUR]](https://aur.archlinux.org/packages/pakbak-git)  
 Pakbak is a bash script that is triggered by a Systemd service once the contents of the **/var/lib/**pacman**/local** directory have been changed.
 
 After installing Pakbak, the destination and the number of backups to be kept in rotation can be set.
@@ -35,7 +35,7 @@ keep_number = 5
 
 ## Note:
 
-The target directory must be created or already exist. 
+The target directory must be created or already exist.  
 Environment variables in the path, such as $HOME will not be processed.
 
 ## test if it is working

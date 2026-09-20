@@ -49,8 +49,8 @@ This leaves only the size of such things as toolbars (play. pause and stop butto
 
 The final 'tweak' is a global setting to inform those applications that use the **QT** decoration scheme that you wish a size increase of its UI elements. XFCE is a GTK-based setup, and it can be better to have the QT apps looking similar if you can. There are several ways of making this happen (see the Archwiki [https://wiki.archlinux.org/title/Uniform_look_for_Qt_and_GTK_applications](https://wiki.archlinux.org/title/Uniform_look_for_Qt_and_GTK_applications) for more) - my solution involves adding 3 statements entered in a file that will be executed when you start up - such as **.bashrc** - or from a file that .bashrc calls (perhaps **.bashrc-personal** or **.bash_aliases**), or even in **~.profile**. These statements are:
 
-**export QT_QPA_PLATFORMTHEME=qt5ct 
-export QT_SCALE_FACTOR=1.5 
+**export QT_QPA_PLATFORMTHEME=qt5ct  
+export QT_SCALE_FACTOR=1.5  
 export QT_STYLE_OVERRIDE=kvantum**
 
 and they can be added to the .bashrc file (or another as you choose) using any text-capable editor. (nano, micro, leafpad, mousepad, featherpad, gedit - whatever you have or like for the task). They will most simply take effect after a relogin.

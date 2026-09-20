@@ -19,7 +19,7 @@ This article will guide you through the setup of game launchers on Arch Linux.
 2. **[Lutris](#lutris)**
 3. **[Wine](#wine)**
 
-> **Sources:** 
+> **Sources:**  
 [**Linux gaming guide**](https://forum.endeavouros.com/t/linux-gaming-guide/7339) by **@[keybreak](https://forum.endeavouros.com/u/keybreak)**
 
 ## Steam
@@ -35,7 +35,7 @@ This article will guide you through the setup of game launchers on Arch Linux.
 
 Keep in mind that **Proton** will be installed in the same library as the first Steam Play game you try to launch, and will only be installed in one location.
 
-- Game **PREFIX** location, where [appid] is your game id: (look up **[steamdb](https://steamdb.info/)** if in doubt) 
+- Game **PREFIX** location, where [appid] is your game id: (look up **[steamdb](https://steamdb.info/)** if in doubt)  
 `~/.steam/steam/steamapps/compatdata/[appid]/pfx/`
 
 **[More Proton FAQ](https://github.com/ValveSoftware/Proton/wiki/Proton-FAQ)**
@@ -65,7 +65,7 @@ yay -S game-devices-udev
    - Steam -> Settings -> Steam Play
    - ✓ Enable Steam Play for supported titles.
    - ✓ Enable Steam Play for all other titles.
-   - ▾ **Run other titles with...** 
+   - ▾ **Run other titles with...**  
 (here you can choose a **Proton** version which will be used globally)
 
 ### 2. Install games
@@ -79,7 +79,7 @@ Now you're ready to install games!
 
 ### 3. Configuration
 
-To configure **Proton** through Environment variables, which you may see in **protondb** reports; 
+To configure **Proton** through Environment variables, which you may see in **protondb** reports;  
 (see available **[options](https://github.com/ValveSoftware/Proton#runtime-config-options)**)
 
 1. Select game title on left panel.
@@ -88,10 +88,10 @@ To configure **Proton** through Environment variables, which you may see in **pr
 
 - To disable variable, add `=0` after
 - To enable, use non `0` values
-- For example, let's enable **[DXVK HUD](https://github.com/doitsujin/dxvk#hud)** 
+- For example, let's enable **[DXVK HUD](https://github.com/doitsujin/dxvk#hud)**  
 `DXVK_HUD=full %command%`
-- Install additional original Windows libraries with **Winetricks** (if required), where [appid] is your game id: 
-(look up **[steamdb](https://steamdb.info/)** if in doubt) 
+- Install additional original Windows libraries with **Winetricks** (if required), where [appid] is your game id:  
+(look up **[steamdb](https://steamdb.info/)** if in doubt)  
 `WINEPREFIX="~/.steam/root/steamapps/compatdata/[appid]/pfx/" winetricks "win7"`
 
 To use specific version of **Proton** for specific game (may be useful if latest has problems);
@@ -101,7 +101,7 @@ To use specific version of **Proton** for specific game (may be useful if latest
    - ✓ Force the use of a specific Steam Play compatibility tool.
    - ▾ From dropdown menu choose **Proton** engine.
 
-Install custom **Proton** engine; 
+Install custom **Proton** engine;  
 (eg. **[GloriousEggroll](https://github.com/GloriousEggroll/proton-ge-custom/releases)** or **[TK-Glitch](https://github.com/Frogging-Family/wine-tkg-git/releases)**)
 
 1. Create `~/.steam/root/compatibilitytools.d` directory, if it does not exist.
@@ -111,15 +111,15 @@ Install custom **Proton** engine;
 
 - Change default location for games library;
   - Steam -> Settings -> Downloads -> Steam library folders
-  - Add library folder 
+  - Add library folder  
 (you can choose for example another drive)
-  - Right 🖱 Button -> Make Default folder 
+  - Right 🖱 Button -> Make Default folder  
 (if you want it as default)
 
 - If you want to use NTFS disks with Linux Steam: **[Using a NTFS disk with Linux and Windows](https://github.com/ValveSoftware/Proton/wiki/Using-a-NTFS-disk-with-Linux-and-Windows)**
-- Create log file to check if everything fine or file a bug, use Environment variable: 
+- Create log file to check if everything fine or file a bug, use Environment variable:  
 `PROTON_LOG=1 %command%`
-- Log will be saved at this location, where [appid] is your game id (look up **[steamdb](https://steamdb.info/)** if in doubt): 
+- Log will be saved at this location, where [appid] is your game id (look up **[steamdb](https://steamdb.info/)** if in doubt):  
 `~/steam-[appid].log`
 
 ### 4. Problems
@@ -135,17 +135,17 @@ Install custom **Proton** engine;
 
 ## Lutris
 
-Best all-around game launcher, can be used for: **Wine**, **Steam**, **Native**, **Emulators** 
+Best all-around game launcher, can be used for: **Wine**, **Steam**, **Native**, **Emulators**  
 See how at **[2. Configuration](#2-configuration)** and **[4. Game configuration](#4-game-configuration)**.
 
-- Config locations: 
-`~/.config/lutris` 
+- Config locations:  
+`~/.config/lutris`  
 `~/.local/share/lutris`
-- Icons created by **Lutris** (might be useful to backup / transfer your library): 
+- Icons created by **Lutris** (might be useful to backup / transfer your library):  
 `~/.local/share/icons/hicolor/128x128/apps`
-- Wine / Proton engines location: 
+- Wine / Proton engines location:  
 `~/.local/share/lutris/runners/wine`
-- A lot of useful libraries & runtimes which for example allow to easily run **Proton** without steam client! 
+- A lot of useful libraries & runtimes which for example allow to easily run **Proton** without steam client!  
 `~/.local/share/lutris/runtime`
 
 ### 1. Setup
@@ -163,8 +163,8 @@ You can configure **Defaults** for each runner (default settings when you add ne
 1. On left panel hover 🖱 over **Wine** tab and select ⚙ cog.
 2. ✓ **Show advanced options** on bottom left.
 3. Runner options tab:
-   - **Wine version** - most important, here you can set / update the default **Engine** which will be used for all games. It can use anything installed: **System, PlayOnLinux, Steam,** or any **Engine** put in: 
-`text ~/.local/share/lutris/runners/wine` 
+   - **Wine version** - most important, here you can set / update the default **Engine** which will be used for all games. It can use anything installed: **System, PlayOnLinux, Steam,** or any **Engine** put in:  
+`text ~/.local/share/lutris/runners/wine`  
 `text ~/.PlayOnLinux/wine/linux-amd64`
    - ✓ **Enable DXVK/VKD3D** - useful to turn off globally, if your GPU doesn't support Vulkan.
 4. System options tab:
@@ -177,17 +177,17 @@ You can configure **Defaults** for each runner (default settings when you add ne
 2. Game info tab
    - **Name** - enter name of your game, you can name it whatever makes sense for you.
    - **Runner** - select **Wine**.
-   - **Release year** - optional, but nice in case you have big library. 
+   - **Release year** - optional, but nice in case you have big library.  
 (you can look up year of your game in **[PCgamingWiki](https://www.pcgamingwiki.com/wiki/Home)**)
 3. Game options tab
-   - **Executable** 
-Some games have multiple executables, prefer **x64** ones first! 
+   - **Executable**  
+Some games have multiple executables, prefer **x64** ones first!  
 `text ~/.PlayOnLinux/wineprefix/Crysis/drive_c/Games/Crysis/Bin64/Crysis.exe`
-   - **Wine prefix** 
+   - **Wine prefix**  
 `text ~/.PlayOnLinux/wineprefix/Crysis`
 4. **Save** - your game will now be available on the list.
-5. If there's no game image, that's caused by **Name** not being exactly identical to its database one. 
-Fix with **Identifier**. Look up the game on **[Lutris db](https://lutris.net/games/crysis/)** 
+5. If there's no game image, that's caused by **Name** not being exactly identical to its database one.  
+Fix with **Identifier**. Look up the game on **[Lutris db](https://lutris.net/games/crysis/)**  
 Get this ID: `https://lutris.net/games/crysis`/ and paste it into **Game settings**.
 6. Select game, Right 🖱 Button -> Configure
 7. **Identifier** Change and paste `crysis`.
@@ -209,11 +209,11 @@ Here are some essential configuration options to know.
 1. System options tab:
    - ✓ **Disable Lutris runtime**
 2. Game options tab:
-   - **Arguments** - a very useful option to pass game command-line options. 
+   - **Arguments** - a very useful option to pass game command-line options.  
 (for example in **Crysis** to force DirectX 10 mode: `-dx10`)
 3. Install game.
 
-**Lutris** can auto-install the required **Engine** and **Winetricks**. Also you can download an **Install script**. 
+**Lutris** can auto-install the required **Engine** and **Winetricks**. Also you can download an **Install script**.  
 ⚠ Install scripts are not always a recommended method of installation;
 
 - Scripts are made by regular users and can be outdated or not follow current best practices.
@@ -236,8 +236,8 @@ Disable Lutris runtime either globally or for specific game.
 
 📖 **TL;DR**
 
-1. Create non-system **WINEPREFIX** with non-system **Wine (amd64)**: 
-**[POL](https://www.playonlinux.com/wine/binaries/phoenicis/)** (staging-linux-amd64, upstream-linux-amd64) 
+1. Create non-system **WINEPREFIX** with non-system **Wine (amd64)**:  
+**[POL](https://www.playonlinux.com/wine/binaries/phoenicis/)** (staging-linux-amd64, upstream-linux-amd64)  
 ⚠ It's better to use separate prefix for each game.
 2. Check **[protondb](https://www.protondb.com/)** and **[lutris](https://lutris.net/)** for game state / recommendations.
 3. Install game. (prefer DRM-free installers like **[GOG](https://www.gog.com/)**)
@@ -249,13 +249,13 @@ Disable Lutris runtime either globally or for specific game.
 💡 TIP: Do NOT launch wine / winetricks directly from launcher or terminal without ENVIRONMENT VARIABLES, as this will add unnecessary stuff and mess with your mime-associations, icons, etc.
 ```
 
-- Default **WINEPREFIX** for system version of Wine: 
-(not needed for games, can be safely removed if not used by anything else) 
+- Default **WINEPREFIX** for system version of Wine:  
+(not needed for games, can be safely removed if not used by anything else)  
 `~/.wine`
-- **Mono** (FOSS .NET by Wine) & **Gecko** (FOSS Internet Explorer by Wine) installers location: 
-(both auto-installed while creating **WINEPREFIX**) 
+- **Mono** (FOSS .NET by Wine) & **Gecko** (FOSS Internet Explorer by Wine) installers location:  
+(both auto-installed while creating **WINEPREFIX**)  
 `~/.cache/wine`
-- Winetricks downloaded installers location: 
+- Winetricks downloaded installers location:  
 `~/.cache/winetricks`
 
 ### 1. Prepare
@@ -525,7 +525,7 @@ pacman -S wine-staging
 pacman -S winetricks
 ```
 
-1. Run **create-structure.sh** script, it will create folder structure in: 
+1. Run **create-structure.sh** script, it will create folder structure in:  
 `~/.PlayOnLinux` ├── wine │ ├── linux-amd64 │ └── linux-x86 └── wineprefix
 
 ### 3. Engine
@@ -541,25 +541,25 @@ If your game configs / saves are in an old user directory, just move them to **s
 
 Best to choose engines in the given order, in case of problems;
 
-- **[PlayOnLinux](https://www.playonlinux.com/wine/binaries/phoenicis/)** (**staging-linux-amd64**, **upstream-linux-amd64**) 
+- **[PlayOnLinux](https://www.playonlinux.com/wine/binaries/phoenicis/)** (**staging-linux-amd64**, **upstream-linux-amd64**)  
 (best place for compiled versions of original **Wine** / **Wine-staging**)
 - **[TK-Glitch](https://github.com/Frogging-Family/wine-tkg-git/releases)** (**Wine** version)
 - **[GloriousEggroll](https://github.com/GloriousEggroll/wine-ge-custom/releases)**
-- **Proton** **[Compile source](https://github.com/ValveSoftware/Proton)** or if you have **Steam** client download it and copy this dir: 
-`~/.steam/root/steamapps/common/Proton 5.0/dist` 
-...to your **Engines** path and rename it **5.0-proton**: 
+- **Proton** **[Compile source](https://github.com/ValveSoftware/Proton)** or if you have **Steam** client download it and copy this dir:  
+`~/.steam/root/steamapps/common/Proton 5.0/dist`  
+...to your **Engines** path and rename it **5.0-proton**:  
 `~/.PlayOnLinux/wine/linux-amd64/5.0-proton`
 
 Once downloaded, put engine in: `~/.PlayOnLinux/wine/linux-amd64`
 
 ### 4. Create prefix
 
-To now demonstrate a complex case, let's install **Crysis** from **GOG**. 
+To now demonstrate a complex case, let's install **Crysis** from **GOG**.  
 After all, this is the most important question of gaming: *"But can it run Crysis?!"*
 
-1. Open **create-prefix.sh** with a text editor of your choice, and change these options: 
+1. Open **create-prefix.sh** with a text editor of your choice, and change these options:  
 `# OPTIONS NAME="Crysis" ENGINE="5.11-staging"`
-2. Run **create-prefix.sh** script. This will create your prefix at: 
+2. Run **create-prefix.sh** script. This will create your prefix at:  
 `bash ~/.PlayOnLinux/wineprefix/Crysis`
 
 ```
@@ -571,13 +571,13 @@ It will be auto-created next time you run anything in PREFIX - so it's safe!
 
 ### 5. Install game
 
-1. Open **install.sh** with a text editor of your choice, and change these options: 
-`# OPTIONS SETUP="setup_crysis_2.0.0.7.exe" NAME="Crysis" ENGINE="5.11-staging"` 
+1. Open **install.sh** with a text editor of your choice, and change these options:  
+`# OPTIONS SETUP="setup_crysis_2.0.0.7.exe" NAME="Crysis" ENGINE="5.11-staging"`  
 You can use absolute or relative to Setup executable, if you use relative, like i did here - just copy script to your setup directory. Make sure your **NAME** and **ENGINE** variables are same as on **[4. Create prefix](#4-create-prefix)**.
 2. Run **install.sh** script.
-3. Follow installer steps and install to some simple location like `C:\Games\Crysis` 
-if possible avoid and **disable**; 
-Any redistributable software like **DirectX**, **Microsoft Visual C++**, etc. 
+3. Follow installer steps and install to some simple location like `C:\Games\Crysis`  
+if possible avoid and **disable**;  
+Any redistributable software like **DirectX**, **Microsoft Visual C++**, etc.  
 Create desktop icon / link.
 
 ```
@@ -588,8 +588,8 @@ Move game folder to clean Crysis PREFIX.
 Remove CrysisTemp PREFIX.
 ```
 
-1. This is a rare case, but if you look on **[Lutris db](https://lutris.net/games/crysis/)** see **Wine GOG version**. 
-Install -> dropdown ▾ -> Views install script. 
+1. This is a rare case, but if you look on **[Lutris db](https://lutris.net/games/crysis/)** see **Wine GOG version**.  
+Install -> dropdown ▾ -> Views install script.  
 You will see some **winetricks** recommendations:
 
 ```
@@ -605,20 +605,20 @@ You can try without, but in general Lutris has good recommendations.
 
 ⚠ Always recommended to add `win7` at the end of tricks, because sometimes **winetricks** reset OS to install some software properly!
 
-1. Open **tricks.sh** with text editor of your choice, and change this value: 
-`# OPTIONS TRICKS=( d3dx10_43 d3dcompiler_43 vcrun2005 win7 ) NAME="Crysis" ENGINE="5.11-staging"` 
+1. Open **tricks.sh** with text editor of your choice, and change this value:  
+`# OPTIONS TRICKS=( d3dx10_43 d3dcompiler_43 vcrun2005 win7 ) NAME="Crysis" ENGINE="5.11-staging"`  
 Make sure your **NAME** and **ENGINE** variables are same as on **[4. Create prefix](#4-create-prefix)**.
-2. Run **tricks.sh** script. 
+2. Run **tricks.sh** script.  
 Just proceed with installers windows-style, if asked about **Sending anonymous information** or something along those lines - select **NO**.
 
 ### 6. Configuration
 
-Use **Lutris** as a launcher, it will make things much easier! 
+Use **Lutris** as a launcher, it will make things much easier!  
 Read from **[Lutris](#lutris)** up to **[4. Game configuration](#4-game-configuration)**.
 
 ### 7. Problems
 
-- Installer gives errors such as: 
+- Installer gives errors such as:  
 `Runtime Error (at -1:0): Cannot Import dll: C:\users\user\Temp\is-VADAE.tmp\isskin.dll``err:module:import_dll Library MFC42.DLL (which is needed by L"C:\\users\\ready2rumbelx\\Temp\\is-L6E45.tmp\\isskin.dll") not found`
   - To solve, install those **winetricks** with **tricks.sh**: `mfc42 vcrun6`
 - Installer fails;
