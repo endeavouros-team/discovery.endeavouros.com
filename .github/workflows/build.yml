@@ -1,10 +1,9 @@
 # Build the wiki and attach the result to a Release.
 #
 # This exists because nothing in the deploy path can build the wiki. The
-# production host is the box the WordPress install ran on, and the whole premise
-# of the replacement is that nothing runs there any more -- no interpreter, no
-# toolchain, nothing writable in the webroot. So the build happens here and the
-# output is unpacked.
+# production host runs nginx and nothing else -- no interpreter, no toolchain,
+# nothing writable in the webroot. So the build happens here and the output is
+# unpacked.
 #
 # It also pins PUBLIC_INDEXABLE. Without that flag every page ships
 # `<meta name="robots" content="noindex, nofollow">` and robots.txt refuses

@@ -2,8 +2,9 @@
 
 A change gets in through a pull request against `main`. CI
 (`.github/workflows/check.yml`) runs on the pull request, and a maintainer
-merges it. Merging publishes nothing — there is no release workflow, and the
-preview host is updated by hand with `make deploy-preview`.
+merges it. Merging publishes nothing. The production host is updated only from
+a release cut by a `v*` tag (see README), and the preview host is updated by
+hand with `make deploy-preview`.
 
 ## Editing an article
 
@@ -26,7 +27,8 @@ Edit those like any other file.
 ## Adding an article
 
 Nothing is derived from the file tree, so an article missing from the sidebar is
-reachable by search and by nothing else. Three steps:
+in nobody's navigation: it is still built, and reachable by its URL and by
+search, but no page lists it. Three steps:
 
 1. Write `astro/src/content/docs/<slug>.mdx` — or `make convert
    SLUGS="<slug>"`, if it is in the WordPress export — with `title`,

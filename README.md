@@ -4,11 +4,11 @@ Discovery, the EndeavourOS wiki, rebuilt as a static site with
 [Starlight](https://starlight.astro.build) on [Astro](https://astro.build) — no runtime, no
 database, no admin panel, nothing writable in the webroot.
 
-**This has not launched.** The live wiki is still the WordPress install at
-discovery.endeavouros.com. What exists here is a preview at
-`https://eos-wiki.sradjoker.cc` — unlisted, serving `noindex` — holding 93 of Discovery's
-102 published articles; "What is not here" below names the nine that were left out and why.
-"What launch still needs" at the end is the honest list of what stands between the two.
+The wiki is live at `discovery.endeavouros.com`, confirmed on 2026-10-04 serving release
+`v2026.09.20` unchanged. It holds 93 of Discovery's 102 published articles; "What is not
+here" below names the nine that were left out and why. The preview at
+`https://eos-wiki.sradjoker.cc` — unlisted, serving `noindex` — is still where a change is
+reviewed before it is released. "After launch" at the end lists what the server still lacks.
 
 Three tasks cover most of what people come here for:
 
@@ -22,9 +22,10 @@ Three tasks cover most of what people come here for:
   `src/assets/articles/<slug>/`, the site configuration in `astro.config.mjs`, the
   hand-authored sidebar in `sidebar.json`, the brand palette in `src/styles/`. The
   build-output gates live in `astro/scripts/`, where the build can run them.
-- `deploy/` — `nginx-production.conf` is the live config, and `nginx-csp.conf` and
-  `nginx-redirects.conf` beside it are generated and committed, one by the build and one
-  from the export. The preview host's own files sit in `deploy/preview/`:
+- `deploy/` — `nginx-production.conf` is the intended production config; the host does not
+  match it yet, as "After launch" explains. `nginx-csp.conf` and `nginx-redirects.conf` beside
+  it are generated and committed, one by the build and one from the export. The preview host's
+  own files sit in `deploy/preview/`:
   `nginx-preview.conf` and `docker-compose.yml`.
 - `scripts/` — the WordPress importer, the Gutenberg conversion it shares with the main
   site, the link check, the emphasis check, the redirect map, the preview deploy.
@@ -44,11 +45,11 @@ Operational notes for the preview host are kept outside this repository.
     make convert                                  # every published article
     make convert SLUGS="gaming-101 i3-wm"         # only these
 
-The source is the WordPress export, not the live site: `discovery.endeavouros.com` has
-answered every request with a 503 maintenance page since before 6 September 2026, the REST
-API included, and the main site's news API disappeared the same way for good. The REST path
-in `scripts/convert-wp.py` still exists, behind the absence of `--wxr`, but nothing answers
-it.
+The source is the WordPress export, not the live site: the WordPress install at
+`discovery.endeavouros.com`, now retired, had answered every request with a 503 maintenance
+page since before 6 September 2026, the REST API included, and the main site's news API
+disappeared the same way for good. The REST path in `scripts/convert-wp.py` still exists,
+behind the absence of `--wxr`, but nothing answers it.
 
 The export is three files, published by Joe and kept in a plain directory beside the
 repositories — `~/Documents/code/discovery-export/` by default, `EXPORT=` to override:
@@ -183,6 +184,14 @@ rather than a `410 Gone` or a silent drop onto the front page that leaves a read
 wondering what became of the article they clicked. `firewall` is the exception it always
 was — FirewallD superseded it, so its old URL rides to `/firewalld/` instead.
 
+Category pages are not here either. WordPress served an archive at `/category/<name>/` for
+each of the 31 categories its published posts carried; Starlight has no such page, the
+sidebar groups are navigation rather than URLs, and the redirect map covers post permalinks
+only, so every one of those addresses is a 404. Twenty-six of the categories hold more than
+one article, so there is no target to derive for them — sending `/category/arm/` to any one
+of its eight articles would be a choice, not a redirect. Nobody has made that choice yet.
+Do not link to a category URL from anywhere, the main site included.
+
 ## The sidebar
 
 `astro/sidebar.json` is hand-authored and nothing generates it. It is Joe Kamprad's menu
@@ -192,9 +201,11 @@ Community — left open, with their subgroups collapsed. `astro/astro.config.mjs
 
 A group is `{"label": …, "collapsed": true, "items": […]}` and a leaf is `{"slug":
 "the-slug"}`, which takes its label from the article's own `title`. So **a new article is
-reachable only once its slug is added to this file by hand.** That is what `make convert`
-checks and what the `sidebar` warnings in a run mean: a published article in no group, a
-slug listed twice, a slug whose `.mdx` no longer exists.
+shown in the sidebar only once its slug is added to this file by hand.** That is what
+`make convert` checks and what the `sidebar` warnings in a run mean: a published article in
+no group, a slug listed twice, a slug whose `.mdx` no longer exists. Leaving a page out
+hides it from navigation and nothing more — it is still built, and still reachable by its
+URL and by search. `article-removed` is such a page on purpose.
 
 The home page's "Start here" grid is the other hand-picked list: six `LinkCard`s in
 `astro/src/content/docs/index.mdx`, nothing derived from traffic or dates, and a comment in
@@ -337,63 +348,109 @@ from — `eos-wiki-<tag>-<short sha>.tar.gz`.
 
     tar -xzf eos-wiki-v2026.09.20-*.tar.gz -C /var/www/discovery.endeavouros.com/
 
-If you would rather rsync an extracted copy, use `--delete`. It is load-bearing: it is what
-keeps the webroot holding this wiki and nothing else, and anything left beside it stays
-reachable — which for this host means the WordPress tree the rebuild exists to retire. The
-target must therefore hold **only** this site; check before running it.
+`tar -xzf` adds and replaces files but never removes one, so use it only into an empty
+directory, or a fresh one that is then swapped into place. Otherwise a page removed between
+releases, or a file something else left there, stays reachable. If you would rather rsync
+an extracted copy into the existing webroot, use `--delete`. It is load-bearing: it is what
+keeps the webroot holding this wiki and nothing else. On the previous host that meant the
+WordPress tree the rebuild exists to retire; on any host the target must hold **only** this
+site, so check before running it.
+
+The webroot and everything in it are owned by root or a dedicated deploy user, and are not
+writable by the user nginx runs as — through ownership, group or ACL. "Nothing writable in
+the webroot" is a promise the first paragraph makes and only the deploy can keep: nothing
+in the tarball or in the nginx config enforces it.
 
 ### 4. Install the nginx config
 
-`deploy/nginx-production.conf`, plus the two generated files it includes —
-`deploy/nginx-csp.conf` and `deploy/nginx-redirects.conf` — which go beside it in the
-directory the `include` lines name.
+The release tarball contains only `astro/dist`, not the three files under `deploy/`. Take
+`deploy/nginx-production.conf`, `deploy/nginx-csp.conf`, and `deploy/nginx-redirects.conf`
+from the repository at the same tag. `nginx-redirects.conf` is included at http level because
+it holds a `map`; `nginx-csp.conf` is included in the server block and again inside
+`location /_astro/`. If the files go somewhere other than `/etc/nginx/conf.d/`, change every
+include path with them.
 
 The lines marked `CONFIRM` are what has to be checked against the box: the `server_name`, the
 webroot, the TLS certificate paths and whether the certificate covers
 `discovery.endeavouros.com` at all, and the include paths. There is no `www` for this host
 and none is claimed.
 
-The last check is the one that cannot be done from here: **the WordPress vhost answering for
-`discovery.endeavouros.com` has to be disabled as this config loads.** Two server blocks
-claiming one name is resolved by include order rather than by intent, and the loser fails
-silently, so a half-done cutover looks like nothing happened. The old install is also what
-serves the dated permalinks today, and `nginx-redirects.conf` takes that job over; both
-cannot be live at once.
+Confirm that no other server block on the host claims `discovery.endeavouros.com`. Two server
+blocks claiming one name are resolved by include order rather than by intent, and the loser
+fails silently. Nothing else serves the dated permalinks, so until `nginx-redirects.conf` is
+installed they return 404, which was the state found on 2026-10-04.
 
 Then the usual:
 
     sudo nginx -t && sudo systemctl reload nginx
+
+### 5. Verify the deploy
+
+    base=https://discovery.endeavouros.com
+    curl -sS -D - -o /dev/null "$base/"
+    curl -sS -D - -o /dev/null "$base/applications/firewalld/2022/03/"
+    curl -sS -D - -o /dev/null "$base/applications/firewalld/2022/03?utm_source=deploy-check"
+    curl -sS -D - -o /dev/null "$base/video-tutorials/back-up/2021/04/"
+    asset=$(curl -fsS "$base/" | grep -o '/_astro/[^"]*' | head -1)
+    curl -sS -D - -o /dev/null "$base$asset"
+    curl -fsS "$base/robots.txt"
+
+Expected results:
+
+- `/` is 200 with `Content-Security-Policy`, `Strict-Transport-Security`,
+  `X-Content-Type-Options`, `X-Frame-Options`, `Referrer-Policy`, `Permissions-Policy`, and
+  `Cross-Origin-Opener-Policy`, and no `X-Robots-Tag`.
+- Both firewalld forms are 301 to `/firewalld/`, and the retired permalink is 301 to
+  `/article-removed/`.
+- The asset is 200 with the same seven headers and
+  `Cache-Control: public, max-age=31536000, immutable`.
+- `robots.txt` allows `/` and names the sitemap.
+
+The asset is checked separately because nginx's `add_header` in a location replaces the
+inherited header set.
 
 ## What CI does
 
 `.github/workflows/check.yml` runs on every push to `main` and every pull request: `npm ci`,
 `npm run build`, `make links`, `make check`, then `git diff --exit-code
 deploy/nginx-csp.conf` and the same check over `deploy/nginx-redirects.conf`, and
-`make emphasis` over the built pages. It publishes nothing.
-`.github/workflows/build.yml` is the one that publishes, and only a `v*` tag starts it —
-see "Deploying to production".
+`make emphasis` over the built pages. The redirect map's diff alone would always pass there,
+because the export it is generated from is not on the runner, so CI also runs
+`scripts/gen-redirects.py --check`: no key appears twice and every target is an article
+that exists. What it cannot see is a permalink deleted from the committed map — the
+remaining lines all still resolve. It publishes nothing. `.github/workflows/build.yml` is
+the one that publishes, and a `v*` tag or a manual dispatch starts it — see "Deploying to
+production".
 
 It is also what makes the wiki editable by people who do not run the toolchain. An article
 is a Markdown file that can be edited in the GitHub web UI, and that only holds if something
 builds and link-checks the result on their behalf.
 
-## What launch still needs
+## After launch
 
-Most of it is now in the repository: `astro/src/pages/robots.txt.ts` writes a `robots.txt`
-that names Starlight's `sitemap-index.xml` once `PUBLIC_INDEXABLE` is set,
+What launch needed from this repository is in it: `astro/src/pages/robots.txt.ts` writes a
+`robots.txt` that names Starlight's `sitemap-index.xml` once `PUBLIC_INDEXABLE` is set,
 `.github/workflows/build.yml` sets that flag and refuses to publish a build that does not
-honour it, `deploy/nginx-production.conf` is the live config — without the preview's
-`X-Robots-Tag` — and `deploy/nginx-redirects.conf` maps 104 old WordPress permalinks onto
-their articles here. See "Deploying to production".
+honour it, `deploy/nginx-production.conf` is the intended production config — without the
+preview's `X-Robots-Tag` — and `deploy/nginx-redirects.conf` maps 104 old WordPress
+permalinks onto their articles here.
 
-What is left is not code:
+What the server still lacked when it was probed from outside on 2026-10-04 — the content
+was right, byte for byte, and the config around it was not the one in `deploy/`:
 
-- **The `CONFIRM` lines in `deploy/nginx-production.conf`.** The `server_name`, the webroot,
-  the certificate paths and whether the certificate covers `discovery.endeavouros.com`, the
-  include paths, and the WordPress vhost being disabled as the config loads. Every one of
-  them is about the box rather than about this repository, so none can be settled from here.
-- **The verify link on the main site's download page.** On go-live day, and deliberately
-  not before, `VerifyInstructions.astro` in the site repository gains a link to
-  `/how-to-check-and-trust-key-and-signature-for-the-endeavouros-iso/` here — agreed on
-  the forum, 2026-09-08. Added any earlier it would point at the WordPress install this
-  wiki replaces, which answers with a 503.
+- **The redirect map is not installed.** Every old WordPress permalink is a 404, which is
+  every link to the wiki the forum and the search engines hold. It needs
+  `nginx-redirects.conf` included at http level and the `if ($discovery_redirect)` line in
+  the server block.
+- **No Content-Security-Policy header is sent**, on any page. It needs `nginx-csp.conf`
+  included in the server block.
+- **`/_astro/` sends two headers of seven.** `Cache-Control` and `X-Content-Type-Options`
+  arrive; the CSP and the other four do not. The `location /_astro/` block in the config
+  repeats the whole set for the reason given under "Verify the deploy".
+- **The verify link is released but not confirmed installed.** The main site's download
+  page links `/how-to-check-and-trust-key-and-signature-for-the-endeavouros-iso/` here as
+  of its `v2026.10.03`; whether that release is on the server is not known from here.
+- **Category URLs are unhandled** — see "What is not here".
+
+"Verify the deploy" is the check that closes the first three. The `CONFIRM` lines in
+`deploy/nginx-production.conf` remain the checklist for this host or any later one.
