@@ -1,22 +1,423 @@
 # EndeavourOS Discovery
 
-Discovery, the EndeavourOS wiki, rebuilt as a static site with
-[Starlight](https://starlight.astro.build) on [Astro](https://astro.build) — no runtime, no
-database, no admin panel, nothing writable in the webroot.
+Discovery is the EndeavourOS wiki.
+It is static HTML built from this repository with Starlight on Astro.
+It is live at `https://discovery.endeavouros.com`.
 
-The wiki is live at `discovery.endeavouros.com`, confirmed on 2026-10-04 serving release
-`v2026.09.20` unchanged. It holds 93 of Discovery's 102 published articles; "What is not
-here" below names the nine that were left out and why. The preview at
-`https://eos-wiki.sradjoker.cc` — unlisted, serving `noindex` — is still where a change is
-reviewed before it is released. "After launch" at the end lists what the server still lacks.
+Starlight is the documentation theme. Astro is the static site generator: it turns the source
+files in this repository into the HTML files that nginx serves.
 
-Three tasks cover most of what people come here for:
+## How a change reaches the server
 
-- Adding or re-importing an article — see "Converting an article".
-- Building the site on your own machine — see "Building".
-- Putting it in front of the team — see "Deploying to the preview host".
+The source in this repository is the input. The path to production is: edit here -> commit ->
+push -> push a `v*` tag -> CI builds -> Release asset -> server.
 
-## Layout
+A commit is a saved set of changes with a message. A push sends your commits to GitHub. A tag
+is a named bookmark on a commit; pushing one is what starts the build. CI is the automated
+GitHub Actions work that checks and builds the site.
+
+CI attaches one file to a GitHub Release:
+`eos-wiki-<tag>-<short sha>.tar.gz`, for example
+`eos-wiki-v2026.10.20-a1b2c3d.tar.gz`. You download that file and unpack it into the webroot.
+
+The tarball is output, never input. Nobody runs it, edits it, repacks it, or makes one by hand.
+No contributor builds locally to publish; CI builds from the source in git. The development
+server is only for looking at changes on your own machine.
+
+## Set up your machine, once
+
+These instructions are for EndeavourOS. Python 3.11 or newer is already installed there, and
+the `make` targets use it.
+
+Start in your home directory.
+
+    cd ~
+
+Install git, make, Node.js, npm, and the GitHub command-line tool. Git records changes, `make`
+runs the checks, Node.js runs Astro, npm installs Astro's dependencies, and `gh` talks to GitHub.
+
+    sudo pacman -S --needed git make nodejs npm github-cli
+
+Pacman may ask `Proceed with installation? [Y/n]`; press Enter. Success returns to the prompt
+after `:: Running post-transaction hooks...`, or prints `there is nothing to do` when every
+package is already installed. `--needed` is what skips the ones already present.
+
+Log in to GitHub.
+
+    gh auth login
+
+Choose `GitHub.com`, choose `HTTPS`, answer `Y` to `Authenticate Git with your GitHub
+credentials?`, and choose to log in with a web browser. Success ends
+with `✓ Logged in as` followed by your GitHub user name. This also stores the credentials
+that `git push` needs.
+
+Tell git who you are once, because a commit records an author and the first commit otherwise
+stops with `Author identity unknown`.
+
+    git config --global user.name "Your Name"
+    git config --global user.email "you@example.com"
+
+Use the name and email address of your GitHub account. Success prints nothing.
+
+Download the repository.
+
+    gh repo clone endeavouros-team/discovery.endeavouros.com
+
+Success prints `Cloning into 'discovery.endeavouros.com'...` and returns to the prompt without an
+error. The files are now in `~/discovery.endeavouros.com/`.
+
+Enter the Astro directory.
+
+    cd ~/discovery.endeavouros.com/astro
+
+Install the exact dependency versions recorded in the lockfile.
+
+    npm ci
+
+Success includes a line like `added 433 packages, and audited 434 packages in 2s`; the counts and
+seconds vary. A vulnerabilities notice follows and suggests `npm audit fix`. That notice is
+expected and must be ignored: `npm audit fix` would rewrite the lockfile that the build audits.
+Use `npm ci`, not `npm install`, because `npm ci` installs exactly what the committed lockfile
+pins.
+
+On another distribution, install git, GitHub CLI, Python 3.11 or newer, Node 22.12 or newer,
+and npm with that distribution's package manager. `astro/.nvmrc` names Node 22 for nvm
+users; nvm is not required.
+
+## See the wiki on your machine
+
+Enter the repository root before updating it.
+
+    cd ~/discovery.endeavouros.com
+
+Download the latest commits.
+
+    git pull
+
+Success either lists updated files or ends with `Already up to date.`
+
+If the list of updated files includes `astro/package-lock.json`, run `npm ci` again from
+`~/discovery.endeavouros.com/astro` before starting the server.
+
+Enter the Astro directory.
+
+    cd ~/discovery.endeavouros.com/astro
+
+Start the development server.
+
+    npm run dev
+
+Success prints a banner containing `┃ Local    http://localhost:4321/` and ending with
+`watching for file changes...`. Open the Local URL in a browser. Saving a source file reloads
+the page. The terminal stays busy until you press Ctrl-C to stop the server.
+
+The server keeps this terminal busy. Open a second terminal for the commands below; it starts in
+your home directory, so begin with the `cd` line each section gives.
+
+Search shows a notice instead of results in the development server; it only works in a built
+site, which CI makes.
+
+## Everyday tasks
+
+File paths in this section are relative to the repository root,
+`~/discovery.endeavouros.com`.
+
+### Edit an article
+
+Articles are `.mdx` files under `astro/src/content/docs/`. MDX is Markdown that may also use
+Astro components. The filename becomes the article's address: for example,
+`astro/src/content/docs/pacman-basic-commands.mdx` is served at
+`http://localhost:4321/pacman-basic-commands/`.
+
+Front matter is the block between the `---` lines at the top of an article. Starlight requires
+`title`, and every article here carries both `title` and `description`:
+
+    ---
+    title: Pacman basic commands
+    description: The commands used for everyday package management.
+    ---
+
+The description appears in search results and link previews, so it is not decoration. Code
+fences take a language such as `bash` or `ini`; the language controls syntax highlighting and
+the copy button.
+
+Ordinary Markdown covers headings, emphasis, lists, and links:
+
+    ## Install packages
+    Run **the update** first.
+    - Install the package.
+    Read the [pacman documentation](https://wiki.archlinux.org/title/Pacman).
+
+Put an image in `astro/src/assets/articles/<slug>/`, creating that directory with the article's
+filename without `.mdx`. For `pacman-basic-commands.mdx`, the worked directory is
+`astro/src/assets/articles/pacman-basic-commands/`. Reference
+`astro/src/assets/articles/<slug>/picture.png` from the article as
+`![what the picture shows](../../assets/articles/<slug>/picture.png)`; the worked reference is
+`![the pacman terminal](../../assets/articles/pacman-basic-commands/picture.png)`.
+
+Two pages are written by hand and no import touches them: `index.mdx`, the landing page, and
+`article-removed.mdx`, which the retired WordPress URLs use. Edit them like any other file.
+
+Keep the development server running while you edit. Save the file and check the article's own
+address, for example `http://localhost:4321/pacman-basic-commands/`.
+
+### Add an article
+
+`my-new-article` is a placeholder. The filename becomes the address, so use lowercase words
+joined by hyphens.
+
+1. Write `astro/src/content/docs/my-new-article.mdx`. If the article is in the WordPress export,
+   use the importer covered in "Converting an article" under Reference. Give the file `title`,
+   `description`, and `lastUpdated: 2026-10-20` if you know when the content was last revised.
+2. Add its slug to the group where it belongs in `astro/sidebar.json`. That file is hand-authored;
+   the importer checks it but never writes it. The surrounding JSON has this shape:
+
+       "items": [
+         { "slug": "an-existing-article" },
+         { "slug": "my-new-article" }
+       ]
+
+3. Run the content check from the repository root. First enter that directory.
+
+       cd ~/discovery.endeavouros.com
+
+   Then run the check.
+
+       make check
+
+   Success ends with `0 errors`, `0 warnings`, and `0 hints`.
+
+A slug in `astro/sidebar.json` that has no article fails the build with a message that ends
+in `specified in the Starlight sidebar config does not exist`, in the development server and
+in CI, so a typo cannot reach the site. The reverse is not caught by
+anything: an article missing from `astro/sidebar.json` is in nobody's navigation, although it is
+still built and reachable by its URL and by search. Check the sidebar in the browser.
+
+## Publish
+
+You need push access to the repository; everyone on the website team has it. Anyone else opens a
+pull request instead, see `CONTRIBUTING.md`.
+
+Enter the repository root.
+
+    cd ~/discovery.endeavouros.com
+
+Optionally run the same checks CI runs before sending the change. They take about a minute and
+save a round trip when something is wrong; CI runs them anyway.
+
+    make verify
+    make links
+
+Both commands return to the prompt without an error when the checks pass.
+
+Review the changed files.
+
+    git status
+
+Success shows the changed files.
+
+Stage everything that `git status` listed.
+
+    git add -A
+
+This stages every file `git status` listed. If `git status` listed a file you did not mean to
+change, unstage it and look at it before going on.
+
+    git restore --staged <path>
+
+Replace `<path>` with the path that `git status` printed, for example
+`astro/src/content/docs/index.mdx`. Success prints nothing. A second `git status`
+shows the intended files under `Changes to be committed`.
+
+Save the staged change as a commit. Subjects use lowercase `area: summary` form and imperative
+mood.
+
+    git commit -m "wiki: clarify pacman commands"
+
+Replace the example message with one that describes your change.
+
+Success starts with a line such as `[main a1b2c3d] wiki: clarify pacman commands`.
+
+Send the commit to GitHub.
+
+    git push
+
+Success ends with a line containing `main -> main`.
+
+Open the
+[Actions tab](https://github.com/endeavouros-team/discovery.endeavouros.com/actions). The run for
+your commit is the top row that carries your commit message. Wait for its `Check` run to show a
+green tick. A red cross means the change is not ready to release; open the failed step and fix it
+before continuing.
+
+The
+[Releases page](https://github.com/endeavouros-team/discovery.endeavouros.com/releases) shows the
+tags already used. A tag can also exist without a Release when its build failed, so check
+your copy as well, from `~/discovery.endeavouros.com`:
+
+    git tag -l v2026.10.20
+
+Output means the tag exists; append `.1`. No output means it is free. The commands below use
+`v2026.10.20` as an example; use your tag, not the example, in every command that follows.
+
+Create an annotated tag for the release. Tags use `vYYYY.MM.DD`, for example `v2026.10.20`.
+Append `.1`, `.2`, and so on for another release on the same day.
+
+    git tag -a v2026.10.20 -m "release v2026.10.20"
+
+Success prints nothing.
+
+Push the tag to start the release build.
+
+    git push origin v2026.10.20
+
+Success ends with `[new tag] v2026.10.20 -> v2026.10.20`.
+
+Return to the Actions tab and wait for the `Build wiki` run to show a green tick. Then return to
+the Releases page. Release `v2026.10.20` must contain an asset named like
+`eos-wiki-v2026.10.20-a1b2c3d.tar.gz`, where `a1b2c3d` is the short commit ID.
+
+Download the release asset.
+
+    gh release download v2026.10.20 -p '*.tar.gz' -D ~/Downloads
+
+Success leaves the `.tar.gz` asset in `~/Downloads`.
+
+Copy it the way you already reach the server. This example uses `scp`; replace `you` and `server`
+with your server user and host.
+
+    scp ~/Downloads/eos-wiki-v2026.10.20-*.tar.gz you@server:
+
+Success returns to the prompt without an error and puts the tarball in that user's home directory
+on the server.
+
+On the production server, work from that home directory. The path
+`/var/www/discovery.endeavouros.com/` is the webroot named in
+`deploy/nginx-production.conf` and must match the host.
+
+Create a fresh directory and unpack the release there. `tar` adds and replaces files but never
+removes old ones, so the fresh directory keeps the webroot holding this release and nothing else.
+
+    sudo rm -rf /var/www/discovery.endeavouros.com.new
+    sudo mkdir /var/www/discovery.endeavouros.com.new
+    sudo tar -xzf eos-wiki-v2026.10.20-*.tar.gz -C /var/www/discovery.endeavouros.com.new/
+    sudo chown -R root:root /var/www/discovery.endeavouros.com.new
+    sudo mv /var/www/discovery.endeavouros.com /var/www/discovery.endeavouros.com.old
+    sudo mv /var/www/discovery.endeavouros.com.new /var/www/discovery.endeavouros.com
+
+Success prints nothing and places `index.html`, `robots.txt`, and the built site under the
+webroot. The webroot must be owned by root or a dedicated deploy user and must not be writable by
+the nginx user.
+
+The release tarball contains the site, not the nginx files under `deploy/`. Keep the production
+nginx configuration, CSP snippet, and redirect map from the same tag installed as described in
+"Nginx configuration and deployment verification" under Reference.
+
+Test and reload nginx.
+
+    sudo nginx -t && sudo systemctl reload nginx
+
+Success includes `syntax is ok` and `test is successful`; the reload command then prints no
+error.
+
+The checks below run from any directory on any machine. Set the address they use.
+
+    base=https://discovery.endeavouros.com
+
+Success prints nothing. The following commands use `base` for the live wiki address.
+
+Check the root page.
+
+    curl -sS -D - -o /dev/null "$base/"
+
+It must return `200` with the seven security headers named in the Reference section and no
+`X-Robots-Tag`.
+
+Check both forms of an old firewalld address.
+
+    curl -sS -D - -o /dev/null "$base/applications/firewalld/2022/03/"
+
+    curl -sS -D - -o /dev/null "$base/applications/firewalld/2022/03?utm_source=deploy-check"
+
+Each must return `301` to `/firewalld/`.
+
+Check a retired article.
+
+    curl -sS -D - -o /dev/null "$base/video-tutorials/back-up/2021/04/"
+
+It must return `301` to `/article-removed/`.
+
+Find one built asset.
+
+    asset=$(curl -fsS "$base/" | grep -o '/_astro/[^"]*' | head -1)
+    echo "$asset"
+
+The second command must print a path starting `/_astro/`; an empty line means the first command
+did not get the page.
+
+Check that asset.
+
+    curl -sS -D - -o /dev/null "$base$asset"
+
+It must return `200`, the seven security headers, and
+`Cache-Control: public, max-age=31536000, immutable`.
+
+Check the crawler instructions.
+
+    curl -fsS "$base/robots.txt"
+
+It must allow `/` and name the sitemap.
+
+Finally open the page you changed on the live site, for example
+`https://discovery.endeavouros.com/pacman-basic-commands/`, and confirm the change is there.
+
+After every check passes, remove the old webroot from the production server.
+
+    sudo rm -rf /var/www/discovery.endeavouros.com.old
+
+Success prints nothing.
+
+## When something goes wrong
+
+- `gh` is not found: repeat the pacman install step. `github-cli` provides it.
+- `gh` says you are not authenticated: repeat the GitHub login step and choose GitHub.com,
+  HTTPS, and web-browser login.
+- The dependency install reports an unsupported engine: install Node 22.12 or newer, then repeat
+  the install from `~/discovery.endeavouros.com/astro`.
+- The development server says port 4321 is in use: stop the earlier server with Ctrl-C, then
+  start it again from `~/discovery.endeavouros.com/astro`.
+- The browser cannot reach `localhost:4321` after `npm run dev`: read the terminal. An article
+  with a bad front-matter field stops the server before it listens. Fix the field and start
+  the server again.
+- `make check` prints `[InvalidContentEntryDataError] docs → <slug> data does not match
+  collection schema. title: Required`: the named article has no `title` line in its front
+  matter. Add it and run the check again.
+- CI's "literal emphasis markers" step fails: a `**` in an article is not closed, usually a
+  space before the closing one as in `**text **`. The step names the page.
+- A push is rejected because the remote changed: pull from `~/discovery.endeavouros.com`, resolve
+  any reported conflict, run the checks again, and push.
+- `Check` has a red cross: open the failed Actions step. Do not create a tag until `Check` has a
+  green tick.
+- No `Build wiki` run starts: confirm that the tag begins with `v` and that the tag push
+  succeeded.
+- `Build wiki` fails or the Release has no `.tar.gz` asset: open the failed Actions step. Do not
+  build or repack the tarball locally.
+- `Build wiki` failed after a CI or server fix and the tag is already pushed: rebuild it without a
+  new tag, see "Cutting and rebuilding a release" under Reference.
+- An article builds but is absent from the sidebar: add its slug to the right group in
+  `astro/sidebar.json`.
+- The content check fails: read "Building" under Reference and fix the diagnostics it prints.
+- CI's CSP snippet step fails: read "The content security policy" under Reference. Commit the
+  generated snippet; never edit it by hand.
+- CI's redirect map step fails: read "What CI does" and "Converting an article" under Reference.
+  The export is required to regenerate the map, and the committed map is checked without it.
+
+## Reference
+
+The built wiki has no runtime, database or admin panel, and nothing in the webroot is writable by
+nginx. The sections below keep the importer, build, preview, release and server details together.
+
+### Layout
 
 - `astro/` — the Starlight site: the articles under `src/content/docs/`, their images under
   `src/assets/articles/<slug>/`, the site configuration in `astro.config.mjs`, the
@@ -40,7 +441,7 @@ means a fix made in either repository has to be applied to the other by hand.
 
 Operational notes for the preview host are kept outside this repository.
 
-## Converting an article
+### Converting an article
 
     make convert                                  # every published article
     make convert SLUGS="gaming-101 i3-wm"         # only these
@@ -137,7 +538,7 @@ Known gaps, from the last full run:
   A paragraph's id and a renamed slug are the two things a WordPress export knows that the
   first pass through it did not read.
 
-### What is not here
+#### What is not here
 
 Nine of the export's 102 published articles are deliberately not converted, and two more
 that were never public left text behind in articles that are. Removing an article is
@@ -192,7 +593,7 @@ one article, so there is no target to derive for them — sending `/category/arm
 of its eight articles would be a choice, not a redirect. Nobody has made that choice yet.
 Do not link to a category URL from anywhere, the main site included.
 
-## The sidebar
+### The sidebar
 
 `astro/sidebar.json` is hand-authored and nothing generates it. It is Joe Kamprad's menu
 plan of 2026-09-07: nine sections — Getting Started, Hardware, Desktops, Software &
@@ -211,12 +612,12 @@ The home page's "Start here" grid is the other hand-picked list: six `LinkCard`s
 `astro/src/content/docs/index.mdx`, nothing derived from traffic or dates, and a comment in
 the file saying so. Changing which six is editing that file.
 
-## Building
+### Building
 
 Node 22.12 or later and the dependencies, once per checkout. `astro/.nvmrc` pins the version
-and the lockfile is committed:
+for nvm users (`nvm use` first, if you use it) and the lockfile is committed:
 
-    (cd astro && nvm use && npm ci)
+    (cd astro && npm ci)
 
 `npm ci` rather than `npm install`: it installs exactly what the lockfile pins. `npm run
 build` then runs three things in order — `astro/scripts/audit-lock.mjs`, the Astro build,
@@ -243,7 +644,7 @@ Then:
 `make links` and `make emphasis` need a build to check against. Everything under
 `astro/dist/` is gitignored, so a clean checkout and `make build-astro` reproduces it.
 
-## The content security policy
+### The content security policy
 
 `deploy/nginx-csp.conf` is generated, committed, and the one file here you must not edit by
 hand. `astro/scripts/gen-csp.mjs` walks the built `astro/dist/`, hashes every inline script
@@ -273,12 +674,12 @@ verify` and CI both fail on the diff until the regenerated file is committed. Th
 point: the preview host cannot be handed a policy that blocks scripts the pages actually
 load.
 
-## Deploying to the preview host
+### Deploying to the preview host
 
-The preview is where this is reviewed, and it is separate from the production deploy in the
-next section: an always-on host, so reviewing this needs a link rather than a VPN invitation
-and a laptop that has to stay awake. It serves `noindex` and nothing here ships anywhere
-else.
+The preview is at `https://eos-wiki.sradjoker.cc`. It is unlisted and serves `noindex`. It is
+separate from the production release and deploy sections below: an always-on host, so reviewing
+this needs a link rather than a VPN invitation and a laptop that has to stay awake. Nothing here
+ships anywhere else.
 
     make deploy-preview
 
@@ -305,14 +706,14 @@ The public hostname is served through a Cloudflare Tunnel already running on tha
 other services. Its route is managed in the dashboard and is not scriptable from here, so if
 the URL 404s or hangs after a deploy, that is where to look.
 
-## Deploying to production
+### Cutting and rebuilding a release
 
 The build does not happen on the server, and the server needs no toolchain — no runtime, no
 interpreter, no build step, which is the whole point of replacing the WordPress install
 rather than repairing it. CI builds the wiki and attaches a tarball to a GitHub Release; the
 deploy is downloading that and unpacking it into the webroot.
 
-### 1. Cut a release
+#### Cut a release
 
 Tags are `vYYYY.MM.DD`, the day of the release, with `.1`, `.2` and so on appended for a
 further release on the same day:
@@ -337,16 +738,21 @@ To rebuild a tag that already exists — a CI fix, or a run that failed halfway 
 *Build wiki* workflow by hand (Actions → Build wiki → Run workflow) and give it the tag name.
 It checks that tag out, builds it, and replaces the asset on that release.
 
-### 2. Get the tarball
+### Nginx configuration and deployment verification
+
+#### Get the tarball
 
     gh release download v2026.09.20 --repo endeavouros-team/discovery.endeavouros.com
 
 Or from the Releases page. The filename carries the tag and the short commit it was built
 from — `eos-wiki-<tag>-<short sha>.tar.gz`.
 
-### 3. Put it on the server
+#### Put it on the server
 
-    tar -xzf eos-wiki-v2026.09.20-*.tar.gz -C /var/www/discovery.endeavouros.com/
+Into a fresh directory, then swap it into place; the swap sequence is under "Publish" above.
+The one-line form is only for a directory that is still empty:
+
+    sudo tar -xzf eos-wiki-v2026.09.20-*.tar.gz -C /var/www/discovery.endeavouros.com.new/
 
 `tar -xzf` adds and replaces files but never removes one, so use it only into an empty
 directory, or a fresh one that is then swapped into place. Otherwise a page removed between
@@ -361,7 +767,7 @@ writable by the user nginx runs as — through ownership, group or ACL. "Nothing
 the webroot" is a promise the first paragraph makes and only the deploy can keep: nothing
 in the tarball or in the nginx config enforces it.
 
-### 4. Install the nginx config
+#### Install the nginx config
 
 The release tarball contains only `astro/dist`, not the three files under `deploy/`. Take
 `deploy/nginx-production.conf`, `deploy/nginx-csp.conf`, and `deploy/nginx-redirects.conf`
@@ -384,7 +790,7 @@ Then the usual:
 
     sudo nginx -t && sudo systemctl reload nginx
 
-### 5. Verify the deploy
+#### Verify the deploy
 
     base=https://discovery.endeavouros.com
     curl -sS -D - -o /dev/null "$base/"
@@ -409,7 +815,7 @@ Expected results:
 The asset is checked separately because nginx's `add_header` in a location replaces the
 inherited header set.
 
-## What CI does
+### What CI does
 
 `.github/workflows/check.yml` runs on every push to `main` and every pull request: `npm ci`,
 `npm run build`, `make links`, `make check`, then `git diff --exit-code
@@ -419,14 +825,17 @@ because the export it is generated from is not on the runner, so CI also runs
 `scripts/gen-redirects.py --check`: no key appears twice and every target is an article
 that exists. What it cannot see is a permalink deleted from the committed map — the
 remaining lines all still resolve. It publishes nothing. `.github/workflows/build.yml` is
-the one that publishes, and a `v*` tag or a manual dispatch starts it — see "Deploying to
-production".
+the one that publishes, and a `v*` tag or a manual dispatch starts it — see "Cutting and
+rebuilding a release".
 
 It is also what makes the wiki editable by people who do not run the toolchain. An article
 is a Markdown file that can be edited in the GitHub web UI, and that only holds if something
 builds and link-checks the result on their behalf.
 
-## After launch
+### After launch
+
+The wiki was confirmed on 2026-10-04 serving release `v2026.09.20` unchanged. It holds 93 of
+Discovery's 102 published articles; "What is not here" names the nine that were left out and why.
 
 What launch needed from this repository is in it: `astro/src/pages/robots.txt.ts` writes a
 `robots.txt` that names Starlight's `sitemap-index.xml` once `PUBLIC_INDEXABLE` is set,

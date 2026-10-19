@@ -1,15 +1,16 @@
 # Contributing
 
-A change gets in through a pull request against `main`. CI
-(`.github/workflows/check.yml`) runs on the pull request, and a maintainer
-merges it. Merging publishes nothing. The production host is updated only from
-a release cut by a `v*` tag (see README), and the preview host is updated by
-hand with `make deploy-preview`.
+Website team members push changes to `main` as the README's "Publish" section
+describes. Anyone else opens a pull request against `main`; CI
+(`.github/workflows/check.yml`) checks it and a maintainer merges it. A push or
+merge publishes nothing. The production host is updated only from a release
+cut by a `v*` tag, and the preview host is updated by hand with
+`make deploy-preview`.
 
 ## Editing an article
 
-Articles are `.mdx` files under `astro/src/content/docs/`. Starlight needs two
-frontmatter fields, `title` and `description`; the description is what search
+Articles are `.mdx` files under `astro/src/content/docs/`. Starlight requires
+`title`; every article here also carries `description`, because it is what search
 results and link previews show, so it is not decoration. Code fences take a
 language — `bash` and `ini` are what the importer infers — which is what the
 highlighting and the copy button work from.
