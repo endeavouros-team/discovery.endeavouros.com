@@ -117,18 +117,31 @@ Nvidia install on Discovery
 
 ### Examples
 
-#### Enable **legacy** drivers (older Nvidia cards)
+#### Installing Legacy Drivers from the AUR
 
-Older Nvidia cards like GT 700 or GT 10xx series are not supported by the latest Nvidia driver available from the official Arch repositories. For those cards, there are alternatives:
-
-- the `nouveau` open source kernel driver
-- a legacy Nvidia driver from the `AUR` (for example, `nvidia-580xx-dkms` for Maxwell, Pascal, and Volta family GPUs)
-
-For the older, Nvidia GPUs `nvidia-inst` supports the **nouveau** driver (option `-n`).  
-If legacy Nvidia drivers from the AUR are needed, the user can install them from the AUR, using e.g. `yay`. Then install them manually.
+If legacy Nvidia drivers are needed, they can be installed manually using an AUR helper such as yay.
 
 Example:
 
 `yay -S nvidia-580xx-dkms`
 
-After rebooting, the drivers should be active. You will get driver updates as expected using pacman or yay.
+## Configuring Dracut Early KMS
+
+Check if the dracut configuration file /etc/dracut.conf.d/eos_nvidia_580xx.conf exists and includes the required modules for early KMS. If necessary, create or update the configuration file to include:
+Plaintext
+
+`force_drivers+=" nvidia nvidia_modeset nvidia_uvm nvidia_drm "`
+
+## Rebuilding Kernel Images
+
+After installing the driver package and verifying the dracut configuration, you must rebuild the kernel images before rebooting.
+
+**For systemd-boot installations:**
+
+    `sudo reinstall-kernels`
+
+**For GRUB bootloader installations:**
+
+    `sudo dracut-rebuild`
+
+After rebooting, the drivers should be active. You will receive driver updates as expected using pacman or yay.
