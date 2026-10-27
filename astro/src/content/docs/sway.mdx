@@ -1,7 +1,7 @@
 ---
 title: "Sway"
 description: "Sway is a tiling Wayland compositor and a drop-in replacement for the i3 window manager for X11. It works with your existing i3 configuration and supports..."
-lastUpdated: 2022-01-10
+lastUpdated: 2026-10-27
 ---
 
 import { Image } from "astro:assets";
@@ -9,63 +9,81 @@ import cover from "../../assets/articles/sway/sway.png";
 
 <Image src={cover} alt="" class="cover" loading="eager" width={853} />
 
-Sway is a tiling Wayland compositor and a drop-in replacement for the i3 window manager for X11. It works with your existing i3 configuration and supports most of i3's features, plus a few extras.
-
+Sway setuo for EndeavourOS
 ---
 
-## About community edition
+The [`endeavouros-sway-setup`](https://github.com/endeavouros-team/endeavouros-sway-setup) repository contains the official configuration and framework for the **EndeavourOS Sway Edition**.
 
-↗ **[Github](https://github.com/EndeavourOS-Community-Editions/sway)** | **[Forum](https://forum.endeavouros.com/t/sway-edition-general-conversation/11291)**
+Rather than offering just a bare-bones window manager configuration, this setup is designed to function as a complete, fully usable desktop environment right out of the box—providing a stable, sensible baseline that users can easily tweak, expand, and personalize.
 
-- **Wallpaper:** swaybg
-- **Theme:** lxappearance
-- **File manager:** thunar
-- **Terminal:** xfce4-terminal or termite
-- **Bar:** waybar
+## System Tools and Customization (`eos-sway-tools`)
 
-## Configuration
+The setup integrates scripts from the [`eos-sway-tools`](https://github.com/killajoe/eos-sway-tools) project maintained by `joekamprad (killajoe)`. On an installed system, these scripts and utilities are installed system-wide in `/usr/bin/`.
 
-- Keybindings: `~/.config/sway/cheatsheet`
-- Main config file: `~/.config/sway/config.d/default`
-- Auto-start: `~/.config/sway/config.d/autostart_applications`
-- Bar: `~/.config/waybar/config`
+### Overriding System Scripts
 
-## Keybindings
+Users can easily customize any of these system-wide tools without modifying `/usr/bin/` directly:
 
-```ini
-[mod] key is set to the winkey (or should i call it linkey?)
+1. Copy the target script from `/usr/bin/<script-name>` to `~/.local/bin/<script-name>`.
+2. Modify the file inside `~/.local/bin/`.
+3. Because `~/.local/bin/` takes priority in the standard user `$PATH`, your customized version will override the system-wide binary seamlessly.
 
-    [mod]+Return = open floating terminal (XFCE4-Terminal)
-    [mod]+(Shift)+Return = open fixed terminal (Termite)
-    [mod]+o = open Browser (firefox)
-    [mod]+n = open File Manager (thunar)
-    [mod]+d = app menu (wofi)
-    [mod]+q = close focused app [kill]
-    (Shift)+(Print-Key) = screenshot/bring up screenshot menu
-    [mod]+(Shift)+e = power-menu
-    [mod]+r = resize mode
-    [mod]+(Shift)+(Space) = float window
-        {HOLD DOWN} [mod] = drag floating window
-    [mod]+(Arrow Keys) = switch focus respectively
-    [mod]+(Shift)+(Minus) = send to scratchpad
-    [mod]+(Minus) = cycle through scratchpad
-```
+### Keybinding Helpers
 
-## Display/login manager
+To assist users in navigating Sway shortcuts, the desktop environment provides two complementary helper tools:
 
-Some login managers support Wayland, and others don't. The following are confirmed to work with Sway;
+* **Dynamic Keyhint Tool (`~/.local/bin/keyhint`):** An interactive GUI helper script that parses and displays active Sway keybindings and descriptions.
+* **Simple Keybinding Window:** A static default shortcut overview window that can be opened directly from the right side of the Waybar panel by clicking on the keyboard icon.
 
-[**Ly**](https://github.com/nullgemm/ly): a lightweight TUI (ncurses-like) display manager for Linux and BSD.
+## Session Management & Power Menu
 
-```bash
-yay -S ly
-```
+The power menu integration handles session termination, screen locking, rebooting, and shutting down. To ensure applications, open files, and system states close safely without data loss, the power menu utilizes `gracefully_exit`. This tool ensures running processes receive clean termination signals before ending the Sway session or powering down the system.
 
-[**greetd**](https://git.sr.ht/~kennylevinsen/greetd/): a minimal and flexible login manager daemon that makes no assumptions about what you want to launch.
+## The Panel (Waybar)
 
-```bash
-yay -S greetd
-```
+The setup features a customized status bar powered by **Waybar**, situated at the bottom of the screen.
 
-> **Documentation:  
+It is organized into distinct functional areas providing real-time system feedback and interactive control points.
+
+### Waybar Modules Overview
+
+![](../../assets/articles/sway/waybar.png)
+
+* **Workspace Indicators:** Displays active and available Sway workspaces.
+* **App-Menu (Rofi):** Quick button to open the Rofi application menu.
+* **System Monitoring:** Live indicators for audio volume, CPU temperature/usage, and RAM utilization.
+* **System Tray:** Hosts tray icons for background applications and system applets.
+* **Power Profiles Switcher:** Direct control to toggle performance, balanced, and power-saver modes.
+* **Waybar Reload:** Quick action button to reload Waybar configurations on the fly.
+* **Notification Tray:** Interactive launcher for SwayNC (Sway Notification Center).
+* **Keybind Hint:** One-click launcher (keyboard icon on the right side) to open the simple default keybinding helper window.
+* **Power Menu:** Triggers session termination actions managed via `gracefully_exit`.
+
+## Used Components & Defaults
+
+* **Application Launcher:** Configured with **Rofi** for main menu pop-ups and run menus.
+* **Notification Daemon:** Utilizes **SwayNC** (Sway Notification Center) for Wayland-native notifications.
+* **Terminal Emulator:** **Foot**, a lightweight and fast Wayland-native terminal.
+* **File Manager:** **Thunar** for graphical file browsing.
+* **Autotiling:** Integrated automatic tiling helpers to alternate window split orientations.
+
+## Setup configs structure
+
+On an installed EndeavourOS Sway system, configuration files and scripts are deployed to standard target user and system paths:
+
+| Installed Path | Purpose / Description |
+| --- | --- |
+| `~/.config/sway/config` | Main user Sway configuration entry point |
+| `~/.config/sway/config.d/` | Modular user configs (inputs, keybindings, autostart rules) |
+| `~/.config/waybar/` | Layout configuration and CSS styles for Waybar |
+| `~/.config/swaync/` | Sway Notification Center settings and theme |
+| `~/.local/bin/` | User-space scripts (e.g., `keyhint`, custom overrides) |
+| `/usr/bin/` | System-wide tools provided by `eos-sway-tools` (including `gracefully_exit`) |
+
+## Resources & Links
+
+* **Repository:** [EndeavourOS Sway Setup on GitHub](https://github.com/endeavouros-team/endeavouros-sway-setup)
+* **Tools Repository:** [eos-sway-tools by joekamprad (killajoe) on GitHub](https://github.com/killajoe/eos-sway-tools)
+
+> **General Documentation:  
 [https://github.com/swaywm/sway/wiki](https://github.com/swaywm/sway/wiki)**
