@@ -1,37 +1,397 @@
 ---
-// A WordPress gallery: the pictures as a grid, each one a link to itself.
-//
-// A grid cell is a few hundred pixels wide and about 358 on a phone, which for
-// screenshots is unreadable -- the text inside them is the content, and the 26
-// installer slides in live-iso-tricks-tips are nothing else. There is no
-// lightbox on this site, so the full-size view is the picture's own file and
-// the anchor is what gets a reader there, in the same tab.
-//
-// getImage() rather than the import's .src, which would ship the 51 .png and
-// .jpg originals beside the optimised build. Asked for the picture with no
-// options it returns the asset the grid is already showing, at its natural
-// size: one file, linked and drawn.
-import { getImage } from "astro:assets";
+/**
+ * Gallery.astro - A lightweight, zero-dependency slide gallery component.
+ * Supports image switching via click, navigation buttons, pagination dots, arrow keys,
+ * and an interactive fullscreen lightbox overlay with toggle zoom on click.
+ */
 
-interface Props { images: ImageMetadata[] }
-const { images } = Astro.props;
+interface Props {
+  images: Array<string | { src: string }>;
+}
 
-const pictures = await Promise.all(images.map((image) => getImage({ src: image })));
+const { images = [] } = Astro.props;
+const imageUrls = images.map(img => typeof img === 'string' ? img : img.src);
 ---
 
-<div class="gallery">
-  {images.map((image, i) => (
-    <a
-      href={pictures[i].src}
-      aria-label={`Open picture ${i + 1} of ${images.length} at full size`}
-    >
-      <img
-        src={pictures[i].src}
-        width={image.width}
-        height={image.height}
-        alt=""
-        loading="lazy"
-      />
-    </a>
-  ))}
-</div>
+{imageUrls.length > 0 && (
+  <div class="mdx-slide-gallery" data-images={JSON.stringify(imageUrls)}>
+    <div class="slide-viewport">
+      <img class="active-image" src={imageUrls[0]} alt="Gallery Slide" />
+
+      <button type="button" class="nav-btn prev-btn" aria-label="Previous slide">&#10094;</button>
+      <button type="button" class="nav-btn next-btn" aria-label="Next slide">&#10095;</button>
+
+      <div class="slide-counter">
+        <span class="current-idx">1</span> / {imageUrls.length}
+      </div>
+    </div>
+
+    <div class="dots-indicator">
+      {imageUrls.map((_, idx) => (
+        <span
+          class={`dot ${idx === 0 ? 'active' : ''}`}
+          data-index={idx}
+          role="button"
+          tabindex="0"
+          aria-label={`Slide ${idx + 1}`}
+        ></span>
+      ))}
+    </div>
+  </div>
+)}
+
+<script>
+  let globalLightbox = document.getElementById('global-mdx-lightbox');
+  let lightboxImg: HTMLImageElement;
+  let lightboxContent: HTMLElement;
+  let currentActiveGallery: HTMLElement | null = null;
+  let activeImages: string[] = [];
+  let currentIndex = 0;
+  let isZoomed = false;
+
+  if (!globalLightbox) {
+    globalLightbox = document.createElement('div');
+    globalLightbox.id = 'global-mdx-lightbox';
+    globalLightbox.className = 'lightbox-overlay';
+    globalLightbox.innerHTML = `
+      <button type="button" class="lightbox-close" aria-label="Close fullscreen">&times;</button>
+      <button type="button" class="lightbox-btn lightbox-prev" aria-label="Previous slide">&#10094;</button>
+      <div class="lightbox-content">
+        <img class="lightbox-image" src="" alt="Fullscreen Gallery Slide" />
+      </div>
+      <button type="button" class="lightbox-btn lightbox-next" aria-label="Next slide">&#10095;</button>
+    `;
+    document.body.appendChild(globalLightbox);
+
+    lightboxImg = globalLightbox.querySelector('.lightbox-image') as HTMLImageElement;
+    lightboxContent = globalLightbox.querySelector('.lightbox-content') as HTMLElement;
+
+    const closeLightbox = () => {
+      globalLightbox?.classList.remove('active');
+      lightboxContent.classList.remove('zoomed');
+      isZoomed = false;
+      document.body.style.overflow = '';
+      currentActiveGallery = null;
+    };
+
+    globalLightbox.querySelector('.lightbox-close')?.addEventListener('click', closeLightbox);
+    globalLightbox.addEventListener('click', (e) => {
+      if (e.target === globalLightbox) closeLightbox();
+    });
+
+    // Zoom toggle on lightbox image click
+    lightboxImg.addEventListener('click', (e) => {
+      e.stopPropagation();
+      isZoomed = !isZoomed;
+      lightboxContent.classList.toggle('zoomed', isZoomed);
+    });
+
+    globalLightbox.querySelector('.lightbox-prev')?.addEventListener('click', (e) => {
+      e.stopPropagation();
+      if (currentActiveGallery) changeGlobalSlide(-1);
+    });
+
+    globalLightbox.querySelector('.lightbox-next')?.addEventListener('click', (e) => {
+      e.stopPropagation();
+      if (currentActiveGallery) changeGlobalSlide(1);
+    });
+
+    window.addEventListener('keydown', (e) => {
+      if (!globalLightbox?.classList.contains('active')) return;
+      if (e.key === 'ArrowRight' && !isZoomed) changeGlobalSlide(1);
+      if (e.key === 'ArrowLeft' && !isZoomed) changeGlobalSlide(-1);
+      if (e.key === 'Escape') {
+        if (isZoomed) {
+          isZoomed = false;
+          lightboxContent.classList.remove('zoomed');
+        } else {
+          closeLightbox();
+        }
+      }
+    });
+  } else {
+    lightboxImg = globalLightbox.querySelector('.lightbox-image') as HTMLImageElement;
+    lightboxContent = globalLightbox.querySelector('.lightbox-content') as HTMLElement;
+  }
+
+  function changeGlobalSlide(direction: number) {
+    if (!currentActiveGallery) return;
+    isZoomed = false;
+    lightboxContent.classList.remove('zoomed');
+    currentIndex = (currentIndex + direction + activeImages.length) % activeImages.length;
+    lightboxImg.src = activeImages[currentIndex];
+
+    const imgElement = currentActiveGallery.querySelector('.active-image') as HTMLImageElement;
+    const counter = currentActiveGallery.querySelector('.current-idx');
+    const dots = currentActiveGallery.querySelectorAll('.dot');
+
+    if (imgElement) imgElement.src = activeImages[currentIndex];
+    if (counter) counter.textContent = String(currentIndex + 1);
+    dots.forEach((dot, i) => {
+      dot.classList.toggle('active', i === currentIndex);
+    });
+  }
+
+  document.querySelectorAll('.mdx-slide-gallery').forEach((gallery) => {
+    const imgElement = gallery.querySelector('.active-image') as HTMLImageElement;
+    const prevBtn = gallery.querySelector('.prev-btn');
+    const nextBtn = gallery.querySelector('.next-btn');
+    const counter = gallery.querySelector('.current-idx');
+    const dots = gallery.querySelectorAll('.dot');
+
+    const imagesAttr = gallery.getAttribute('data-images');
+    const images: string[] = imagesAttr ? JSON.parse(imagesAttr) : [];
+
+    let localIndex = 0;
+
+    function updateGallery(index: number) {
+      if (index < 0) index = images.length - 1;
+      if (index >= images.length) index = 0;
+      localIndex = index;
+
+      if (images[localIndex]) {
+        imgElement.src = images[localIndex];
+      }
+
+      if (counter) counter.textContent = String(localIndex + 1);
+
+      dots.forEach((dot, i) => {
+        dot.classList.toggle('active', i === localIndex);
+      });
+    }
+
+    imgElement?.addEventListener('click', () => {
+      currentActiveGallery = gallery as HTMLElement;
+      activeImages = images;
+      currentIndex = localIndex;
+      if (images[currentIndex]) {
+        lightboxImg.src = images[currentIndex];
+      }
+      globalLightbox?.classList.add('active');
+      document.body.style.overflow = 'hidden';
+    });
+
+    prevBtn?.addEventListener('click', (e) => {
+      e.stopPropagation();
+      updateGallery(localIndex - 1);
+    });
+
+    nextBtn?.addEventListener('click', (e) => {
+      e.stopPropagation();
+      updateGallery(localIndex + 1);
+    });
+
+    dots.forEach((dot, i) => {
+      dot.addEventListener('click', (e) => {
+        e.stopPropagation();
+        updateGallery(i);
+        localIndex = i;
+      });
+    });
+
+    window.addEventListener('keydown', (e) => {
+      const rect = gallery.getBoundingClientRect();
+      const isVisible = rect.top >= 0 && rect.bottom <= window.innerHeight;
+
+      if (isVisible && !globalLightbox?.classList.contains('active')) {
+        if (e.key === 'ArrowRight') updateGallery(localIndex + 1);
+        if (e.key === 'ArrowLeft') updateGallery(localIndex - 1);
+      }
+    });
+  });
+</script>
+
+<style>
+  .mdx-slide-gallery {
+    max-width: 720px;
+    margin: 1.5rem auto;
+    user-select: none;
+  }
+
+  .slide-viewport {
+    position: relative;
+    background-color: var(--sl-color-gray-6, #111);
+    border: 1px solid var(--sl-color-gray-5, #333);
+    border-radius: 8px;
+    overflow: hidden;
+    cursor: zoom-in;
+    aspect-ratio: 16 / 9;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 16px;
+  }
+
+  .active-image {
+    max-width: 100%;
+    max-height: 100%;
+    object-fit: contain;
+    display: block;
+  }
+
+  .nav-btn {
+    position: absolute;
+    top: 50%;
+    transform: translateY(-50%);
+    background: rgba(0, 0, 0, 0.6);
+    color: #fff;
+    border: none;
+    width: 38px;
+    height: 38px;
+    border-radius: 50%;
+    cursor: pointer;
+    font-size: 1.1rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: background-color 0.2s ease;
+    z-index: 5;
+  }
+
+  .nav-btn:hover {
+    background: rgba(0, 0, 0, 0.85);
+  }
+
+  .prev-btn { left: 12px; }
+  .next-btn { right: 12px; }
+
+  .slide-counter {
+    position: absolute;
+    bottom: 10px;
+    right: 12px;
+    background: rgba(0, 0, 0, 0.7);
+    color: #fff;
+    padding: 2px 8px;
+    border-radius: 4px;
+    font-size: 0.8rem;
+    font-family: monospace;
+    z-index: 5;
+  }
+
+  .dots-indicator {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 10px;
+    margin-top: 12px;
+    height: 12px;
+  }
+
+  .dot {
+    width: 10px;
+    height: 10px;
+    border-radius: 50%;
+    background-color: var(--sl-color-gray-4, #666);
+    cursor: pointer;
+    display: inline-block;
+    transition: background-color 0.2s ease, transform 0.2s ease;
+  }
+
+  .dot.active {
+    background-color: var(--sl-color-accent, #7f52ff);
+    transform: scale(1.3);
+  }
+</style>
+
+<style is:global>
+  .lightbox-overlay {
+    position: fixed;
+    inset: 0;
+    background-color: rgba(0, 0, 0, 0.85);
+    z-index: 99999;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 0.25s ease;
+  }
+
+  .lightbox-overlay.active {
+    opacity: 1;
+    pointer-events: auto;
+  }
+
+  .lightbox-content {
+    position: relative;
+    width: 90vw;
+    height: 85vh;
+    background-color: var(--sl-color-gray-6, #111);
+    border: 2px solid var(--sl-color-gray-5, #444);
+    border-radius: 10px;
+    overflow: hidden;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
+    padding: 24px;
+  }
+
+  .lightbox-image {
+    max-width: 100%;
+    max-height: 100%;
+    object-fit: contain;
+    display: block;
+    cursor: zoom-in;
+    transition: transform 0.3s ease;
+  }
+
+  .lightbox-content.zoomed .lightbox-image {
+    transform: scale(1.75);
+    cursor: grab;
+  }
+
+  .lightbox-content.zoomed .lightbox-image:active {
+    cursor: grabbing;
+  }
+
+  .lightbox-btn {
+    position: absolute;
+    top: 50%;
+    transform: translateY(-50%);
+    background: rgba(0, 0, 0, 0.7);
+    color: #fff;
+    border: none;
+    width: 48px;
+    height: 48px;
+    border-radius: 50%;
+    cursor: pointer;
+    font-size: 1.4rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 100000;
+    transition: background-color 0.2s ease;
+  }
+
+  .lightbox-btn:hover {
+    background: rgba(0, 0, 0, 0.9);
+  }
+
+  .lightbox-prev { left: 24px; }
+  .lightbox-next { right: 24px; }
+
+  .lightbox-close {
+    position: absolute;
+    top: 20px;
+    right: 24px;
+    background: rgba(0, 0, 0, 0.7);
+    color: #fff;
+    border: none;
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    cursor: pointer;
+    font-size: 1.8rem;
+    line-height: 1;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 100000;
+    transition: background-color 0.2s ease;
+  }
+
+  .lightbox-close:hover {
+    background: rgba(255, 0, 0, 0.7);
+  }
+</style>
